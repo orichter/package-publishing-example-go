@@ -1,0 +1,55 @@
+#/bin/bash
+
+export TERM=xterm-256color
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+NC='\033[0m' # No Color
+RESET=$(tput sgr0)${NC}
+ERR=$(tput setaf 1)${RED}
+PASS=$(tput setaf 2)${GREEN}
+WARN=$(tput setaf 3)
+INFO=$(tput setaf 4)
+#0    black     COLOR_BLACK     0,0,0
+#1    red       COLOR_RED       1,0,0
+#2    green     COLOR_GREEN     0,1,0
+#3    yellow    COLOR_YELLOW    1,1,0
+#4    blue      COLOR_BLUE      0,0,1
+#5    magenta   COLOR_MAGENTA   1,0,1
+#6    cyan      COLOR_CYAN      0,1,1
+#7    white     COLOR_WHITE     1,1,1
+
+function ERROR {
+  ERR_MSG=$1
+  # shellcheck disable=SC2059
+  printf "${ERR}"
+  printf "%s\n" "${ERR_MSG}"
+  # shellcheck disable=SC2059
+  printf "${RESET}" | sed 's/(B//'
+}
+
+function PASS {
+  PASS_MSG=$1
+  # shellcheck disable=SC2059
+  printf "${PASS}"
+  printf "%s\n" "${PASS_MSG}"
+  # shellcheck disable=SC2059
+  printf "${RESET}" | sed 's/(B//'
+}
+
+function INFO {
+  INFO_MSG=$1
+  # shellcheck disable=SC2059
+  printf "${INFO}"
+  printf "%s\n" "${INFO_MSG}"
+  # shellcheck disable=SC2059
+  printf "${RESET}" | sed 's/(B//'
+}
+
+function WARN {
+  WARN_MSG=$1
+  # shellcheck disable=SC2059
+  printf "${WARN}"
+  printf "%s\n" "${WARN_MSG}"
+  # shellcheck disable=SC2059
+  printf "${RESET}" | sed 's/(B//'
+}

@@ -98,7 +98,8 @@ dev_deploy_config: &dev_deploy_config
       services/deploy/manage-package-deployments.sh dev
     environment:
       BRANCH_FILTER: /^(?!main.*$).*/
-      FORCE_DEPLOYMENT_TAG: 16.7.0-SNAPSHOT
+      #FORCE_DEPLOYMENT_TAG: 16.7.0-SNAPSHOT
+      FORCE_DEPLOYMENT_TAG: 16.7.0
 test_deploy_config: &test_deploy_config
   run:
     name: Configure Test Deployment
