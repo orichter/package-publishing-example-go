@@ -183,7 +183,7 @@ jobs:
       #- <<: *deploy_golang_verify
       #- <<: *deploy_maven
       #- <<: *deploy_maven_verify
-      #- <<: *deploy_npm
+      - <<: *deploy_npm
       #- <<: *deploy_python
 
   test_build:
