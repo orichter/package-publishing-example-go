@@ -148,6 +148,11 @@ deploy_npm: &deploy_npm
     name: Deployment to npm repositories
     command:  |-
       services/deploy/deploy-npm.sh
+deploy_npm_verify: &deploy_npm_verify
+  run:
+    name: Verify NPM Deploy
+    command:  |-
+      services/verify/deploy-npm-verify.sh
 deploy_python: &deploy_python
   run:
     name: Deployment to python repositories
@@ -184,6 +189,7 @@ jobs:
       #- <<: *deploy_maven
       #- <<: *deploy_maven_verify
       - <<: *deploy_npm
+      - <<: *deploy_npm_verify
       #- <<: *deploy_python
 
   test_build:
@@ -210,6 +216,7 @@ jobs:
       #- <<: *deploy_maven
       #- <<: *deploy_maven_verify
       #- <<: *deploy_npm
+      #- <<: *deploy_npm_verify
       #- <<: *deploy_python
 
   stage_build:
@@ -232,6 +239,7 @@ jobs:
       - <<: *deploy_maven
       - <<: *deploy_maven_verify
       - <<: *deploy_npm
+      - <<: *deploy_npm_verify
       - <<: *deploy_python
   prod_build:
     <<: *default_env
@@ -253,6 +261,7 @@ jobs:
       - <<: *deploy_maven
       - <<: *deploy_maven_verify
       - <<: *deploy_npm
+      - <<: *deploy_npm_verify
       - <<: *deploy_python
 
 workflows:

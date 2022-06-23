@@ -26,13 +26,13 @@ function main {
   echo
 
   pushd prod-github-package || exit 1
-  export TEST_DEPLOYMENT_TAG=0.0."${DEPLOYMENT_TAG//\./-}"
+  export TEST_DEPLOYMENT_TAG=0.1."${DEPLOYMENT_TAG//\./-}"
   #npm version "${DEPLOYMENT_TAG}"
   npm version "${TEST_DEPLOYMENT_TAG}"
   echo "Publishing package.json:"
   cat package.json
 
-  echo "@orichter:registry=https://npm.pkg.github.com/orichter" >> "${HOME}"/.npmrc
+  echo "@orichter:registry=https://npm.pkg.github.com/orichter" > "${HOME}"/.npmrc
   echo "//npm.pkg.github.com/:_authToken=${PASSWORD_PUBLISH_NPM_GITHUB}" >> "${HOME}"/.npmrc
   npm publish --access public || exit 1
   popd || exit 1

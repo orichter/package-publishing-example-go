@@ -3,6 +3,11 @@
 export TERM=xterm-color
 PROJECT_ROOT=${PROJECT_ROOT:-"/home/circleci/project"}
 EXIT_STATUS=0
+
+export INTERNAL_NPM_PULL_CREDENTIALS='@nutanix-core:registry=https://npm.pkg.github.com/nutanix-core
+//npm.pkg.github.com/:_authToken='"${GITHUB_PACKAGE_READ_TOKEN}"'
+strict-ssl=false'
+
 #shellcheck disable=SC1091
 #shellcheck disable=SC1090
 source "${PROJECT_ROOT}"/services/deploy/release-utils.source
@@ -124,9 +129,7 @@ function npm-internal-release-verify {
   mkdir -p "${PROJECT_ROOT}"/npm-release-verify
   pushd "${PROJECT_ROOT}"/npm-release-verify || exit 1
   
-  echo '@nutanix-core:registry=https://npm.pkg.github.com/nutanix-core
-//npm.pkg.github.com/:_authToken='"${GITHUB_PACKAGE_READ_TOKEN}"'
-strict-ssl=false' > "${HOME}/.npmrc"
+  echo "${INTERNAL_NPM_PULL_CREDENTIALS}" > "${HOME}/.npmrc"
 
   if npm pack @nutanix-core/categories-javascript-client-sdk@"${DEPLOYMENT_TAG}" ; then
     PASS "Successfully Downloaded NPM Module"
