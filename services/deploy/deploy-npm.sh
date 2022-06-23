@@ -26,7 +26,7 @@ function main {
   echo
 
   pushd prod-github-package || exit 1
-  export TEST_DEPLOYMENT_TAG=0.1."${DEPLOYMENT_TAG//\./-}"
+  export TEST_DEPLOYMENT_TAG=0.2."${DEPLOYMENT_TAG//\./-}"
   #npm version "${DEPLOYMENT_TAG}"
   npm version "${TEST_DEPLOYMENT_TAG}"
   echo "Publishing package.json:"

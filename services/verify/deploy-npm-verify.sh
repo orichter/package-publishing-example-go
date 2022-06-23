@@ -1,7 +1,8 @@
 #!/bin/bash
 #export TERM=ansi
 #export TERM=xterm-color
-PROJECT_ROOT=${PROJECT_ROOT:-"/home/circleci/project"}
+export PROJECT_ROOT=${PROJECT_ROOT:-"/home/circleci/project"}
+export EXIT_STATUS=0
 #shellcheck disable=SC1091
 #shellcheck disable=SC1090
 source "${PROJECT_ROOT}"/services/deploy/release-utils.source
@@ -21,7 +22,7 @@ function main {
 
   echo "${EXTERNAL_GITHUB_NPM_PULL_CREDENTIALS}" > "${HOME}/.npmrc"
 
-  export TEST_DEPLOYMENT_TAG=0.1."${DEPLOYMENT_TAG//\./-}"
+  export TEST_DEPLOYMENT_TAG=0.3."${DEPLOYMENT_TAG//\./-}"
   #export PACKAGE=@orichter/package-publishing-examples@"${DEPLOYMENT_TAG}"
   export PACKAGE=@orichter/package-publishing-examples@"${TEST_DEPLOYMENT_TAG}"
   #if npm install @orichter/package-publishing-examples@"${DEPLOYMENT_TAG}"; then
@@ -30,6 +31,7 @@ function main {
   else
     ERROR "Failed to Install NPM Package ${PACKAGE}"
     debug
+    export EXIT_STATUS=1
     exit 1
   fi
   popd || exit 1
