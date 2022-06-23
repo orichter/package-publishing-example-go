@@ -147,7 +147,7 @@ function npm-internal-release-verify {
 
   pushd stage-package || exit 1
   INTERNAL_NAME=@nutanix-core/categories-javascript-client-sdk
-  EXTERNAL_NAME=@nutanix-scratch/javascript-client-sdk-rc1
+  EXTERNAL_NAME=@nutanix-scratch/release-canadidate-javascript-sdk
   sed -i "s|${INTERNAL_NAME}|${EXTERNAL_NAME}|g" package.json
 
   INTERNAL_URL=https://npm.pkg.github.com
@@ -164,7 +164,7 @@ function npm-internal-release-verify {
 
   pushd prod-github-package || exit 1
   INTERNAL_NAME=@nutanix-core/categories-javascript-client-sdk
-  EXTERNAL_NAME=@orichter/package-publishing-examples
+  EXTERNAL_NAME=@orichter/release-candidate-javascript-sdk
   sed -i "s|${INTERNAL_NAME}|${EXTERNAL_NAME}|g" package.json
 
   #INTERNAL_URL=https://npm.pkg.github.com

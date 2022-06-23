@@ -25,11 +25,13 @@ function main {
   cat "${PROJECT_ROOT}"/release-config.source
   echo
 
+  export TEST_DEPLOYMENT_TAG=0.5."${DEPLOYMENT_TAG//\./-}"
+  export VERSION="${TEST_DEPLOYMENT_TAG}"
+  #export VERSION="${DEPLOYMENT_TAG}"
+
   pushd prod-github-package || exit 1
-  export TEST_DEPLOYMENT_TAG=0.3."${DEPLOYMENT_TAG//\./-}"
-  #npm version "${DEPLOYMENT_TAG}"
-  npm version "${TEST_DEPLOYMENT_TAG}"
-  echo "Publishing package.json:"
+  npm version "${VERSION}"
+  echo "Publishing prod-github-package package.json:"
   cat package.json
 
   echo "@orichter:registry=https://npm.pkg.github.com/orichter" > "${HOME}"/.npmrc
@@ -37,8 +39,26 @@ function main {
   npm publish --access public || exit 1
   popd || exit 1
 
-  #echo "//registry.npmjs.org/:_authToken=${PASSWORD_PUBLISH_NPM}" > "${HOME}"/.npmrc
+  pushd stage-package || exit 1
+  npm version "${VERSION}"
+  echo "Publishing stage-package package.json:"
+  cat package.json
+
+  echo "//registry.npmjs.org/:_authToken=${PASSWORD_PUBLISH_NPM}" > "${HOME}"/.npmrc
+  npm publish --access public || exit 1
+  popd || exit 1
+
+  pushd prod-package || exit 1
+  npm version "${VERSION}"
+  echo "Publishing prod-package package.json:"
+  cat package.json
+
+  echo "//registry.npmjs.org/:_authToken=${PASSWORD_PUBLISH_NPM}" > "${HOME}"/.npmrc
+
+  echo "Currently not publishing to Prod"
+  # Uncomment the line below and comment the line above to publish to prod.
   #npm publish --access public || exit 1
+  popd || exit 1
 
   popd || exit 1
 

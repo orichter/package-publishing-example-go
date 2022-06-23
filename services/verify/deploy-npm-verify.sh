@@ -9,7 +9,10 @@ source "${PROJECT_ROOT}"/services/deploy/release-utils.source
 
 export EXTERNAL_GITHUB_NPM_PULL_CREDENTIALS='@orichter:registry=https://npm.pkg.github.com/orichter
 //npm.pkg.github.com/:_authToken='"${GITHUB_PACKAGE_READ_TOKEN}"'
-strict-ssl=false' > "${HOME}/.npmrc"
+strict-ssl=false'
+
+export EXTERNAL_NPM_STAGE_PULL_CREDENTIALS='@nutanix-scratch:registry=registry=https://registry.npmjs.org/
+strict-ssl=false'
 
 #shellcheck disable=SC1091
 source ./release-config.source
@@ -22,19 +25,48 @@ function main {
 
   echo "${EXTERNAL_GITHUB_NPM_PULL_CREDENTIALS}" > "${HOME}/.npmrc"
 
-  export TEST_DEPLOYMENT_TAG=0.3."${DEPLOYMENT_TAG//\./-}"
-  #export PACKAGE=@orichter/package-publishing-examples@"${DEPLOYMENT_TAG}"
-  export PACKAGE=@orichter/package-publishing-examples@"${TEST_DEPLOYMENT_TAG}"
-  #if npm install @orichter/package-publishing-examples@"${DEPLOYMENT_TAG}"; then
+  export TEST_DEPLOYMENT_TAG=0.5."${DEPLOYMENT_TAG//\./-}"
+  export VERSION="${TEST_DEPLOYMENT_TAG}"
+  #export VERSION="${DEPLOYMENT_TAG}"
+
+  export PACKAGE=@orichter/release-canadidate-javascript-sdk@"${VERSION}"
   if npm install "${PACKAGE}"; then
-    PASS "NPM Package ${PACKAGE} Successfully Installed"
+    PASS "NPM Package ${PACKAGE} Successfully Installed from Github"
   else
-    ERROR "Failed to Install NPM Package ${PACKAGE}"
+    ERROR "Failed to Install NPM Package ${PACKAGE} from Github"
     debug
     export EXIT_STATUS=1
     exit 1
   fi
   popd || exit 1
+
+  mkdir -p ./stage-verify
+  pushd ./stage-verify || exit 1
+  export PACKAGE=@nutanix-scratch/release-canadidate-javascript-sdk@"${VERSION}"
+  if npm install "${PACKAGE}"; then
+    PASS "NPM Package ${PACKAGE} Successfully Installed from @nutanix-scratch"
+  else
+    ERROR "Failed to Install NPM Package ${PACKAGE} from @nutanix-scratch"
+    debug
+    export EXIT_STATUS=1
+    exit 1
+  fi
+  popd || exit 1
+
+  mkdir -p ./prod-verify
+  pushd ./prod-verify || exit 1
+  export PACKAGE=@nutanix-api/javascript-sdk@"${VERSION}"
+  if npm install "${PACKAGE}"; then
+    PASS "NPM Package ${PACKAGE} Successfully Installed from @nutanix-scratch"
+  else
+    #ERROR "Failed to Install NPM Package ${PACKAGE} from @nutanix-scratch"
+    WARN "Prod Deployment not yet implemented."
+    #debug
+    #export EXIT_STATUS=1
+    exit 1
+  fi
+  popd || exit 1
+
 }
 
 function debug {
