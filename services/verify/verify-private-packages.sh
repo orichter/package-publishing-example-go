@@ -135,13 +135,28 @@ function npm-internal-release-verify {
     PASS "Successfully Downloaded NPM Module"
     INFO @nutanix-core/categories-javascript-client-sdk@"${DEPLOYMENT_TAG}"
   else
-    Error "Failed to Download NPM Module"
+    ERROR "Failed to Download NPM Module"
     INFO @nutanix-core/categories-javascript-client-sdk@"${DEPLOYMENT_TAG}"
     export EXIT_STATUS=1
   fi
 
-  tar -zxvf nutanix-core-categories-javascript-client-sdk-"${DEPLOYMENT_TAG}".tgz
+  tar -zxf nutanix-core-categories-javascript-client-sdk-"${DEPLOYMENT_TAG}".tgz
   # This should be untarred into package which will be used in deploy-npm.sh for actual deployments
+
+  cp -rf package audit
+  pushd audit || exit 1
+  VULNERABILITIES_COUNT=$(npm i --package-lock-only|grep vulnerabilities)
+
+  CRITICAL_COUNT=$(echo "${VULNERABILITIES_COUNT}" | grep -oP '\w+(?= critical)')
+  if [[ "${CRITICAL_COUNT}" -eq 0 ]]; then
+    PASS "No critical vulnerabilities in @nutanix-core/categories-javascript-client-sdk"
+  else
+    npm audit
+    WARNING="${CRITICAL_COUNT} Critical Vulnerabilities Found"
+    WARN "${WARNING}"
+    EXIT_STATUS=0
+  fi
+
 
   popd || exit 1
 
