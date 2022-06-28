@@ -141,60 +141,7 @@ function npm-internal-release-verify {
   fi
 
   tar -zxvf nutanix-core-categories-javascript-client-sdk-"${DEPLOYMENT_TAG}".tgz
-  cp -rf package stage-package
-  cp -rf package prod-github-package
-  cp -rf package prod-package
-
-  pushd stage-package || exit 1
-  INTERNAL_NAME=@nutanix-core/categories-javascript-client-sdk
-  EXTERNAL_NAME=@nutanix-scratch/release-canadidate-javascript-sdk
-  sed -i "s|${INTERNAL_NAME}|${EXTERNAL_NAME}|g" package.json
-
-  INTERNAL_URL=https://npm.pkg.github.com
-  EXTERNAL_URL=https://registry.npmjs.org
-  sed -i "s|${INTERNAL_URL}|${EXTERNAL_URL}|g" package.json
-
-  INTERNAL_REPO=git://github.com/nutanix-core/ntnx-api-javascript-sdk-external.git
-  EXTERNAL_REPO=git+https://github.com/orichter/package-publishing-examples.git
-  sed -i "s|${INTERNAL_REPO}|${EXTERNAL_REPO}|g" package.json
-
-  INFO "Stage Package Config"
-  cat package.json
-  popd || exit 1
-
-  pushd prod-github-package || exit 1
-  INTERNAL_NAME=@nutanix-core/categories-javascript-client-sdk
-  EXTERNAL_NAME=@orichter/release-candidate-javascript-sdk
-  sed -i "s|${INTERNAL_NAME}|${EXTERNAL_NAME}|g" package.json
-
-  #INTERNAL_URL=https://npm.pkg.github.com
-  #EXTERNAL_URL=https://registry.npmjs.org
-  #sed -i "s|${INTERNAL_URL}|${EXTERNAL_URL}|g" package.json
-
-  INTERNAL_REPO=git://github.com/nutanix-core/ntnx-api-javascript-sdk-external.git
-  EXTERNAL_REPO=git+https://github.com/orichter/package-publishing-examples.git
-  sed -i "s|${INTERNAL_REPO}|${EXTERNAL_REPO}|g" package.json
-
-  INFO "Github Prod Package Config"
-  cat package.json
-  popd || exit 1
-
-  pushd prod-package || exit 1
-  INTERNAL_NAME=@nutanix-core/categories-javascript-client-sdk
-  EXTERNAL_NAME=@nutanix-api/javascript-client-sdk
-  sed -i "s|${INTERNAL_NAME}|${EXTERNAL_NAME}|g" package.json
-
-  INTERNAL_URL=https://npm.pkg.github.com
-  EXTERNAL_URL=https://registry.npmjs.org
-  sed -i "s|${INTERNAL_URL}|${EXTERNAL_URL}|g" package.json
-
-  INTERNAL_REPO=git://github.com/nutanix-core/ntnx-api-javascript-sdk-external.git
-  EXTERNAL_REPO=git+https://github.com/orichter/package-publishing-examples.git
-  sed -i "s|${INTERNAL_REPO}|${EXTERNAL_REPO}|g" package.json
-
-  INFO "Npmjs.org Prod Package Config"
-  cat package.json
-  popd || exit 1
+  # This should be untarred into package which will be used in deploy-npm.sh for actual deployments
 
   popd || exit 1
 
