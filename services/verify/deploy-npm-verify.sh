@@ -11,13 +11,7 @@ source "${PROJECT_ROOT}"/services/deploy/release-utils.source
 source ./release-config.source
 echo "Verifying npm package deployment using Release Params:"
 cat ./release-config.source
-
-#shellcheck disable=SC1091
-source ./services/deploy/deploy-npm.sh # This line is unnecessary unless using the following variables
-#export TEST_DEPLOYMENT_TAG=0.6."${DEPLOYMENT_TAG//\./-}"
-#export VERSION="${TEST_DEPLOYMENT_TAG}"
-#export VERSION="${DEPLOYMENT_TAG}"
-
+export VERSION="${DEPLOY_TO_TAG}"
 
 function main {
   mkdir -p "${PROJECT_ROOT}"/npm-release-verify

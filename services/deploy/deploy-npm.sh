@@ -10,13 +10,11 @@ source "${PROJECT_ROOT}"/services/deploy/release-utils.source
 #shellcheck disable=SC1091
 #shellcheck disable=SC1090
 source "${PROJECT_ROOT}"/release-config.source
+export VERSION="${DEPLOY_TO_TAG}"
 INFO "Deploying npm packages using Release Params:"
 cat "${PROJECT_ROOT}"/release-config.source
+INFO "Version: ${VERSION}"
 echo
-
-export TEST_DEPLOYMENT_TAG=0.16."${DEPLOYMENT_TAG//\./-}"
-export VERSION="${TEST_DEPLOYMENT_TAG}"
-#export VERSION="${DEPLOYMENT_TAG}"
 
 function main {
   deploy-to-stage-internal

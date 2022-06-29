@@ -24,11 +24,15 @@ fi
 
 MOST_RECENT_COMMIT_WITH_TAGS=$(git rev-list --tags --max-count=1)
 MOST_RECENT_TAG=$(git describe --tags --abbrev=0)
-DEPLOYMENT_TAG=${FORCE_DEPLOYMENT_TAG:-$MOST_RECENT_TAG}
+# In normal deployments, DEPLOY_FROM_TAG should be equal to both
+# DEPLOY_TO_TAG and MOST_RECENT_TAG, but for testing, and
+# potential forced deployments, they can be explicitly set in config.yml
+export DEPLOY_FROM_TAG=${DEPLOY_FROM_TAG:-$MOST_RECENT_TAG}
+export DEPLOY_TO_TAG=${DEPLOY_TO_TAG:-$MOST_RECENT_TAG}
 
 {
-  echo 'export DEPLOYMENT_TAG="'"${DEPLOYMENT_TAG}"'"'
-  echo 'export FORCE_DEPLOYMENT_TAG="'"${FORCE_DEPLOYMENT_TAG}"'"'
+  echo 'export DEPLOY_FROM_TAG="'"${DEPLOY_FROM_TAG}"'"'
+  echo 'export DEPLOY_TO_TAG="'"${DEPLOY_TO_TAG}"'"'
   echo 'export BRANCH_FILTER="'"${BRANCH_FILTER}"'"'
   echo 'export TAG_FILTER="'"${TAG_FILTER}"'"'
 } >> ./release-config.source

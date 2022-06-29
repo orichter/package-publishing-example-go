@@ -11,21 +11,15 @@ strict-ssl=false'
 #shellcheck disable=SC1091
 #shellcheck disable=SC1090
 source "${PROJECT_ROOT}"/services/deploy/release-utils.source
-function debug {
-  #env |grep -v PASSWORD
-  echo
-  pwd
-  ls -lah
-  git status
-  git log --oneline --decorate -n 15
-  echo
-}
 
 #shellcheck disable=SC1091
 #shellcheck disable=SC1090
 source "${PROJECT_ROOT}"/release-config.source
+export VERSION="${DEPLOY_FROM_TAG}"
 echo "Verifying private packages using Release Params:"
 cat "${PROJECT_ROOT}"/release-config.source
+INFO "Version: ${VERSION}"
+echo
 
 function main {
   # The following line is used for testing the release pipeline only.
@@ -58,11 +52,11 @@ function golang-internal-release-verify {
   git clone https://github.com/nutanix-core/ntnx-api-golang-sdk-external
   pushd ntnx-api-golang-sdk-external || exit 1
   git fetch --all --tags
-  if git checkout categories_parent_go_sdk/v"${DEPLOYMENT_TAG}" ; then
-    PASS "Tag ${DEPLOYMENT_TAG} Successfully checked out"
+  if git checkout categories_parent_go_sdk/v"${VERSION}" ; then
+    PASS "Tag ${VERSION} Successfully checked out"
     git log --oneline --decorate -n 15
   else
-    ERROR "Tag ${DEPLOYMENT_TAG} checked out failed."
+    ERROR "Tag ${VERSION} checked out failed."
     git log --oneline --decorate -n 15
   fi
 
@@ -103,7 +97,7 @@ function mvn-internal-release-verify {
   fi
   echo
 
-  CMD="java -cp ~/.m2/repository/com/nutanix/test/test-sdk/${DEPLOYMENT_TAG}/test-sdk-${DEPLOYMENT_TAG}.jar com.nutanix.test.test-sdk.App"
+  CMD="java -cp ~/.m2/repository/com/nutanix/test/test-sdk/${VERSION}/test-sdk-${VERSION}.jar com.nutanix.test.test-sdk.App"
   OUTPUT=$(eval "${CMD}")
   #echo "${OUTPUT}"
   if [ "${OUTPUT}" == "Hello World!" ]; then
@@ -111,7 +105,7 @@ function mvn-internal-release-verify {
     echo
     INFO "Staging Dependency for External Deployment"
     mkdir -p "${PROJECT_ROOT}"/mvn-external-release
-    cp -rf ~/.m2/repository/com/nutanix/example/hellonutanixworld/"${DEPLOYMENT_TAG}"/ "${PROJECT_ROOT}"/mvn-external-release
+    cp -rf ~/.m2/repository/com/nutanix/example/hellonutanixworld/"${VERSION}"/ "${PROJECT_ROOT}"/mvn-external-release
   else
     ERROR "Maven Dependency Tests Failed"
     debug
@@ -131,16 +125,16 @@ function npm-internal-release-verify {
   
   echo "${INTERNAL_NPM_PULL_CREDENTIALS}" > "${HOME}/.npmrc"
 
-  if npm pack @nutanix-core/categories-javascript-client-sdk@"${DEPLOYMENT_TAG}" ; then
+  if npm pack @nutanix-core/categories-javascript-client-sdk@"${VERSION}" ; then
     PASS "Successfully Downloaded NPM Module"
-    INFO @nutanix-core/categories-javascript-client-sdk@"${DEPLOYMENT_TAG}"
+    INFO @nutanix-core/categories-javascript-client-sdk@"${VERSION}"
   else
     ERROR "Failed to Download NPM Module"
-    INFO @nutanix-core/categories-javascript-client-sdk@"${DEPLOYMENT_TAG}"
+    INFO @nutanix-core/categories-javascript-client-sdk@"${VERSION}"
     export EXIT_STATUS=1
   fi
 
-  tar -zxf nutanix-core-categories-javascript-client-sdk-"${DEPLOYMENT_TAG}".tgz
+  tar -zxf nutanix-core-categories-javascript-client-sdk-"${VERSION}".tgz
   # This should be untarred into package which will be used in deploy-npm.sh for actual deployments
 
   cp -rf package audit
@@ -160,6 +154,19 @@ function npm-internal-release-verify {
 
   popd || exit 1
 
+}
+
+#shellcheck disable=SC1091
+#shellcheck disable=SC1090
+source "${PROJECT_ROOT}"/services/deploy/release-utils.source
+function debug {
+  #env |grep -v PASSWORD
+  echo
+  pwd
+  ls -lah
+  git status
+  git log --oneline --decorate -n 15
+  echo
 }
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then

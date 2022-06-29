@@ -98,8 +98,9 @@ dev_deploy_config: &dev_deploy_config
       services/deploy/manage-package-deployments.sh dev
     environment:
       BRANCH_FILTER: /^(?!main.*$).*/
+      DEPLOY_FROM_TAG: "16.7.0"
+      DEPLOY_TO_TAG: "0.17.16-7-0"
       #FORCE_DEPLOYMENT_TAG: 16.7.0-SNAPSHOT
-      FORCE_DEPLOYMENT_TAG: 16.7.0
 test_deploy_config: &test_deploy_config
   run:
     name: Configure Test Deployment
@@ -107,7 +108,6 @@ test_deploy_config: &test_deploy_config
       services/deploy/manage-package-deployments.sh test
     environment:
       BRANCH_FILTER: /(?:^main$)/
-      FORCE_DEPLOYMENT_TAG: v0.0.17-rc1
 stage_deploy_config: &stage_deploy_config
   run:
     name: Configure Stage Deployment
