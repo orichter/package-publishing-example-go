@@ -49,18 +49,28 @@ function golang-internal-release-verify {
   mkdir -p "${PROJECT_ROOT}"/golang-release-verify
   pushd "${PROJECT_ROOT}"/golang-release-verify || exit 1
   
-  git clone https://github.com/nutanix-core/ntnx-api-golang-sdk-external
-  pushd ntnx-api-golang-sdk-external || exit 1
+  export PACKAGE_NAME=ntnx-api-golang-sdk-external
+  export PACKAGE_URL=https://github.com/nutanix-core/"${PACKAGE_NAME}".git
+  git clone "${PACKAGE_URL}"
+
+  pushd "${PACKAGE_NAME}" || exit 1
   git fetch --all --tags
-  if git checkout categories_parent_go_sdk/v"${VERSION}" ; then
-    PASS "Tag ${VERSION} Successfully checked out"
+
+  # This is not a good tagging convention and should be refactored.
+  export PACKAGE_TAG=categories_parent_go_sdk/v"${VERSION}"
+  if git checkout "${PACKAGE_TAG}" ; then
+    PASS "Tag ${VERSION} of Package: ${PACKAGE_NAME} Successfully checked out"
     git log --oneline --decorate -n 15
   else
-    ERROR "Tag ${VERSION} checked out failed."
+    ERROR "Tag ${VERSION} of Package: ${PACKAGE_NAME} checked out failed."
     git log --oneline --decorate -n 15
+    EXIT_STATUS=1
   fi
 
   popd || exit 1
+  # Rename package for standard deployment, and so we have a copy of the original
+  # for debugging purposes.
+  cp -rf "${PACKAGE_NAME}" package
 
   popd || exit 1
 
