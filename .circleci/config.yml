@@ -98,8 +98,8 @@ dev_deploy_config: &dev_deploy_config
       services/deploy/manage-package-deployments.sh dev
     environment:
       BRANCH_FILTER: /^(?!main.*$).*/
-      DEPLOY_FROM_TAG: "16.7.0"
-      DEPLOY_TO_TAG: "0.23.16-7-0"
+      DEPLOY_FROM_TAG: "16.7.0-2"
+      DEPLOY_TO_TAG: "0.24.16-7-0"
       #FORCE_DEPLOYMENT_TAG: 16.7.0-SNAPSHOT
 test_deploy_config: &test_deploy_config
   run:
@@ -184,8 +184,8 @@ jobs:
       # Typically actual deployments should not come out of a test_build
       # but, it may be useful for development purposes.
       # The following lines should be commented out before a merge to master.
-      - <<: *deploy_golang
-      - <<: *deploy_golang_verify
+      #- <<: *deploy_golang
+      #- <<: *deploy_golang_verify
       #- <<: *deploy_maven
       #- <<: *deploy_maven_verify
       - <<: *deploy_npm

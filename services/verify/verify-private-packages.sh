@@ -27,7 +27,7 @@ function main {
   check-prerequisites
   #mvn-sample-release
   npm-internal-release-verify
-  golang-internal-release-verify
+  #golang-internal-release-verify
   #mvn-internal-release-verify
 }
 

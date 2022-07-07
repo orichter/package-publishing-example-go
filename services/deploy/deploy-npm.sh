@@ -18,7 +18,7 @@ echo
 
 function main {
   deploy-to-stage-internal
-  #deploy-to-stage
+  deploy-to-stage
   #deploy-to-github-prod
   #deploy-to-prod
 }
