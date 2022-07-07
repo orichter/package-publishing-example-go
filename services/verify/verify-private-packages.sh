@@ -29,6 +29,7 @@ function main {
   npm-internal-release-verify
   #golang-internal-release-verify
   #mvn-internal-release-verify
+  pip-internal-release-verify
 }
 
 function check-prerequisites {
@@ -136,10 +137,10 @@ function npm-internal-release-verify {
   echo "${INTERNAL_NPM_PULL_CREDENTIALS}" > "${HOME}/.npmrc"
 
   if npm pack @nutanix-core/categories-javascript-client-sdk@"${VERSION}" ; then
-    PASS "Successfully Downloaded NPM Module"
+    PASS "Successfully Downloaded NPM Package"
     INFO @nutanix-core/categories-javascript-client-sdk@"${VERSION}"
   else
-    ERROR "Failed to Download NPM Module"
+    ERROR "Failed to Download NPM Package"
     INFO @nutanix-core/categories-javascript-client-sdk@"${VERSION}"
     export EXIT_STATUS=1
   fi
@@ -161,6 +162,35 @@ function npm-internal-release-verify {
     EXIT_STATUS=0
   fi
 
+  popd || exit 1
+
+}
+
+function pip-internal-release-verify {
+  rm -rf "${PROJECT_ROOT}"/pip-release-verify
+  mkdir -p "${PROJECT_ROOT}"/pip-release-verify
+  pushd "${PROJECT_ROOT}"/pip-release-verify || exit 1
+  
+  sudo apt install python3-pip
+  /home/circleci/.pyenv/versions/3.8.5/bin/python3.8 -m pip install --upgrade pip
+
+  #PACKAGE_NAME=categories-client
+  PACKAGE_NAME=categories-sdk
+  PACKAGE_DIR=categories
+  #TMP_VERSION=categories-${VERSION}
+  #PACKAGE_PATH="git+ssh://git@github.com/nutanix-core/ntnx-api-python-sdk-external.git@${TMP_VERSION}#subdirectory=${PACKAGE_DIR}&egg=${PACKAGE_NAME}"
+  PACKAGE_PATH="git+ssh://git@github.com/nutanix-core/ntnx-api-python-sdk-external.git#subdirectory=${PACKAGE_DIR}&egg=${PACKAGE_NAME}"
+
+  if pip3 install -e "${PACKAGE_PATH}" ; then
+    PASS "Successfully Downloaded Python Package"
+    INFO "${PACKAGE_PATH}"
+  else
+    ERROR "Failed to Download Python Package"
+    INFO "${PACKAGE_PATH}"
+    export EXIT_STATUS=1
+  fi
+
+  cp src/${PACKAGE_NAME}/${PACKAGE_DIR} ./package
 
   popd || exit 1
 
