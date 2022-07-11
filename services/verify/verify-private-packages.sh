@@ -190,7 +190,7 @@ function pip-internal-release-verify {
     export EXIT_STATUS=1
   fi
 
-  cp src/${PACKAGE_NAME}/${PACKAGE_DIR} ./package
+  cp -rf src/${PACKAGE_NAME}/${PACKAGE_DIR} ./package
 
   popd || exit 1
 

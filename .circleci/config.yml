@@ -99,7 +99,8 @@ dev_deploy_config: &dev_deploy_config
     environment:
       BRANCH_FILTER: /^(?!main.*$).*/
       DEPLOY_FROM_TAG: "16.7.0-2"
-      DEPLOY_TO_TAG: "0.24.16-7-0"
+      # Python does now allow - in the tag, only _
+      DEPLOY_TO_TAG: "0.29.16-7-0-RC2"
       #FORCE_DEPLOYMENT_TAG: 16.7.0-SNAPSHOT
 test_deploy_config: &test_deploy_config
   run:
