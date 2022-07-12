@@ -12,7 +12,7 @@ source "${PROJECT_ROOT}"/services/deploy/release-utils.source
 #shellcheck disable=SC1090
 source "${PROJECT_ROOT}"/release-config.source
 export VERSION="${DEPLOY_TO_TAG}"
-INFO "Deploying npm packages using Release Params:"
+INFO "Deploying Golang packages using Release Params:"
 cat "${PROJECT_ROOT}"/release-config.source
 INFO "Version: ${VERSION}"
 echo
@@ -32,7 +32,8 @@ function main {
 
 function deploy-to-stage-internal {
   export PACKAGE_NAME=experiments-nutanix-sdk-golang
-  export PACKAGE_URL=https://"${PASSWORD_PUBLISH_GOLANG}"@github.com/nutanix-release-engineering/"${PACKAGE_NAME}".git
+  export PACKAGE_URL=https://github.com/nutanix-release-engineering/"${PACKAGE_NAME}".git
+  export PACKAGE_AUTH_URL=https://"${PASSWORD_PUBLISH_GOLANG}"@github.com/nutanix-release-engineering/"${PACKAGE_NAME}".git
   #export PACKAGE_URL=https://github.com/nutanix-release-engineering/"${PACKAGE_NAME}".git
   export GH_TOKEN=${PASSWORD_PUBLISH_GOLANG}
 
@@ -61,23 +62,38 @@ function deploy-to-stage-internal {
 
   #git init
   #git add .
+  INFO "Deploying ntnx-api-golang-sdk-external Version: ${VERSION}"
   git commit -m "Deploying ntnx-api-golang-sdk-external Version: ${VERSION}"
   git tag "${VERSION}"
-  git remote add deploy "${PACKAGE_URL}"
+  git remote add deploy "${PACKAGE_AUTH_URL}"
   #git push -u -f deploy main
 
-  INFO "Pushing to deploy remote"
+  INFO "Pushing to deploy remote: ${PACKAGE_URL}"
   if git push -f deploy HEAD:main ; then
-    PASS "Golang Package ${PACKAGE_NAME} Successfully Deployed to Github Internal ${PACKAGE_URL}"
+    PASS "Golang Package ${PACKAGE_NAME} Version: ${VERSION} Successfully Deployed to Github Internal:"
+    INFO "${PACKAGE_URL}"
   else
-    ERROR "Failed to Deploy Golang Package ${PACKAGE_NAME} to Github Internal ${PACKAGE_URL}"
+    ERROR "Failed to Deploy Golang Package ${PACKAGE_NAME} Version: ${VERSION} to Github Internal:"
+    INFO  "${PACKAGE_URL}"
+    debug
+    export EXIT_STATUS=1
+    exit 1
+  fi
+
+  INFO "Update Tags on ${PACKAGE_URL}"
+  if git push deploy "${VERSION}" ; then
+    PASS "Golang Package ${PACKAGE_NAME} Version: ${VERSION} Successfully Tagged on Github Internal:"
+    INFO "${PACKAGE_URL}"
+  else
+    ERROR "Failed to Tag Golang Package ${PACKAGE_NAME} Version: ${VERSION} on Github Internal:"
+    INFO  "${PACKAGE_URL}"
     debug
     export EXIT_STATUS=1
     exit 1
   fi
 
   #git push -f deploy "${VERSION}"
-  gh release create "${VERSION}" -F changelog.md --repo "${PACKAGE_URL}"
+  gh release create "${VERSION}" -F changelog.md --repo "${PACKAGE_AUTH_URL}"
 
   # It appears releases can't be pushed to Nutanix internal repositories
   # the org owners don't delegate enough permissions for that purpose.
@@ -95,7 +111,7 @@ function deploy-to-stage-internal {
 
   #git push https://"${PASSWORD_PUBLISH_GOLANG}"@github.com/orichter/package-publishing-example-go.git "${DEPLOYMENT_TAG}"
   #git push origin "${DEPLOYMENT_TAG}"
-  debug
+  #debug
   echo
 
   popd || exit 1

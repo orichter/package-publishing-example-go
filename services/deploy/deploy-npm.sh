@@ -18,7 +18,7 @@ echo
 
 function main {
   deploy-to-stage-internal
-  deploy-to-stage
+  #deploy-to-stage
   #deploy-to-github-prod
   #deploy-to-prod
 }
@@ -51,6 +51,8 @@ function deploy-to-stage-internal {
   echo "@orichter:registry=https://npm.pkg.github.com/orichter" > "${HOME}"/.npmrc
   echo "//npm.pkg.github.com/:_authToken=${PASSWORD_PUBLISH_NPM_GITHUB}" >> "${HOME}"/.npmrc
   npm publish || exit 1
+  INFO "https://github.com/nutanix-release-engineering/experiments-example-github-package-npm/packages/"
+
   popd || exit 1
 
   popd || exit 1

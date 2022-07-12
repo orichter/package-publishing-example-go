@@ -41,9 +41,6 @@ function deploy-to-stage {
   PACKAGE_NAME=release-candidate-"${PUBLISH_FROM_NAME}"
   sed -i "s|${PUBLISH_FROM_NAME}|${PACKAGE_NAME}|g" setup.py
 
-  # This override is necessary because the tag in setup.py doesn't match the actual tag.
-  # It should be fixed before final deployment
-  DEPLOY_FROM_TAG=16.7.0
   sed -i "s|${DEPLOY_FROM_TAG}|${VERSION}|g" setup.py
 
   INFO "Rewritten Setup.py"

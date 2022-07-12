@@ -26,10 +26,10 @@ function main {
   # It should be commented out for actual deployments.
   check-prerequisites
   #mvn-sample-release
-  npm-internal-release-verify
-  #golang-internal-release-verify
+  golang-internal-release-verify
   #mvn-internal-release-verify
   pip-internal-release-verify
+  npm-internal-release-verify
 }
 
 function check-prerequisites {
@@ -135,6 +135,11 @@ function npm-internal-release-verify {
   pushd "${PROJECT_ROOT}"/npm-release-verify || exit 1
   
   echo "${INTERNAL_NPM_PULL_CREDENTIALS}" > "${HOME}/.npmrc"
+
+  # HACK
+  # This override is necessary because the npm package tag is currently inconsistent with the other packages.
+  # It should be fixed before final deployment
+  VERSION=16.7.0-2
 
   if npm pack @nutanix-core/categories-javascript-client-sdk@"${VERSION}" ; then
     PASS "Successfully Downloaded NPM Package"
