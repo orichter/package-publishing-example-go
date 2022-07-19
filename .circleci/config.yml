@@ -111,7 +111,7 @@ dev_deploy_config: &dev_deploy_config
     environment:
       BRANCH_FILTER: /^(?!main.*$).*/
       DEPLOY_FROM_TAG: "16.7.0"
-      DEPLOY_TO_TAG: "0.29.16-7-0-rc48"
+      DEPLOY_TO_TAG: "0.30.16-7-0-rc2"
       #FORCE_DEPLOYMENT_TAG: 16.7.0-SNAPSHOT
 test_deploy_config: &test_deploy_config
   run:
@@ -190,7 +190,11 @@ blackduck_scan: &blackduck_scan
       python -m canaveral_build_tools.tools.blackduck_scan
     environment:
       PYENV_VERSION: canaveral_build
-
+verify_hack_removal: &verify_hack_removal
+  run:
+    name: List of Remaining Hacks
+    command:  |-
+      services/verify/verify-hack-removal.sh
 jobs:
   dev_build:
     <<: *default_env
@@ -209,6 +213,8 @@ jobs:
       - <<: *dev_deploy_config
       - <<: *verify_private_packages
       - <<: *blackduck_scan
+      - <<: *deploy_maven
+      - <<: *deploy_maven_verify
       - <<: *deploy_pip
       - <<: *deploy_pip_verify
       # Typically actual deployments should not come out of a test_build
@@ -216,10 +222,9 @@ jobs:
       # The following lines should be commented out before a merge to master.
       - <<: *deploy_golang
       - <<: *deploy_golang_verify
-      #- <<: *deploy_maven
-      #- <<: *deploy_maven_verify
       - <<: *deploy_npm
       - <<: *deploy_npm_verify
+      - <<: *verify_hack_removal
 
   test_build:
     <<: *default_env
@@ -228,7 +233,7 @@ jobs:
       - <<: *install_depencies
       - checkout
       - <<: *bootstrap_certs
-      #- <<: *install_build_tools
+      - <<: *install_build_tools
       #- <<: *finalize_cert_install
       #- <<: *create_workspace
       - <<: *install_node
@@ -236,7 +241,8 @@ jobs:
       #- <<: *setup_build
       #- <<: *run_build
       - <<: *test_deploy_config
-      #- <<: *verify_private_packages
+      - <<: *verify_private_packages
+      - <<: *blackduck_scan
 
       # Typically actual deployments should not come out of a test_build
       # but occasionally, it may be useful for a semi-manual deployment
@@ -247,6 +253,7 @@ jobs:
       #- <<: *deploy_npm
       #- <<: *deploy_npm_verify
       #- <<: *deploy_pip
+      - <<: *verify_hack_removal
 
   stage_build:
     <<: *default_env
@@ -254,15 +261,17 @@ jobs:
       - <<: *install_depencies
       - checkout
       - <<: *bootstrap_certs
-      #- <<: *install_build_tools
+      - <<: *install_build_tools
       #- <<: *finalize_cert_install
       #- <<: *create_workspace
       - <<: *install_node
       - <<: *update_mvn
       #- <<: *setup_build
       #- <<: *run_build
+      - <<: *verify_hack_removal
       - <<: *stage_deploy_config
       - <<: *verify_private_packages
+      - <<: *blackduck_scan
       - <<: *deploy_golang
       - <<: *deploy_golang_verify
       - <<: *deploy_maven
@@ -277,15 +286,17 @@ jobs:
       - <<: *install_depencies
       - checkout
       - <<: *bootstrap_certs
-      #- <<: *install_build_tools
+      - <<: *install_build_tools
       #- <<: *finalize_cert_install
       #- <<: *create_workspace
       - <<: *install_node
       - <<: *update_mvn
       #- <<: *setup_build
       #- <<: *run_build
+      - <<: *verify_hack_removal
       - <<: *prod_deploy_config
       - <<: *verify_private_packages
+      - <<: *blackduck_scan
       - <<: *deploy_golang
       - <<: *deploy_golang_verify
       - <<: *deploy_maven

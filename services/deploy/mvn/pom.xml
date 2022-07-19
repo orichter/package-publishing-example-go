@@ -4,8 +4,8 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.nutanix.test.sdk</groupId>
-  <artifactId>test-sdk-app</artifactId>
+  <groupId>com.nutanix.test</groupId>
+  <artifactId>sdk-test-app</artifactId>
   <version>1.0-SNAPSHOT</version>
 
   <name>test-sdk-app</name>
@@ -26,8 +26,8 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>com.nutanix.nutanix-core.ntnx-api.categories</groupId>
-      <artifactId>categories-mvc-java-client-sdk</artifactId>
+      <groupId>com.nutanix.api</groupId>
+      <artifactId>vmm-java-client</artifactId>
       <version>${env.DEPLOYMENT_TAG}</version>
     </dependency>
   </dependencies>

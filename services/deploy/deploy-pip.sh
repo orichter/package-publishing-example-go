@@ -86,6 +86,7 @@ function deploy-to-prod {
   PACKAGE_NAME="${PUBLISH_FROM_NAME}"
   sed -i "s|${PUBLISH_FROM_NAME}|${PACKAGE_NAME}|g" setup.py
 
+  # HACK: Prod pinned to DEPLOY_FROM_TAG=16.7.0
   # This override is necessary because the tag in setup.py doesn't match the actual tag.
   # It should be fixed before final deployment
   DEPLOY_FROM_TAG=16.7.0
