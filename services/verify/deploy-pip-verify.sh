@@ -47,6 +47,9 @@ function deploy-to-stage-verify {
   pip3 config set global.no-cache-dir false
 
   i=0
+  # Due to artifactory caching delays, we expect a single verification failure.
+  # So we throw away the output of the first call to avoid error logging.
+  deploy-to-test-pypi > /dev/null 2>&1
   until [ $i -gt 99 ]
   do
     ((i=i+1))

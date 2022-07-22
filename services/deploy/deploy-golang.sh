@@ -28,11 +28,18 @@ function main {
   #deploy-to-stage
   #deploy-to-github-prod
   #deploy-to-prod
+  PASS "Successful Deployments can be found at:"
+  cat "${PROJECT_ROOT}"/golang-release-verify/successful-deployments.txt
+  if test -f "${PROJECT_ROOT}/golang-release-verify/failed-deployments.txt"; then
+    ERROR "Failed Deployments to:"
+    cat "${PROJECT_ROOT}"/golang-release-verify/failed-deployments.txt
+  fi
+
 }
 
 function deploy-to-stage-internal {
   export PACKAGE_NAME=experiments-nutanix-sdk-golang
-  export PACKAGE_URL=https://github.com/nutanix-release-engineering/"${PACKAGE_NAME}".git
+  export PACKAGE_URL=https://github.com/nutanix-release-engineering/"${PACKAGE_NAME}"/releases/tag/"${VERSION}"
   export PACKAGE_AUTH_URL=https://"${PASSWORD_PUBLISH_GOLANG}"@github.com/nutanix-release-engineering/"${PACKAGE_NAME}".git
   #export PACKAGE_URL=https://github.com/nutanix-release-engineering/"${PACKAGE_NAME}".git
   export GH_TOKEN=${PASSWORD_PUBLISH_GOLANG}
@@ -84,9 +91,11 @@ function deploy-to-stage-internal {
   if git push deploy "${VERSION}" ; then
     PASS "Golang Package ${PACKAGE_NAME} Version: ${VERSION} Successfully Tagged on Github Internal:"
     INFO "${PACKAGE_URL}"
+    PASS "${PACKAGE_URL}" >> "${PROJECT_ROOT}"/golang-release-verify/successful-deployments.txt
   else
     ERROR "Failed to Tag Golang Package ${PACKAGE_NAME} Version: ${VERSION} on Github Internal:"
     INFO  "${PACKAGE_URL}"
+    ERROR "${PACKAGE_URL}" >> "${PROJECT_ROOT}"/golang-release-verify/failed-deployments.txt
     debug
     export EXIT_STATUS=1
     exit 1

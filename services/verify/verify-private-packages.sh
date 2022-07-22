@@ -26,8 +26,8 @@ function main {
   # It should be commented out for actual deployments.
   check-prerequisites
   #mvn-sample-release
-  golang-internal-release-verify
   mvn-internal-release-verify
+  golang-internal-release-verify
   pip-internal-release-verify
   npm-internal-release-verify
 }
@@ -66,6 +66,7 @@ function golang-internal-release-verify {
     ERROR "Tag ${VERSION} of Package: ${PACKAGE_NAME} checked out failed."
     git log --oneline --decorate -n 15
     EXIT_STATUS=1
+    debug
   fi
 
   popd || exit 1
@@ -78,11 +79,11 @@ function golang-internal-release-verify {
 }
 
 function mvn-internal-release-verify {
-  # HACK: Pinned to DEPLOY_FROM_TAG=4.0.0-alpha-1
+  # HACK: Pinned to DEPLOY_FROM_TAG=4.0.1-alpha-1
   # This java package is currently pinned to the version below
   # rather than inheriting from config.yml. This should be fixed before
   # production deployment
-  VERSION=4.0.0-alpha-1
+  VERSION=4.0.1-alpha-1
 
   rm -rf "${PROJECT_ROOT}"/maven-release-verify
   mkdir -p "${PROJECT_ROOT}"/maven-release-verify
@@ -97,17 +98,27 @@ function mvn-internal-release-verify {
   cp "${PROJECT_ROOT}"/services/deploy/mvn/settings.xml .
   sed -i "s|.{env.DEPLOYMENT_TAG}|${VERSION}|g" pom.xml
 
-  mvn package -q --settings settings.xml
+  if mvn package -q --settings settings.xml -DdownloadSources=true -DdownloadJavadocs=true ; then
+    PASS "Successfully Downloaded Maven Package using pom:"
+    cat pom.xml
+    mvn dependency:sources dependency:resolve -Dclassifier=javadoc -q -s settings.xml
+    mvn dependency:sources -Dsilent=true -q -s settings.xml
+    cp -rf ~/.m2/repository/com/nutanix/api/vmm-java-client/"${VERSION}"/ "${PROJECT_ROOT}"/maven-release-verify/package
+    INFO "MVN Package Contents:"
+    ls -lah "${PROJECT_ROOT}"/maven-release-verify/package
+    pushd "${PROJECT_ROOT}"/maven-release-verify/package || exit 1
+    #mvn dependency:sources dependency:resolve -Dclassifier=javadoc -q -s settings.xml
+    #mvn dependency:sources -Dsilent=true -q -s settings.xml
+    #ls -lah "${PROJECT_ROOT}"/maven-release-verify/package
+    #cat vmm-java-client-4.0.1-alpha-1-sources.jar.lastUpdated
+    popd || exit 1
+    echo
+  else
+    ERROR "Failed to Download Maven Package"
+    export EXIT_STATUS=1
+    debug
+  fi
 
-  ls -lah ~/.m2/repository/com/nutanix/api
-  ls -lah ~/.m2/repository/com/nutanix/api/vmm-java-client
-  ls -lah ~/.m2/repository/com/nutanix/api/vmm-java-client/"${VERSION}"/
-  ls -lah "${PROJECT_ROOT}"/maven-release-verify
-  cp -rf ~/.m2/repository/com/nutanix/api/vmm-java-client/"${VERSION}"/ "${PROJECT_ROOT}"/maven-release-verify/package
-  ls -lah "${PROJECT_ROOT}"/maven-release-verify
-  ls -lah "${PROJECT_ROOT}"/maven-release-verify/package
-
-  EXIT_STATUS=0
   #CMD="java -cp target/test-sdk-app-1.0-SNAPSHOT.jar com.nutanix.test.test-sdk.App"
   #OUTPUT=$(eval "${CMD}")
   #echo "${OUTPUT}"
@@ -176,6 +187,7 @@ function npm-internal-release-verify {
     npm audit
     WARNING="${CRITICAL_COUNT} Critical Vulnerabilities Found"
     WARN "${WARNING}"
+    # HACK: This exit status should really be 1 as these vulnerabilites should be fixed.
     EXIT_STATUS=0
   fi
 
@@ -224,6 +236,14 @@ function debug {
   git status
   git log --oneline --decorate -n 15
   echo
+
+  WARN "Maven Debug"
+  ls -lah ~/.m2/repository/com/nutanix/api
+  ls -lah ~/.m2/repository/com/nutanix/api/vmm-java-client
+  ls -lah ~/.m2/repository/com/nutanix/api/vmm-java-client/"${VERSION}"/
+  ls -lah "${PROJECT_ROOT}"/maven-release-verify
+  ls -lah "${PROJECT_ROOT}"/maven-release-verify
+  ls -lah "${PROJECT_ROOT}"/maven-release-verify/package
 }
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then

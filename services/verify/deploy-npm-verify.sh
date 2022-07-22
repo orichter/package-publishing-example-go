@@ -3,6 +3,8 @@
 #export TERM=xterm-color
 export PROJECT_ROOT=${PROJECT_ROOT:-"/home/circleci/project"}
 export EXIT_STATUS=0
+export PACKAGE_NAME=categories-javascript-client-sdk
+
 #shellcheck disable=SC1091
 #shellcheck disable=SC1090
 source "${PROJECT_ROOT}"/services/deploy/release-utils.source
@@ -18,26 +20,25 @@ function main {
   pushd "${PROJECT_ROOT}"/npm-release-verify || exit 1
 
   deploy-to-stage-internal-verify
-  #deploy-to-stage-verify
-  #deploy-to-github-prod-verify
+  deploy-to-stage-verify
+  deploy-to-github-prod-verify
   #deploy-to-prod-verify
   popd || exit 1
 }
 
 function deploy-to-stage-internal-verify {
-  set-github-npm-credentials
+  set-github-internal-npm-credentials
 
   mkdir -p ./stage-github-internal-verify
   pushd ./stage-github-internal-verify || exit 1
 
-  export PACKAGE=@nutanix-release-engineering/release-canadidate-javascript-sdk@"${VERSION}"
+  export PACKAGE=@nutanix-release-engineering/"${PACKAGE_NAME}"@"${VERSION}"
   if npm install "${PACKAGE}"; then
     PASS "NPM Package ${PACKAGE} Successfully Installed from Github Internal"
   else
     ERROR "Failed to Install NPM Package ${PACKAGE} from Github Internal"
     debug
     export EXIT_STATUS=1
-    exit 1
   fi
   popd || exit 1
 
@@ -48,14 +49,13 @@ function deploy-to-stage-verify {
 
   mkdir -p ./stage-verify
   pushd ./stage-verify || exit 1
-  export PACKAGE=@nutanix-scratch/release-canadidate-javascript-sdk@"${VERSION}"
+  export PACKAGE=@nutanix-scratch/"${PACKAGE_NAME}"@"${VERSION}"
   if npm install "${PACKAGE}"; then
     PASS "NPM Package ${PACKAGE} Successfully Installed from @nutanix-scratch"
   else
     ERROR "Failed to Install NPM Package ${PACKAGE} from @nutanix-scratch"
     debug
     export EXIT_STATUS=1
-    exit 1
   fi
   popd || exit 1
 
@@ -67,16 +67,15 @@ function deploy-to-github-prod-verify {
   mkdir -p ./prod-github-verify
   pushd ./prod-github-verify || exit 1
 
-  echo "${EXTERNAL_GITHUB_NPM_PULL_CREDENTIALS}" > "${HOME}/.npmrc"
+  #echo "${EXTERNAL_GITHUB_NPM_PULL_CREDENTIALS}" > "${HOME}/.npmrc"
 
-  export PACKAGE=@orichter/release-canadidate-javascript-sdk@"${VERSION}"
+  export PACKAGE=@orichter/"${PACKAGE_NAME}"@"${VERSION}"
   if npm install "${PACKAGE}"; then
     PASS "NPM Package ${PACKAGE} Successfully Installed from Github"
   else
     ERROR "Failed to Install NPM Package ${PACKAGE} from Github"
     debug
     export EXIT_STATUS=1
-    exit 1
   fi
   popd || exit 1
 
@@ -86,7 +85,7 @@ function deploy-to-prod-verify {
   set-npmjs-npm-credentials
   mkdir -p ./prod-verify
   pushd ./prod-verify || exit 1
-  export PACKAGE=@nutanix-api/javascript-sdk@"${VERSION}"
+  export PACKAGE=@nutanix-api/"${PACKAGE_NAME}"@"${VERSION}"
   if npm install "${PACKAGE}"; then
     PASS "NPM Package ${PACKAGE} Successfully Installed from @nutanix-scratch"
   else
@@ -101,7 +100,14 @@ function deploy-to-prod-verify {
 }
 
 function set-github-npm-credentials {
-  #//npm.pkg.github.com/:_authToken='"${PASSWORD_PUBLISH_NPM_GITHUB}"'
+  #//npm.pkg.github.com/:_authToken='"${GITHUB_PACKAGE_READ_TOKEN}"'
+  #echo '@orichter:registry=https://npm.pkg.github.com/orichter
+  echo '@orichter:registry=https://npm.pkg.github.com/orichter
+//npm.pkg.github.com/:_authToken='"${GITHUB_PACKAGE_READ_TOKEN}"'
+strict-ssl=false' > "${HOME}/.npmrc"
+}
+
+function set-github-internal-npm-credentials {
   #//npm.pkg.github.com/:_authToken='"${GITHUB_PACKAGE_READ_TOKEN}"'
   #echo '@orichter:registry=https://npm.pkg.github.com/orichter
   echo '@nutanix-release-engineering:registry=https://npm.pkg.github.com/nutanix-release-engineering

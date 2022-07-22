@@ -12,11 +12,11 @@ source "${PROJECT_ROOT}"/release-config.source
 echo "Deploying maven package using Release Params:"
 cat "${PROJECT_ROOT}"/release-config.source
 export VERSION="${DEPLOY_TO_TAG}"
-# HACK: Pinned to DEPLOY_FROM_TAG=4.0.0-alpha-1
+# HACK: Pinned to DEPLOY_FROM_TAG=4.0.1-alpha-1
 # This java package is currently pinned to the version below
 # rather than inheriting from config.yml. This should be fixed before
 # production deployment
-export DEPLOY_FROM_TAG=4.0.0-alpha-1
+export DEPLOY_FROM_TAG=4.0.1-alpha-1
 INFO "Version: ${VERSION}"
 echo
 
@@ -35,6 +35,14 @@ function main {
   import-gpg-keys
   mvn-github-external-release
   mvn-central-external-release
+  echo
+  PASS "Successful Deployments can be found at:"
+  cat "${PROJECT_ROOT}"/maven-release-verify/successful-deployments.txt
+  if test -f "${PROJECT_ROOT}/maven-release-verify/failed-deployments.txt"; then
+    ERROR "Failed Deployments to:"
+    cat "${PROJECT_ROOT}"/maven-release-verify/failed-deployments.txt
+  fi
+
 }
 
 function import-gpg-keys {
@@ -67,13 +75,16 @@ function sign-and-deploy-file {
   INFO "Depolying using ${DEPLOYMENT_POM_FILE}:"
   cat "${DEPLOYMENT_POM_FILE}"
 
-  echo "This Sample Project has no JavaDocs" > javadoc.md
-  echo "This Sample Project has no Sources" > sources.md
-  zip javadoc.jar javadoc.md
-  zip sources.jar sources.md
+  # The following can be used to generate stub jar files.
+  # These files are required for deployment, and must be added
+  # if they don't exist in the underlying repositories.
+  #echo "This Sample Project has no JavaDocs" > javadoc.md
+  #echo "This Sample Project has no Sources" > sources.md
+  #zip javadoc.jar javadoc.md
+  #zip sources.jar sources.md
   #export DEPLOYMENT_POM_FILE=./pom.xml
-  export DEPLOYMENT_DOC_FILE=./javadoc.jar
-  export DEPLOYMENT_SOURCES_FILE=./sources.jar
+  export DEPLOYMENT_DOC_FILE=./"${ARTIFACT_ID}"-"${DEPLOY_FROM_TAG}"-javadoc.jar
+  export DEPLOYMENT_SOURCES_FILE=./"${ARTIFACT_ID}"-"${DEPLOY_FROM_TAG}"-sources.jar
 
   if mvn gpg:sign-and-deploy-file \
     -DgroupId="${GROUP_ID}" \
@@ -86,8 +97,10 @@ function sign-and-deploy-file {
     -DrepositoryId="${REPOSITORY_ID}" \
     -Durl="${REPOSITORY_URL}" \
     --settings settings.xml ; then PASS "Successful Deployment of ${DEPLOYMENT_FILE} version ${VERSION} to ${REPOSITORY_URL}"
+    PASS "${PACKAGE_URL}" >> "${PROJECT_ROOT}"/maven-release-verify/successful-deployments.txt
   else
     ERROR "Deployment of ${DEPLOYMENT_FILE} version ${VERSION} to ${REPOSITORY_URL} Failed"
+    ERROR "${PACKAGE_URL}" >> "${PROJECT_ROOT}"/maven-release-verify/failed-deployments.txt
     INFO "Debug Info:"
     debug
     EXIT_STATUS=1
@@ -100,6 +113,8 @@ function mvn-github-external-release {
   export VERSION="${VERSION}"
   export REPOSITORY_ID=nutanix-public
   export REPOSITORY_URL=https://maven.pkg.github.com/orichter/package-publishing-examples
+  # It is unclear if /packages/1552392 is static within github, so it may need to be dropped.
+  export PACKAGE_URL="${REPOSITORY_URL//maven.pkg.github.com/github.com}"/packages/1552392
 
   sign-and-deploy-file
 }
@@ -113,9 +128,11 @@ function mvn-central-external-release {
     # In theory, there is no reason to sign a SNAPSHOT, but in practice,
     # having a single deployment method makes deployments more consistent.
     export VERSION="${VERSION}"-SNAPSHOT
+    export PACKAGE_URL="${REPOSITORY_URL}/${GROUP_ID//.//}/${ARTIFACT_ID}/${VERSION}"
   else
     export REPOSITORY_URL=https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/
     export VERSION="${VERSION}"
+    export PACKAGE_URL="${REPOSITORY_URL}/${GROUP_ID//.//}/${ARTIFACT_ID}/${VERSION}"
   fi
 
   sign-and-deploy-file
