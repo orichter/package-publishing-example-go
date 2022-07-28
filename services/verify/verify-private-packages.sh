@@ -27,7 +27,7 @@ function main {
   check-prerequisites
   #mvn-sample-release
   mvn-internal-release-verify
-  golang-internal-release-verify
+  #golang-internal-release-verify
   pip-internal-release-verify
   npm-internal-release-verify
 }
@@ -46,9 +46,15 @@ function check-prerequisites {
 }
 
 function golang-internal-release-verify {
-  rm -rf "${PROJECT_ROOT}"/golang-release-verify
-  mkdir -p "${PROJECT_ROOT}"/golang-release-verify
-  pushd "${PROJECT_ROOT}"/golang-release-verify || exit 1
+  sudo curl -O https://storage.googleapis.com/golang/go1.8.linux-amd64.tar.gz
+  sudo tar -xf go1.8.linux-amd64.tar.gz
+  sudo mv go /usr/local
+  export PATH=$PATH:/usr/local/go/bin
+  go version
+
+  rm -rf "${PROJECT_ROOT}"/verify/golang-release-verify
+  mkdir -p "${PROJECT_ROOT}"/verify/golang-release-verify
+  pushd "${PROJECT_ROOT}"/verify/golang-release-verify || exit 1
   
   export PACKAGE_NAME=ntnx-api-golang-sdk-external
   export PACKAGE_URL=https://github.com/nutanix-core/"${PACKAGE_NAME}".git
@@ -85,16 +91,16 @@ function mvn-internal-release-verify {
   # production deployment
   VERSION=4.0.1-alpha-1
 
-  rm -rf "${PROJECT_ROOT}"/maven-release-verify
-  mkdir -p "${PROJECT_ROOT}"/maven-release-verify
+  rm -rf "${PROJECT_ROOT}"/verify/maven-release-verify
+  mkdir -p "${PROJECT_ROOT}"/verify/maven-release-verify
 
-  pushd "${PROJECT_ROOT}"/maven-release-verify || exit 1
+  pushd "${PROJECT_ROOT}"/verify/maven-release-verify || exit 1
 
   mvn archetype:generate -q -DgroupId=com.nutanix.test.sdk -DartifactId=test-sdk-app -DarchetypeArtifactId=maven-archetype-quickstart -DarchetypeVersion=1.4 -DinteractiveMode=false
 
   pushd test-sdk-app || exit 1
   mv pom.xml pom.xml.old
-  cp "${PROJECT_ROOT}"/services/deploy/mvn/pom.xml .
+  cp "${PROJECT_ROOT}"/services/deploy/mvn/pom.template ./pom.xml
   cp "${PROJECT_ROOT}"/services/deploy/mvn/settings.xml .
   sed -i "s|.{env.DEPLOYMENT_TAG}|${VERSION}|g" pom.xml
 
@@ -103,13 +109,13 @@ function mvn-internal-release-verify {
     cat pom.xml
     mvn dependency:sources dependency:resolve -Dclassifier=javadoc -q -s settings.xml
     mvn dependency:sources -Dsilent=true -q -s settings.xml
-    cp -rf ~/.m2/repository/com/nutanix/api/vmm-java-client/"${VERSION}"/ "${PROJECT_ROOT}"/maven-release-verify/package
+    cp -rf ~/.m2/repository/com/nutanix/api/vmm-java-client/"${VERSION}"/ "${PROJECT_ROOT}"/verify/maven-release-verify/package
     INFO "MVN Package Contents:"
-    ls -lah "${PROJECT_ROOT}"/maven-release-verify/package
-    pushd "${PROJECT_ROOT}"/maven-release-verify/package || exit 1
+    ls -lah "${PROJECT_ROOT}"/verify/maven-release-verify/package
+    pushd "${PROJECT_ROOT}"/verify/maven-release-verify/package || exit 1
     #mvn dependency:sources dependency:resolve -Dclassifier=javadoc -q -s settings.xml
     #mvn dependency:sources -Dsilent=true -q -s settings.xml
-    #ls -lah "${PROJECT_ROOT}"/maven-release-verify/package
+    #ls -lah "${PROJECT_ROOT}"/verify/maven-release-verify/package
     #cat vmm-java-client-4.0.1-alpha-1-sources.jar.lastUpdated
     popd || exit 1
     echo
@@ -153,9 +159,9 @@ function mvn-internal-release-verify {
 }
 
 function npm-internal-release-verify {
-  rm -rf "${PROJECT_ROOT}"/npm-release-verify
-  mkdir -p "${PROJECT_ROOT}"/npm-release-verify
-  pushd "${PROJECT_ROOT}"/npm-release-verify || exit 1
+  rm -rf "${PROJECT_ROOT}"/verify/npm-release-verify
+  mkdir -p "${PROJECT_ROOT}"/verify/npm-release-verify
+  pushd "${PROJECT_ROOT}"/verify/npm-release-verify || exit 1
   
   echo "${INTERNAL_NPM_PULL_CREDENTIALS}" > "${HOME}/.npmrc"
 
@@ -177,6 +183,11 @@ function npm-internal-release-verify {
   # This should be untarred into package which will be used in deploy-npm.sh for actual deployments
 
   cp -rf package audit
+  pushd package || exit 1
+  # This is necessary so the blackduck scan doesn't complain.
+  npm i > /dev/null
+  popd || exit 1
+
   pushd audit || exit 1
   VULNERABILITIES_COUNT=$(npm i --package-lock-only|grep vulnerabilities)
 
@@ -196,9 +207,9 @@ function npm-internal-release-verify {
 }
 
 function pip-internal-release-verify {
-  rm -rf "${PROJECT_ROOT}"/pip-release-verify
-  mkdir -p "${PROJECT_ROOT}"/pip-release-verify
-  pushd "${PROJECT_ROOT}"/pip-release-verify || exit 1
+  rm -rf "${PROJECT_ROOT}"/verify/pip-release-verify
+  mkdir -p "${PROJECT_ROOT}"/verify/pip-release-verify
+  pushd "${PROJECT_ROOT}"/verify/pip-release-verify || exit 1
   
   sudo apt install python3-pip
   /home/circleci/.pyenv/versions/3.8.5/bin/python3.8 -m pip install --upgrade pip
@@ -227,7 +238,7 @@ function pip-internal-release-verify {
 
 #shellcheck disable=SC1091
 #shellcheck disable=SC1090
-source "${PROJECT_ROOT}"/services/deploy/release-utils.source
+source "${PROJECT_ROOT}"/verify/services/deploy/release-utils.source
 function debug {
   #env |grep -v PASSWORD
   echo
@@ -241,9 +252,9 @@ function debug {
   ls -lah ~/.m2/repository/com/nutanix/api
   ls -lah ~/.m2/repository/com/nutanix/api/vmm-java-client
   ls -lah ~/.m2/repository/com/nutanix/api/vmm-java-client/"${VERSION}"/
-  ls -lah "${PROJECT_ROOT}"/maven-release-verify
-  ls -lah "${PROJECT_ROOT}"/maven-release-verify
-  ls -lah "${PROJECT_ROOT}"/maven-release-verify/package
+  ls -lah "${PROJECT_ROOT}"/verify/maven-release-verify
+  ls -lah "${PROJECT_ROOT}"/verify/maven-release-verify
+  ls -lah "${PROJECT_ROOT}"/verify/maven-release-verify/package
 }
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then

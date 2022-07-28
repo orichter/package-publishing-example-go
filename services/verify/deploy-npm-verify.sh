@@ -16,8 +16,8 @@ cat ./release-config.source
 export VERSION="${DEPLOY_TO_TAG}"
 
 function main {
-  mkdir -p "${PROJECT_ROOT}"/npm-release-verify
-  pushd "${PROJECT_ROOT}"/npm-release-verify || exit 1
+  mkdir -p "${PROJECT_ROOT}"/verify/npm-release-verify
+  pushd "${PROJECT_ROOT}"/verify/npm-release-verify || exit 1
 
   deploy-to-stage-internal-verify
   deploy-to-stage-verify

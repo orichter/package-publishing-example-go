@@ -23,16 +23,16 @@ function main {
   deploy-to-github-prod
   #deploy-to-prod
   PASS "Successful Deployments can be found at:"
-  cat "${PROJECT_ROOT}"/npm-release-verify/successful-deployments.txt
+  cat "${PROJECT_ROOT}"/verify/npm-release-verify/successful-deployments.txt
   if test -f "${PROJECT_ROOT}/npm-release-verify/failed-deployments.txt"; then
     ERROR "Failed Deployments to:"
-    cat "${PROJECT_ROOT}"/npm-release-verify/failed-deployments.txt
+    cat "${PROJECT_ROOT}"/verify/npm-release-verify/failed-deployments.txt
   fi
 
 }
 
 function deploy-to-stage-internal {
-  pushd "${PROJECT_ROOT}"/npm-release-verify || exit 1
+  pushd "${PROJECT_ROOT}"/verify/npm-release-verify || exit 1
 
   cp -rf package stage-package-internal
 
@@ -67,10 +67,10 @@ function deploy-to-stage-internal {
 
   if npm publish --access public ; then
     PASS "NPM Package ${PACKAGE_NAME} Successfully Deployed to ${PACKAGE_URL}"
-    PASS "${PACKAGE_URL}" >> "${PROJECT_ROOT}"/npm-release-verify/successful-deployments.txt
+    PASS "${PACKAGE_URL}" >> "${PROJECT_ROOT}"/verify/npm-release-verify/successful-deployments.txt
   else
     ERROR "Failed to Deploy Python Package ${PACKAGE_NAME} to ${PACKAGE_URL}"
-    ERROR "${PACKAGE_URL}" >> "${PROJECT_ROOT}"/npm-release-verify/failed-deployments.txt
+    ERROR "${PACKAGE_URL}" >> "${PROJECT_ROOT}"/verify/npm-release-verify/failed-deployments.txt
     debug
     export EXIT_STATUS=1
   fi
@@ -82,7 +82,7 @@ function deploy-to-stage-internal {
 }
 
 function deploy-to-stage {
-  pushd "${PROJECT_ROOT}"/npm-release-verify || exit 1
+  pushd "${PROJECT_ROOT}"/verify/npm-release-verify || exit 1
 
   cp -rf package stage-package
 
@@ -114,10 +114,10 @@ function deploy-to-stage {
 
   if npm publish --access public ; then
     PASS "NPM Package ${PACKAGE_NAME} Successfully Deployed to ${PACKAGE_URL}"
-    PASS "${PACKAGE_URL}" >> "${PROJECT_ROOT}"/npm-release-verify/successful-deployments.txt
+    PASS "${PACKAGE_URL}" >> "${PROJECT_ROOT}"/verify/npm-release-verify/successful-deployments.txt
   else
     ERROR "Failed to Deploy Python Package ${PACKAGE_NAME} to ${PACKAGE_URL}"
-    ERROR "${PACKAGE_URL}" >> "${PROJECT_ROOT}"/npm-release-verify/failed-deployments.txt
+    ERROR "${PACKAGE_URL}" >> "${PROJECT_ROOT}"/verify/npm-release-verify/failed-deployments.txt
     debug
     export EXIT_STATUS=1
   fi
@@ -129,7 +129,7 @@ function deploy-to-stage {
 }
 
 function deploy-to-github-prod {
-  pushd "${PROJECT_ROOT}"/npm-release-verify || exit 1
+  pushd "${PROJECT_ROOT}"/verify/npm-release-verify || exit 1
 
   cp -rf package prod-github-package
 
@@ -163,10 +163,10 @@ function deploy-to-github-prod {
 
   if npm publish --access public ; then
     PASS "NPM Package ${PACKAGE_NAME} Successfully Deployed to ${PACKAGE_URL}"
-    PASS "${PACKAGE_URL}" >> "${PROJECT_ROOT}"/npm-release-verify/successful-deployments.txt
+    PASS "${PACKAGE_URL}" >> "${PROJECT_ROOT}"/verify/npm-release-verify/successful-deployments.txt
   else
     ERROR "Failed to Deploy Python Package ${PACKAGE_NAME} to ${PACKAGE_URL}"
-    ERROR "${PACKAGE_URL}" >> "${PROJECT_ROOT}"/npm-release-verify/failed-deployments.txt
+    ERROR "${PACKAGE_URL}" >> "${PROJECT_ROOT}"/verify/npm-release-verify/failed-deployments.txt
     debug
     export EXIT_STATUS=1
   fi
@@ -177,7 +177,7 @@ function deploy-to-github-prod {
 }
 
 function deploy-to-prod {
-  pushd "${PROJECT_ROOT}"/npm-release-verify || exit 1
+  pushd "${PROJECT_ROOT}"/verify/npm-release-verify || exit 1
 
   cp -rf package prod-package
 
@@ -210,10 +210,10 @@ function deploy-to-prod {
   #if npm publish --access public ; then
   if npm publish ; then
     PASS "NPM Package ${PACKAGE_NAME} Successfully Deployed to ${PACKAGE_URL}"
-    PASS "${PACKAGE_URL}" >> "${PROJECT_ROOT}"/npm-release-verify/successful-deployments.txt
+    PASS "${PACKAGE_URL}" >> "${PROJECT_ROOT}"/verify/npm-release-verify/successful-deployments.txt
   else
     ERROR "Failed to Deploy Python Package ${PACKAGE_NAME} to ${PACKAGE_URL}"
-    ERROR "${PACKAGE_URL}" >> "${PROJECT_ROOT}"/npm-release-verify/failed-deployments.txt
+    ERROR "${PACKAGE_URL}" >> "${PROJECT_ROOT}"/verify/npm-release-verify/failed-deployments.txt
     debug
     export EXIT_STATUS=1
   fi

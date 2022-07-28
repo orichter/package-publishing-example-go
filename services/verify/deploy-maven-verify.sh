@@ -58,7 +58,7 @@ function verify-deployment {
 
   pushd sdk-test-app || exit 1
   mv pom.xml pom.xml.old
-  cp "${PROJECT_ROOT}"/services/deploy/mvn/pom.xml .
+  cp "${PROJECT_ROOT}"/services/deploy/mvn/pom.template ./pom.xml
 
   sed -i "s|.{env.DEPLOYMENT_TAG}|${VERSION}|g" pom.xml
   sed -i "s|${DEFAULT_REPOSITORY_ID}|${REPOSITORY_ID}|g" pom.xml

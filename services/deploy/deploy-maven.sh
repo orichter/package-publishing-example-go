@@ -37,10 +37,10 @@ function main {
   mvn-central-external-release
   echo
   PASS "Successful Deployments can be found at:"
-  cat "${PROJECT_ROOT}"/maven-release-verify/successful-deployments.txt
-  if test -f "${PROJECT_ROOT}/maven-release-verify/failed-deployments.txt"; then
+  cat "${PROJECT_ROOT}"/verify/maven-release-verify/successful-deployments.txt
+  if test -f "${PROJECT_ROOT}/verify/maven-release-verify/failed-deployments.txt"; then
     ERROR "Failed Deployments to:"
-    cat "${PROJECT_ROOT}"/maven-release-verify/failed-deployments.txt
+    cat "${PROJECT_ROOT}"/verify/maven-release-verify/failed-deployments.txt
   fi
 
 }
@@ -66,8 +66,8 @@ function import-gpg-keys {
 }
 
 function sign-and-deploy-file {
-  #pushd "${PROJECT_ROOT}"/mvn-external-release/"${VERSION}" || exit 1
-  pushd "${PROJECT_ROOT}"/maven-release-verify/package || exit 1
+  #pushd "${PROJECT_ROOT}"/verify/mvn-external-release/"${VERSION}" || exit 1
+  pushd "${PROJECT_ROOT}"/verify/maven-release-verify/package || exit 1
 
   cp "${PROJECT_ROOT}"/services/deploy/mvn/settings.xml .
   #cp "${PROJECT_ROOT}"/mvn/hellonutanixworld/pom.xml .
@@ -97,10 +97,10 @@ function sign-and-deploy-file {
     -DrepositoryId="${REPOSITORY_ID}" \
     -Durl="${REPOSITORY_URL}" \
     --settings settings.xml ; then PASS "Successful Deployment of ${DEPLOYMENT_FILE} version ${VERSION} to ${REPOSITORY_URL}"
-    PASS "${PACKAGE_URL}" >> "${PROJECT_ROOT}"/maven-release-verify/successful-deployments.txt
+    PASS "${PACKAGE_URL}" >> "${PROJECT_ROOT}"/verify/maven-release-verify/successful-deployments.txt
   else
     ERROR "Deployment of ${DEPLOYMENT_FILE} version ${VERSION} to ${REPOSITORY_URL} Failed"
-    ERROR "${PACKAGE_URL}" >> "${PROJECT_ROOT}"/maven-release-verify/failed-deployments.txt
+    ERROR "${PACKAGE_URL}" >> "${PROJECT_ROOT}"/verify/maven-release-verify/failed-deployments.txt
     INFO "Debug Info:"
     debug
     EXIT_STATUS=1

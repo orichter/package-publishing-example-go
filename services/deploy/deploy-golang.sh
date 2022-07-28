@@ -18,21 +18,21 @@ INFO "Version: ${VERSION}"
 echo
 
 function main {
-  sudo curl -O https://storage.googleapis.com/golang/go1.8.linux-amd64.tar.gz
-  sudo tar -xf go1.8.linux-amd64.tar.gz
-  sudo mv go /usr/local
+#  sudo curl -O https://storage.googleapis.com/golang/go1.8.linux-amd64.tar.gz
+#  sudo tar -xf go1.8.linux-amd64.tar.gz
+#  sudo mv go /usr/local
   export PATH=$PATH:/usr/local/go/bin
-  go version
+#  go version
 
   deploy-to-stage-internal
   #deploy-to-stage
   #deploy-to-github-prod
   #deploy-to-prod
   PASS "Successful Deployments can be found at:"
-  cat "${PROJECT_ROOT}"/golang-release-verify/successful-deployments.txt
-  if test -f "${PROJECT_ROOT}/golang-release-verify/failed-deployments.txt"; then
+  cat "${PROJECT_ROOT}"/verify/golang-release-verify/successful-deployments.txt
+  if test -f "${PROJECT_ROOT}/verify/golang-release-verify/failed-deployments.txt"; then
     ERROR "Failed Deployments to:"
-    cat "${PROJECT_ROOT}"/golang-release-verify/failed-deployments.txt
+    cat "${PROJECT_ROOT}"/verify/golang-release-verify/failed-deployments.txt
   fi
 
 }
@@ -45,7 +45,7 @@ function deploy-to-stage-internal {
   export GH_TOKEN=${PASSWORD_PUBLISH_GOLANG}
 
   # This directory should be created in the verify-private packages step.
-  pushd "${PROJECT_ROOT}"/golang-release-verify || exit 1
+  pushd "${PROJECT_ROOT}"/verify/golang-release-verify || exit 1
   # Set publishing credentials
   git config --global user.email "api-packaging@nutanix.com"
   git config --global user.name "Nutanix Circle CI Release Agent"
@@ -91,11 +91,11 @@ function deploy-to-stage-internal {
   if git push deploy "${VERSION}" ; then
     PASS "Golang Package ${PACKAGE_NAME} Version: ${VERSION} Successfully Tagged on Github Internal:"
     INFO "${PACKAGE_URL}"
-    PASS "${PACKAGE_URL}" >> "${PROJECT_ROOT}"/golang-release-verify/successful-deployments.txt
+    PASS "${PACKAGE_URL}" >> "${PROJECT_ROOT}"/verify/golang-release-verify/successful-deployments.txt
   else
     ERROR "Failed to Tag Golang Package ${PACKAGE_NAME} Version: ${VERSION} on Github Internal:"
     INFO  "${PACKAGE_URL}"
-    ERROR "${PACKAGE_URL}" >> "${PROJECT_ROOT}"/golang-release-verify/failed-deployments.txt
+    ERROR "${PACKAGE_URL}" >> "${PROJECT_ROOT}"/verify/golang-release-verify/failed-deployments.txt
     debug
     export EXIT_STATUS=1
     exit 1

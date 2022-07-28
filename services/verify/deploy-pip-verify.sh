@@ -25,8 +25,8 @@ export VERSION="${PYTHON_DEPLOY_TO_TAG}"
 INFO "Verifying Version: ${VERSION}"
 
 function main {
-  mkdir -p "${PROJECT_ROOT}"/pip-release-verify
-  pushd "${PROJECT_ROOT}"/pip-release-verify || exit 1
+  mkdir -p "${PROJECT_ROOT}"/verify/pip-release-verify
+  pushd "${PROJECT_ROOT}"/verify/pip-release-verify || exit 1
 
   #deploy-to-stage-internal-verify
   deploy-to-stage-verify

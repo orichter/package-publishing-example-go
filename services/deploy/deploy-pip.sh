@@ -29,16 +29,16 @@ function main {
   #deploy-to-github-prod
   #deploy-to-prod
   PASS "Successful Deployments can be found at:"
-  cat "${PROJECT_ROOT}"/pip-release-verify/successful-deployments.txt
+  cat "${PROJECT_ROOT}"/verify/pip-release-verify/successful-deployments.txt
   if test -f "${PROJECT_ROOT}/pip-release-verify/failed-deployments.txt"; then
     ERROR "Failed Deployments to:"
-    cat "${PROJECT_ROOT}"/pip-release-verify/failed-deployments.txt
+    cat "${PROJECT_ROOT}"/verify/pip-release-verify/failed-deployments.txt
   fi
 
 }
 
 function deploy-to-stage {
-  pushd "${PROJECT_ROOT}"/pip-release-verify || exit 1
+  pushd "${PROJECT_ROOT}"/verify/pip-release-verify || exit 1
 
   cp -rf package stage-package
 
@@ -71,10 +71,10 @@ function deploy-to-stage {
   PACKAGE_URL=https://test.pypi.org/project/"${PACKAGE_NAME}/${VERSION}"
   if python3 -m twine upload --repository testpypi --username __token__ --password "${PASSWORD_PUBLISH_TESTPYPI}" dist/* ; then
     PASS "Python Package ${PACKAGE_NAME} Successfully Deployed to test.pypi.org ${PACKAGE_URL}"
-    PASS "${PACKAGE_URL}" >> "${PROJECT_ROOT}"/pip-release-verify/successful-deployments.txt
+    PASS "${PACKAGE_URL}" >> "${PROJECT_ROOT}"/verify/pip-release-verify/successful-deployments.txt
   else
     ERROR "Failed to Deploy Python Package ${PACKAGE_NAME} to test.pypi.org"
-    ERROR "${PACKAGE_URL}" >> "${PROJECT_ROOT}"/pip-release-verify/failed-deployments.txt
+    ERROR "${PACKAGE_URL}" >> "${PROJECT_ROOT}"/verify/pip-release-verify/failed-deployments.txt
     debug
     export EXIT_STATUS=1
   fi
@@ -86,7 +86,7 @@ function deploy-to-stage {
 }
 
 function deploy-to-prod {
-  pushd "${PROJECT_ROOT}"/pip-release-verify || exit 1
+  pushd "${PROJECT_ROOT}"/verify/pip-release-verify || exit 1
 
   cp -rf package prod-package
 
