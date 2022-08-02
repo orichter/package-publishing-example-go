@@ -26,8 +26,9 @@ function main {
   # It should be commented out for actual deployments.
   check-prerequisites
   #mvn-sample-release
-  mvn-internal-release-verify
+  # HACK: golang currently can't be verified, so it is removed.
   #golang-internal-release-verify
+  mvn-internal-release-verify
   pip-internal-release-verify
   npm-internal-release-verify
 }
@@ -74,6 +75,18 @@ function golang-internal-release-verify {
     EXIT_STATUS=1
     debug
   fi
+
+  pushd categories_parent_go_sdk || exit 1
+  # For later use in the verification step.
+  cp go.mod "${PROJECT_ROOT}"
+  if go install "${PACKAGE_URL}" ; then
+    PASS "Go Successful install for ${PACKAGE_URL}"
+  else
+    ERROR "Go Failed install for ${PACKAGE_URL}"
+    #WARN "Go get not currently implemented due to unpublished dependencies"
+    EXIT_STATUS=1
+  fi
+  popd || exit 1
 
   popd || exit 1
   # Rename package for standard deployment, and so we have a copy of the original
@@ -199,7 +212,7 @@ function npm-internal-release-verify {
     WARNING="${CRITICAL_COUNT} Critical Vulnerabilities Found"
     WARN "${WARNING}"
     # HACK: This exit status should really be 1 as these vulnerabilites should be fixed.
-    EXIT_STATUS=0
+    #EXIT_STATUS=1
   fi
 
   popd || exit 1

@@ -70,12 +70,14 @@ function main {
     #EXIT_STATUS=1
   fi
 
+  # Should be populated in verify-private-packages.sh.
+  cp "${PROJECT_ROOT}"/go.mod .
   if go install "${PACKAGE_URL}" ; then
     PASS "Go Successful install for ${PACKAGE_URL}"
   else
-    #ERROR "Go Failed install for ${PACKAGE_URL}"
-    WARN "Go get not currently implemented due to unpublished dependencies"
-    #EXIT_STATUS=1
+    ERROR "Go Failed install for ${PACKAGE_URL}"
+    #WARN "Go get not currently implemented due to unpublished dependencies"
+    EXIT_STATUS=1
   fi
 
   VERSION_COUNT=$(git log --oneline -n 1 | grep -c "${VERSION}")
