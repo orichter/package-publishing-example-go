@@ -27,10 +27,10 @@ function main {
   check-prerequisites
   #mvn-sample-release
   # HACK: golang currently can't be verified, so it is removed.
-  #golang-internal-release-verify
-  mvn-internal-release-verify
   pip-internal-release-verify
   npm-internal-release-verify
+  mvn-internal-release-verify
+  golang-internal-release-verify
 }
 
 function check-prerequisites {
@@ -47,6 +47,10 @@ function check-prerequisites {
 }
 
 function golang-internal-release-verify {
+  export VERSION="${DEPLOY_FROM_TAG}"
+  #HACK: This should be named golang-client for consistency
+  export PACKAGE_NAME="${NAMESPACE}"-go-client
+
   sudo curl -O https://storage.googleapis.com/golang/go1.8.linux-amd64.tar.gz
   sudo tar -xf go1.8.linux-amd64.tar.gz
   sudo mv go /usr/local
@@ -57,52 +61,54 @@ function golang-internal-release-verify {
   mkdir -p "${PROJECT_ROOT}"/verify/golang-release-verify
   pushd "${PROJECT_ROOT}"/verify/golang-release-verify || exit 1
   
-  export PACKAGE_NAME=ntnx-api-golang-sdk-external
-  export PACKAGE_URL=https://github.com/nutanix-core/"${PACKAGE_NAME}".git
+  export REPO_NAME=ntnx-api-golang-sdk-external
+  export PACKAGE_URL=https://github.com/nutanix-core/"${REPO_NAME}".git
   git clone "${PACKAGE_URL}"
 
-  pushd "${PACKAGE_NAME}" || exit 1
+  pushd "${REPO_NAME}" || exit 1
   git fetch --all --tags
 
   # This is not a good tagging convention and should be refactored.
-  export PACKAGE_TAG=categories_parent_go_sdk/v"${VERSION}"
+  export PACKAGE_TAG="${PACKAGE_NAME}"/v"${VERSION}"
   if git checkout "${PACKAGE_TAG}" ; then
-    PASS "Tag ${VERSION} of Package: ${PACKAGE_NAME} Successfully checked out"
+    PASS "Tag ${VERSION} of Package: ${PACKAGE_NAME} Successfully checked out from ${PACKAGE_URL}"
     git log --oneline --decorate -n 15
   else
-    ERROR "Tag ${VERSION} of Package: ${PACKAGE_NAME} checked out failed."
+    ERROR "Tag ${VERSION} of Package: ${PACKAGE_NAME} checked out failed from ${PACKAGE_URL}."
     git log --oneline --decorate -n 15
     EXIT_STATUS=1
     debug
   fi
 
-  pushd categories_parent_go_sdk || exit 1
+  pushd "${PACKAGE_NAME}" || exit 1
   # For later use in the verification step.
-  cp go.mod "${PROJECT_ROOT}"
-  if go install "${PACKAGE_URL}" ; then
-    PASS "Go Successful install for ${PACKAGE_URL}"
-  else
-    ERROR "Go Failed install for ${PACKAGE_URL}"
+  #cp go.mod "${PROJECT_ROOT}"
+  #if go install "${PACKAGE_URL}"/"${PACKAGE_NAME}" ; then
+  #  PASS "Go Successful install of ${PACKAGE_NAME} from ${PACKAGE_URL}"
+  #else
+  #  ERROR "Go Failed install of ${PACKAGE_NAME} from ${PACKAGE_URL}"
     #WARN "Go get not currently implemented due to unpublished dependencies"
-    EXIT_STATUS=1
-  fi
+  #  EXIT_STATUS=1
+  #fi
   popd || exit 1
 
   popd || exit 1
   # Rename package for standard deployment, and so we have a copy of the original
   # for debugging purposes.
-  cp -rf "${PACKAGE_NAME}" package
-
+  cp -rf "${REPO_NAME}"/"${PACKAGE_NAME}" package
+  ls -lah package
   popd || exit 1
 
 }
 
 function mvn-internal-release-verify {
-  # HACK: Pinned to DEPLOY_FROM_TAG=4.0.1-alpha-1
-  # This java package is currently pinned to the version below
-  # rather than inheriting from config.yml. This should be fixed before
-  # production deployment
-  VERSION=4.0.1-alpha-1
+  export VERSION="${DEPLOY_FROM_TAG}"
+  #HACK Version is currently pinned.
+  VERSION="4.0.0-alpha-1"
+  export PACKAGE_NAME="${NAMESPACE}"-java-client
+  #HACK: Other package versions should be made consistent with MVN_VERSION
+  # If this is done, this hack can be removed.
+  export MVN_VERSION=${VERSION/alpha./alpha-}
 
   rm -rf "${PROJECT_ROOT}"/verify/maven-release-verify
   mkdir -p "${PROJECT_ROOT}"/verify/maven-release-verify
@@ -115,14 +121,16 @@ function mvn-internal-release-verify {
   mv pom.xml pom.xml.old
   cp "${PROJECT_ROOT}"/services/deploy/mvn/pom.template ./pom.xml
   cp "${PROJECT_ROOT}"/services/deploy/mvn/settings.xml .
-  sed -i "s|.{env.DEPLOYMENT_TAG}|${VERSION}|g" pom.xml
+  sed -i "s|.{env.DEPLOYMENT_TAG}|${MVN_VERSION}|g" pom.xml
+  sed -i "s|-java-client|${PACKAGE_NAME}|g" pom.xml
+  #cat pom.xml
 
   if mvn package -q --settings settings.xml -DdownloadSources=true -DdownloadJavadocs=true ; then
     PASS "Successfully Downloaded Maven Package using pom:"
     cat pom.xml
     mvn dependency:sources dependency:resolve -Dclassifier=javadoc -q -s settings.xml
     mvn dependency:sources -Dsilent=true -q -s settings.xml
-    cp -rf ~/.m2/repository/com/nutanix/api/vmm-java-client/"${VERSION}"/ "${PROJECT_ROOT}"/verify/maven-release-verify/package
+    cp -rf ~/.m2/repository/com/nutanix/api/"${PACKAGE_NAME}"/"${MVN_VERSION}"/ "${PROJECT_ROOT}"/verify/maven-release-verify/package
     INFO "MVN Package Contents:"
     ls -lah "${PROJECT_ROOT}"/verify/maven-release-verify/package
     pushd "${PROJECT_ROOT}"/verify/maven-release-verify/package || exit 1
@@ -172,27 +180,27 @@ function mvn-internal-release-verify {
 }
 
 function npm-internal-release-verify {
+  export VERSION="${DEPLOY_FROM_TAG}"
+  export PACKAGE_NAME="${NAMESPACE}"-js-client
+  export SCOPE=nutanix-core
+
   rm -rf "${PROJECT_ROOT}"/verify/npm-release-verify
   mkdir -p "${PROJECT_ROOT}"/verify/npm-release-verify
   pushd "${PROJECT_ROOT}"/verify/npm-release-verify || exit 1
   
   echo "${INTERNAL_NPM_PULL_CREDENTIALS}" > "${HOME}/.npmrc"
 
-  # HACK: NPM Verify pinned to VERSION=16.7.0-2
-  # This override is necessary because the npm package tag is currently inconsistent with the other packages.
-  # It should be fixed before final deployment
-  VERSION=16.7.0-2
-
-  if npm pack @nutanix-core/categories-javascript-client-sdk@"${VERSION}" ; then
+  if npm pack @nutanix-core/"${PACKAGE_NAME}"@"${VERSION}" ; then
     PASS "Successfully Downloaded NPM Package"
-    INFO @nutanix-core/categories-javascript-client-sdk@"${VERSION}"
+    INFO @"${SCOPE}"/"${PACKAGE_NAME}"@"${VERSION}"
   else
     ERROR "Failed to Download NPM Package"
-    INFO @nutanix-core/categories-javascript-client-sdk@"${VERSION}"
+    INFO @"${SCOPE}"/"${PACKAGE_NAME}"@"${VERSION}"
     export EXIT_STATUS=1
   fi
 
-  tar -zxf nutanix-core-categories-javascript-client-sdk-"${VERSION}".tgz
+  ls -lah
+  tar -zxf "${SCOPE}"-"${PACKAGE_NAME}"-"${VERSION}".tgz
   # This should be untarred into package which will be used in deploy-npm.sh for actual deployments
 
   cp -rf package audit
@@ -220,6 +228,11 @@ function npm-internal-release-verify {
 }
 
 function pip-internal-release-verify {
+  export VERSION="${DEPLOY_FROM_TAG}"
+  PACKAGE_DIR="${NAMESPACE}"
+  export PACKAGE_NAME="ntnx_${NAMESPACE}_py_client"
+  export PACKAGE_NAME="${PACKAGE_NAME/_/-}"
+
   rm -rf "${PROJECT_ROOT}"/verify/pip-release-verify
   mkdir -p "${PROJECT_ROOT}"/verify/pip-release-verify
   pushd "${PROJECT_ROOT}"/verify/pip-release-verify || exit 1
@@ -227,10 +240,6 @@ function pip-internal-release-verify {
   sudo apt install python3-pip
   /home/circleci/.pyenv/versions/3.8.5/bin/python3.8 -m pip install --upgrade pip
 
-  #PACKAGE_NAME=categories-client
-  PACKAGE_NAME=categories-sdk
-  PACKAGE_DIR=categories
-  #TMP_VERSION=categories-${VERSION}
   #PACKAGE_PATH="git+ssh://git@github.com/nutanix-core/ntnx-api-python-sdk-external.git@${TMP_VERSION}#subdirectory=${PACKAGE_DIR}&egg=${PACKAGE_NAME}"
   PACKAGE_PATH="git+ssh://git@github.com/nutanix-core/ntnx-api-python-sdk-external.git#subdirectory=${PACKAGE_DIR}&egg=${PACKAGE_NAME}"
 
@@ -243,7 +252,16 @@ function pip-internal-release-verify {
     export EXIT_STATUS=1
   fi
 
-  cp -rf src/${PACKAGE_NAME}/${PACKAGE_DIR} ./package
+  #cp -rf src/"${PACKAGE_NAME}"/"${PACKAGE_DIR}" ./package
+  ls -lah src/
+  echo
+  ls -lah src/"${PACKAGE_NAME}"
+  echo
+  ls -lah src/"${PACKAGE_DIR}"
+  echo
+  ls -lah src/"${PACKAGE_NAME}"/"${PACKAGE_DIR}"
+  echo
+  ls -lah src/"${PACKAGE_DIR}"/"${PACKAGE_NAME}"
 
   popd || exit 1
 
@@ -263,8 +281,8 @@ function debug {
 
   WARN "Maven Debug"
   ls -lah ~/.m2/repository/com/nutanix/api
-  ls -lah ~/.m2/repository/com/nutanix/api/vmm-java-client
-  ls -lah ~/.m2/repository/com/nutanix/api/vmm-java-client/"${VERSION}"/
+  ls -lah ~/.m2/repository/com/nutanix/api/"${PACKAGE_NAME}"
+  ls -lah ~/.m2/repository/com/nutanix/api/"${PACKAGE_NAME}"/"${VERSION}"/
   ls -lah "${PROJECT_ROOT}"/verify/maven-release-verify
   ls -lah "${PROJECT_ROOT}"/verify/maven-release-verify
   ls -lah "${PROJECT_ROOT}"/verify/maven-release-verify/package

@@ -110,8 +110,9 @@ dev_deploy_config: &dev_deploy_config
       services/deploy/manage-package-deployments.sh dev
     environment:
       BRANCH_FILTER: /^(?!main.*$).*/
-      DEPLOY_FROM_TAG: "16.7.0"
-      DEPLOY_TO_TAG: "0.31.16-7-0-rc22"
+      DEPLOY_FROM_TAG: "4.0.1-alpha.1"
+      DEPLOY_TO_TAG: "0.1.4-0-1-rc1"
+      NAMESPACE: "vmm"
       #FORCE_DEPLOYMENT_TAG: 16.7.0-SNAPSHOT
 test_deploy_config: &test_deploy_config
   run:
@@ -221,12 +222,12 @@ jobs:
       # The following lines should be commented out before a merge to master.
       #- <<: *deploy_golang
       #- <<: *deploy_golang_verify
-      - <<: *deploy_maven
-      - <<: *deploy_maven_verify
-      - <<: *deploy_pip
-      - <<: *deploy_pip_verify
-      - <<: *deploy_npm
-      - <<: *deploy_npm_verify
+      #- <<: *deploy_maven
+      #- <<: *deploy_maven_verify
+      #- <<: *deploy_pip
+      #- <<: *deploy_pip_verify
+      #- <<: *deploy_npm
+      #- <<: *deploy_npm_verify
       - <<: *verify_hack_removal
 
   test_build:

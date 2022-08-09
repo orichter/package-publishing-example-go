@@ -35,6 +35,7 @@ export DEPLOY_TO_TAG=${DEPLOY_TO_TAG:-$MOST_RECENT_TAG}
   echo 'export DEPLOY_TO_TAG="'"${DEPLOY_TO_TAG}"'"'
   echo 'export BRANCH_FILTER="'"${BRANCH_FILTER}"'"'
   echo 'export TAG_FILTER="'"${TAG_FILTER}"'"'
+  echo 'export NAMESPACE="'"${NAMESPACE}"'"'
 } >> ./release-config.source
 
 # Penultimate: second to last

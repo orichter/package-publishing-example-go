@@ -27,7 +27,7 @@
     </dependency>
     <dependency>
       <groupId>com.nutanix.api</groupId>
-      <artifactId>vmm-java-client</artifactId>
+      <artifactId>-java-client</artifactId>
       <version>${env.DEPLOYMENT_TAG}</version>
     </dependency>
   </dependencies>
