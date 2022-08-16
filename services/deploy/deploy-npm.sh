@@ -2,7 +2,6 @@
 #export TERM=ansi
 export TERM=xterm-color
 export PROJECT_ROOT=${PROJECT_ROOT:-"/home/circleci/project"}
-export PACKAGE_NAME=categories-javascript-client-sdk
 EXIT_STATUS=0
 #shellcheck disable=SC1091
 #shellcheck disable=SC1090
@@ -18,10 +17,29 @@ INFO "Version: ${VERSION}"
 echo
 
 function main {
-  deploy-to-stage-internal
-  deploy-to-stage
-  deploy-to-github-prod
-  #deploy-to-prod
+  # DEPLOY_TO_TAG="0.1.4-0-1-rc1"
+  # DEPLOY_FROM_TAG: "4.0.1-alpha.1"
+
+  NAMESPACES="vmm prism clustermgmt aiops iam storage"
+  # Iterate the string variable using for loop
+  for NAMESPACE in ${NAMESPACES}; do
+    echo "NPM Deploying Namespace: ${NAMESPACE}"
+    # HACK: Crude deployment manifest which needs to be reworked.
+    if [ "${NAMESPACE}" = "storage" ] ; then
+      VERSION="4.0.1-alpha.2"
+      VERSION=${DEPLOY_TO_TAG}-${VERSION/./-}
+    else
+      VERSION="4.0.1-alpha.1"
+      VERSION=${DEPLOY_TO_TAG}-${VERSION/./-}
+    fi
+
+    deploy-to-stage-internal "${NAMESPACE}" "${VERSION}"
+    #deploy-to-stage "${NAMESPACE}" "${VERSION}"
+    #deploy-to-github-prod "${NAMESPACE}" "${VERSION}"
+    #deploy-to-prod "${NAMESPACE}" "${VERSION}"
+
+  done
+
   PASS "Successful Deployments can be found at:"
   cat "${PROJECT_ROOT}"/verify/npm-release-verify/successful-deployments.txt
   if test -f "${PROJECT_ROOT}/npm-release-verify/failed-deployments.txt"; then
@@ -32,11 +50,14 @@ function main {
 }
 
 function deploy-to-stage-internal {
+  NAMESPACE=$1
+  VERSION=$2
+  PACKAGE_NAME=${NAMESPACE}-js-client
   pushd "${PROJECT_ROOT}"/verify/npm-release-verify || exit 1
 
-  cp -rf package stage-package-internal
+  cp -rf package-"${NAMESPACE}" stage-package-internal-"${NAMESPACE}"
 
-  pushd stage-package-internal || exit 1
+  pushd stage-package-internal-"${NAMESPACE}" || exit 1
   PUBLISH_FROM=@nutanix-core/"${PACKAGE_NAME}"
   PUBLISH_TO=@nutanix-release-engineering/"${PACKAGE_NAME}"
 
@@ -54,11 +75,11 @@ function deploy-to-stage-internal {
 
   sed -i "s|${PUBLISH_FROM_REPO}|${PUBLISH_TO_REPO}|g" package.json
 
-  INFO "Internal Stage Package Config"
+  INFO "Internal Stage Package Config for ${PACKAGE_NAME}"
   cat package.json
 
   npm version "${VERSION}"
-  echo "Publishing stage-package-internal package.json:"
+  echo "Publishing ${PACKAGE_NAME} to stage-package-internal package.json:"
   cat package.json
 
   echo "@orichter:registry=https://npm.pkg.github.com/orichter" > "${HOME}"/.npmrc
@@ -82,11 +103,15 @@ function deploy-to-stage-internal {
 }
 
 function deploy-to-stage {
+  NAMESPACE=$1
+  VERSION=$2
+  PACKAGE_NAME=${NAMESPACE}-js-client
+
   pushd "${PROJECT_ROOT}"/verify/npm-release-verify || exit 1
 
-  cp -rf package stage-package
+  cp -rf package-"${NAMESPACE}" stage-package-"${NAMESPACE}"
 
-  pushd stage-package || exit 1
+  pushd stage-package-"${NAMESPACE}" || exit 1
   PUBLISH_FROM=@nutanix-core/"${PACKAGE_NAME}"
   PUBLISH_TO=@nutanix-scratch/"${PACKAGE_NAME}"
   PACKAGE_URL=https://www.npmjs.com/package/"${PUBLISH_TO}"
@@ -103,16 +128,18 @@ function deploy-to-stage {
 
   sed -i "s|${PUBLISH_FROM_REPO}|${PUBLISH_TO_REPO}|g" package.json
 
-  INFO "Stage Package Config"
+  INFO "Stage Package Config for ${PACKAGE_NAME}"
   cat package.json
 
   npm version "${VERSION}"
-  echo "Publishing stage-package package.json:"
+  echo "Publishing ${PACKAGE_NAME} stage-package package.json:"
   cat package.json
 
   echo "//registry.npmjs.org/:_authToken=${PASSWORD_PUBLISH_NPM}" > "${HOME}"/.npmrc
 
-  if npm publish --access public ; then
+  #if npm publish --access public ; then
+  # HACK: Temporarily disable stage publish to review package.json
+  if true ; then
     PASS "NPM Package ${PACKAGE_NAME} Successfully Deployed to ${PACKAGE_URL}"
     PASS "${PACKAGE_URL}" >> "${PROJECT_ROOT}"/verify/npm-release-verify/successful-deployments.txt
   else
@@ -129,11 +156,15 @@ function deploy-to-stage {
 }
 
 function deploy-to-github-prod {
+  NAMESPACE=$1
+  VERSION=$2
+  PACKAGE_NAME=${NAMESPACE}-js-client
+
   pushd "${PROJECT_ROOT}"/verify/npm-release-verify || exit 1
 
-  cp -rf package prod-github-package
+  cp -rf package-"${NAMESPACE}" prod-github-package-"${NAMESPACE}"
 
-  pushd prod-github-package || exit 1
+  pushd prod-github-package-"${NAMESPACE}" || exit 1
   PUBLISH_FROM=@nutanix-core/"${PACKAGE_NAME}"
   PUBLISH_TO=@orichter/"${PACKAGE_NAME}"
 
@@ -151,17 +182,19 @@ function deploy-to-github-prod {
 
   sed -i "s|${PUBLISH_FROM_REPO}|${PUBLISH_TO_REPO}|g" package.json
 
-  INFO "Github Prod Package Config"
+  INFO "Github Prod Package Config for ${PACKAGE_NAME}"
   cat package.json
 
   npm version "${VERSION}"
-  echo "Publishing prod-github-package package.json:"
+  echo "Publishing ${PACKAGE_NAME} prod-github-package package.json:"
   cat package.json
 
   echo "@orichter:registry=https://npm.pkg.github.com/orichter" > "${HOME}"/.npmrc
   echo "//npm.pkg.github.com/:_authToken=${PASSWORD_PUBLISH_NPM_GITHUB}" >> "${HOME}"/.npmrc
 
-  if npm publish --access public ; then
+  #if npm publish --access public ; then
+  # HACK: Temporarily disable github-prod publish to review package.json
+  if true ; then
     PASS "NPM Package ${PACKAGE_NAME} Successfully Deployed to ${PACKAGE_URL}"
     PASS "${PACKAGE_URL}" >> "${PROJECT_ROOT}"/verify/npm-release-verify/successful-deployments.txt
   else
@@ -177,11 +210,15 @@ function deploy-to-github-prod {
 }
 
 function deploy-to-prod {
+  NAMESPACE=$1
+  VERSION=$2
+  PACKAGE_NAME=${NAMESPACE}-js-client
+
   pushd "${PROJECT_ROOT}"/verify/npm-release-verify || exit 1
 
-  cp -rf package prod-package
+  cp -rf package-"${NAMESPACE}" prod-package-"${NAMESPACE}"
 
-  pushd prod-package || exit 1
+  pushd prod-package-"${NAMESPACE}" || exit 1
   PUBLISH_FROM=@nutanix-core/"${PACKAGE_NAME}"
   PUBLISH_TO=@nutanix-api/"${PACKAGE_NAME}"
   PACKAGE_URL=https://www.npmjs.com/package/"${PUBLISH_TO}"
@@ -195,20 +232,22 @@ function deploy-to-prod {
   PUBLISH_TO_REPO=git+https://github.com/orichter/package-publishing-examples.git
   sed -i "s|${PUBLISH_FROM_REPO}|${PUBLISH_TO_REPO}|g" package.json
 
-  INFO "Npmjs.org Prod Package Config"
+  INFO "Npmjs.org Prod Package Config for ${PACKAGE_NAME}"
   cat package.json
 
   npm version "${VERSION}"
-  echo "Publishing prod-package package.json:"
+  echo "Publishing ${PACKAGE_NAME} prod-package package.json:"
   cat package.json
 
   echo "//registry.npmjs.org/:_authToken=${PASSWORD_PUBLISH_NPM}" > "${HOME}"/.npmrc
 
-  echo "Currently not publishing to Prod"
+  echo "HACK: Currently not publishing  ${PACKAGE_NAME} to Prod"
   # HACK: npm publish to prod is currently disabled.
   # Uncomment the line below and comment the line above to publish to prod.
   #if npm publish --access public ; then
-  if npm publish ; then
+  #if npm publish ; then
+  # HACK: Temporarily disable prod publish to review package.json
+  if true ; then
     PASS "NPM Package ${PACKAGE_NAME} Successfully Deployed to ${PACKAGE_URL}"
     PASS "${PACKAGE_URL}" >> "${PROJECT_ROOT}"/verify/npm-release-verify/successful-deployments.txt
   else

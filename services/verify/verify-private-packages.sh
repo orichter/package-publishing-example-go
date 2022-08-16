@@ -36,8 +36,8 @@ function main {
   rm -rf "${PROJECT_ROOT}"/verify/maven-release-verify
   mkdir -p "${PROJECT_ROOT}"/verify/maven-release-verify
 
-  # DEPLOY_FROM_TAG: "4.0.1-alpha.1"
   # DEPLOY_TO_TAG="0.1.4-0-1-rc1"
+  # DEPLOY_FROM_TAG: "4.0.1-alpha.1"
 
   NAMESPACES="vmm prism clustermgmt aiops iam storage"
   # Iterate the string variable using for loop
@@ -53,6 +53,7 @@ function main {
     fi
     pip-internal-release-verify "${NAMESPACE}" "${VERSION}"
     npm-internal-release-verify "${NAMESPACE}" "${VERSION}"
+    golang-internal-release-verify "${NAMESPACE}" "${VERSION}"
 
     # HACK: MVN Deployment Version is currently pinned.
     #VERSION="4.0.0-alpha-1"
@@ -62,8 +63,6 @@ function main {
     mvn-internal-release-verify "${NAMESPACE}" "${MVN_VERSION}"
 
   done
-  # HACK: golang currently can't be verified, so it is removed.
-  #golang-internal-release-verify
 }
 
 function check-prerequisites {
@@ -80,7 +79,9 @@ function check-prerequisites {
 }
 
 function golang-internal-release-verify {
-  export VERSION="${DEPLOY_FROM_TAG}"
+  NAMESPACE=$1
+  VERSION=$2
+  #export VERSION="${DEPLOY_FROM_TAG}"
   # HACK: This should be named golang-client for consistency
   export PACKAGE_NAME="${NAMESPACE}"-go-client
 
@@ -94,7 +95,11 @@ function golang-internal-release-verify {
   
   export REPO_NAME=ntnx-api-golang-sdk-external
   export PACKAGE_URL=https://github.com/nutanix-core/"${REPO_NAME}".git
-  git clone "${PACKAGE_URL}"
+
+  # HACK: We only need to clone on the first call vmm, but this is a klugy way to do so.
+  if [ "${NAMESPACE}" = "vmm" ] ; then
+    git clone "${PACKAGE_URL}"
+  fi
 
   pushd "${REPO_NAME}" || exit 1
   git fetch --all --tags
