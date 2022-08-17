@@ -221,10 +221,10 @@ jobs:
       # The following lines should be commented out before a merge to master.
       #- <<: *deploy_golang
       #- <<: *deploy_golang_verify
-      - <<: *deploy_maven
-      - <<: *deploy_maven_verify
-      #- <<: *deploy_pip
-      #- <<: *deploy_pip_verify
+      #- <<: *deploy_maven
+      #- <<: *deploy_maven_verify
+      - <<: *deploy_pip
+      - <<: *deploy_pip_verify
       #- <<: *deploy_npm
       #- <<: *deploy_npm_verify
       - <<: *verify_hack_removal

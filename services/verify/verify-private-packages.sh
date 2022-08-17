@@ -25,17 +25,8 @@ function main {
   # The following line is used for testing the release pipeline only.
   # It should be commented out for actual deployments.
   check-prerequisites
-  #mvn-sample-release
 
-  rm -rf "${PROJECT_ROOT}"/verify/pip-release-verify
-  mkdir -p "${PROJECT_ROOT}"/verify/pip-release-verify
-  rm -rf "${PROJECT_ROOT}"/verify/npm-release-verify
-  mkdir -p "${PROJECT_ROOT}"/verify/npm-release-verify
-  rm -rf "${PROJECT_ROOT}"/verify/golang-release-verify
-  mkdir -p "${PROJECT_ROOT}"/verify/golang-release-verify
-  rm -rf "${PROJECT_ROOT}"/verify/maven-release-verify
-  mkdir -p "${PROJECT_ROOT}"/verify/maven-release-verify
-
+  clean-all
   # DEPLOY_TO_TAG="0.1.4-0-1-rc1"
   # DEPLOY_FROM_TAG: "4.0.1-alpha.1"
 
@@ -277,22 +268,17 @@ function pip-internal-release-verify {
   if pip3 install -e "${PACKAGE_PATH}" ; then
     PASS "Successfully Downloaded Python Package: ${PACKAGE_NAME}"
     INFO "${PACKAGE_PATH}"
+    #ls -lah
+    #cp -rf package package-"${NAMESPACE}"
   else
     ERROR "Failed to Download Python Package: ${PACKAGE_NAME}"
     INFO "${PACKAGE_PATH}"
+    debug-pip
     export EXIT_STATUS=1
   fi
 
-  #cp -rf src/"${PACKAGE_NAME}"/"${PACKAGE_DIR}" ./package
-  #ls -lah src/
-  #echo
-  #ls -lah src/"${PACKAGE_NAME}"
-  #echo
-  #ls -lah src/"${PACKAGE_DIR}"
-  #echo
-  #ls -lah src/"${PACKAGE_NAME}"/"${PACKAGE_DIR}"
-  #echo
-  #ls -lah src/"${PACKAGE_DIR}"/"${PACKAGE_NAME}"
+  # HACK: Python Package Directory is not named consistently with the directory
+  cp -rf src/"${PACKAGE_NAME//_/-}"/"${PACKAGE_DIR}" ./package-"${NAMESPACE}"
 
   popd || exit 1
 
@@ -309,8 +295,31 @@ function debug {
   git status
   git log --oneline --decorate -n 15
   echo
+}
 
+function clean-all {
+  rm -rf "${PROJECT_ROOT}"/verify/pip-release-verify
+  mkdir -p "${PROJECT_ROOT}"/verify/pip-release-verify
+  rm -rf "${PROJECT_ROOT}"/verify/npm-release-verify
+  mkdir -p "${PROJECT_ROOT}"/verify/npm-release-verify
+  rm -rf "${PROJECT_ROOT}"/verify/golang-release-verify
+  mkdir -p "${PROJECT_ROOT}"/verify/golang-release-verify
+  rm -rf "${PROJECT_ROOT}"/verify/maven-release-verify
+  mkdir -p "${PROJECT_ROOT}"/verify/maven-release-verify
+
+}
+
+function debug-pip {
+  WARN "Maven PIP"
+  debug
+  echo
+  ls -lah src/
+  ls -lah src/"${PACKAGE_NAME//_/-}"/"${PACKAGE_DIR}"
+}
+
+function debug-maven {
   WARN "Maven Debug"
+  debug
   ls -lah ~/.m2/repository/com/nutanix/api
   ls -lah ~/.m2/repository/com/nutanix/api/"${PACKAGE_NAME}"
   ls -lah ~/.m2/repository/com/nutanix/api/"${PACKAGE_NAME}"/"${VERSION}"/
