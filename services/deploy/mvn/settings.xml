@@ -30,6 +30,13 @@
           </snapshots>
         </repository>
         <repository>
+          <id>nutanix-private-staging</id>
+          <url>https://maven.pkg.github.com/nutanix-release-engineering/experiments-example-github-package-npm</url>
+          <snapshots>
+            <enabled>true</enabled>
+          </snapshots>
+        </repository>
+        <repository>
           <id>nutanix-sample</id>
           <url>https://maven.pkg.github.com/nutanix-release-engineering/experiments-example-github-package-npm</url>
           <snapshots>
@@ -50,6 +57,11 @@
       <id>nutanix-public</id>
       <username>${env.USERNAME_PUBLISH_MVN}</username>
       <password>${env.PASSWORD_PUBLISH_MVN}</password>      
+    </server>
+    <server>
+      <id>nutanix-private-staging</id>
+      <username>${env.USERNAME_PUBLISH_MVN}</username>
+      <password>${env.PASSWORD_PUBLISH_MVN}</password>
     </server>
     <server>
       <id>nutanix-private</id>

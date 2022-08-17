@@ -16,16 +16,16 @@ export VERSION="${DEPLOY_TO_TAG}"
 # This java package is currently pinned to the version below
 # rather than inheriting from config.yml. This should be fixed before
 # production deployment
-export DEPLOY_FROM_TAG=4.0.1-alpha-1
+export DEPLOY_FROM_TAG=4.0.0-alpha-1
 INFO "Version: ${VERSION}"
 echo
 
 # Defualt Deployment Parameters
 export GROUP_ID=com.nutanix.api
-export ARTIFACT_ID=vmm-java-client
+#export ARTIFACT_ID=vmm-java-client
 export VERSION="${VERSION}"
-export DEPLOYMENT_FILE=./"${ARTIFACT_ID}"-"${DEPLOY_FROM_TAG}".jar
-export DEPLOYMENT_POM_FILE=./"${ARTIFACT_ID}"-"${DEPLOY_FROM_TAG}".pom
+#export DEPLOYMENT_FILE=./"${ARTIFACT_ID}"-"${DEPLOY_FROM_TAG}".jar
+#export DEPLOYMENT_POM_FILE=./"${ARTIFACT_ID}"-"${DEPLOY_FROM_TAG}".pom
 export DEPLOYMENT_DOC_FILE=./javadoc.jar
 export DEPLOYMENT_SOURCES_FILE=./sources.jar
 export REPOSITORY_ID=nutanix-public
@@ -33,8 +33,26 @@ export REPOSITORY_URL=https://maven.pkg.github.com/orichter/package-publishing-e
 
 function main {
   import-gpg-keys
-  mvn-github-external-release
-  mvn-central-external-release
+
+  NAMESPACES="vmm prism clustermgmt aiops iam storage"
+  # Iterate the string variable using for loop
+  for NAMESPACE in ${NAMESPACES}; do
+    echo "MVN Deploying Namespace: ${NAMESPACE}"
+    # HACK: Crude deployment manifest which needs to be reworked.
+    if [ "${NAMESPACE}" = "storage" ] ; then
+      export DEPLOY_FROM_TAG="4.0.0-alpha-1"
+      VERSION=${DEPLOY_TO_TAG}-${DEPLOY_FROM_TAG/./-}
+    else
+      export DEPLOY_FROM_TAG="4.0.0-alpha-1"
+      VERSION=${DEPLOY_TO_TAG}-${DEPLOY_FROM_TAG/./-}
+    fi
+
+    mvn-github-internal-release "${NAMESPACE}" "${VERSION}"
+    #mvn-github-external-release "${NAMESPACE}" "${VERSION}"
+    #mvn-central-external-release "${NAMESPACE}" "${VERSION}"
+
+  done
+
   echo
   PASS "Successful Deployments can be found at:"
   cat "${PROJECT_ROOT}"/verify/maven-release-verify/successful-deployments.txt
@@ -66,13 +84,20 @@ function import-gpg-keys {
 }
 
 function sign-and-deploy-file {
+  NAMESPACE=$1
+  VERSION=$2
+  PACKAGE_NAME=${NAMESPACE}-java-client
+  ARTIFACT_ID=${PACKAGE_NAME}
+  export DEPLOYMENT_FILE=./"${ARTIFACT_ID}"-"${DEPLOY_FROM_TAG}".jar
+  export DEPLOYMENT_POM_FILE=./"${ARTIFACT_ID}"-"${DEPLOY_FROM_TAG}".pom
+
   #pushd "${PROJECT_ROOT}"/verify/mvn-external-release/"${VERSION}" || exit 1
-  pushd "${PROJECT_ROOT}"/verify/maven-release-verify/package || exit 1
+  pushd "${PROJECT_ROOT}"/verify/maven-release-verify/package-"${NAMESPACE}" || exit 1
 
   cp "${PROJECT_ROOT}"/services/deploy/mvn/settings.xml .
   #cp "${PROJECT_ROOT}"/mvn/hellonutanixworld/pom.xml .
   #sed -i "s/.{env.DEPLOYMENT_TAG}/${VERSION}/g" pom.xml
-  INFO "Depolying using ${DEPLOYMENT_POM_FILE}:"
+  INFO "Depolying using ${DEPLOYMENT_POM_FILE} :"
   cat "${DEPLOYMENT_POM_FILE}"
 
   # The following can be used to generate stub jar files.
@@ -109,19 +134,35 @@ function sign-and-deploy-file {
   popd || exit 1
 }
 
+function mvn-github-internal-release {
+  NAMESPACE=$1
+  VERSION=$2
+
+  export REPOSITORY_ID=nutanix-private-staging
+  export REPOSITORY_URL=https://maven.pkg.github.com/nutanix-release-engineering/experiments-example-github-package-npm
+  # It is unclear if /packages/1552392 is static within github, so it may need to be dropped.
+  export PACKAGE_URL="${REPOSITORY_URL//maven.pkg.github.com/github.com}"/packages/TBD
+
+  sign-and-deploy-file "${NAMESPACE}" "${VERSION}"
+}
+
 function mvn-github-external-release {
-  export VERSION="${VERSION}"
+  NAMESPACE=$1
+  VERSION=$2
   export REPOSITORY_ID=nutanix-public
   export REPOSITORY_URL=https://maven.pkg.github.com/orichter/package-publishing-examples
   # It is unclear if /packages/1552392 is static within github, so it may need to be dropped.
   export PACKAGE_URL="${REPOSITORY_URL//maven.pkg.github.com/github.com}"/packages/1552392
 
-  sign-and-deploy-file
+  sign-and-deploy-file "${NAMESPACE}" "${VERSION}"
 }
 
 function mvn-central-external-release {
+  NAMESPACE=$1
+  VERSION=$2
+
   export REPOSITORY_ID=maven-central
-  if [[ "${VERSION}" =~ "-rc" ]]; then
+  if [[ "${VERSION}" =~ "-alpha" ]]; then
     export REPOSITORY_URL=https://s01.oss.sonatype.org/content/repositories/snapshots
     # Ideally we would do this for a Github release candidate as well,
     # but gpg:sign-and-deploy-file doesnt work with -SNAPSHOT
@@ -135,7 +176,7 @@ function mvn-central-external-release {
     export PACKAGE_URL="${REPOSITORY_URL}/${GROUP_ID//.//}/${ARTIFACT_ID}/${VERSION}"
   fi
 
-  sign-and-deploy-file
+  sign-and-deploy-file "${NAMESPACE}" "${VERSION}"
 }
 
 function debug {
