@@ -19,18 +19,37 @@ function main {
   mkdir -p "${PROJECT_ROOT}"/verify/npm-release-verify
   pushd "${PROJECT_ROOT}"/verify/npm-release-verify || exit 1
 
-  deploy-to-stage-internal-verify
-  deploy-to-stage-verify
-  deploy-to-github-prod-verify
-  #deploy-to-prod-verify
+  NAMESPACES="vmm prism clustermgmt aiops iam storage"
+  # Iterate the string variable using for loop
+  for NAMESPACE in ${NAMESPACES}; do
+    echo "NPM Deploying Namespace: ${NAMESPACE}"
+    # HACK: Crude deployment manifest which needs to be reworked.
+    if [ "${NAMESPACE}" = "storage" ] ; then
+      VERSION="4.0.1-alpha.2"
+      VERSION=${DEPLOY_TO_TAG}-${VERSION/./-}
+    else
+      VERSION="4.0.1-alpha.1"
+      VERSION=${DEPLOY_TO_TAG}-${VERSION/./-}
+    fi
+
+    deploy-to-stage-internal-verify "${NAMESPACE}" "${VERSION}"
+    deploy-to-stage-verify "${NAMESPACE}" "${VERSION}"
+    deploy-to-github-prod-verify "${NAMESPACE}" "${VERSION}"
+    #deploy-to-prod-verify
+
+  done
+
   popd || exit 1
 }
 
 function deploy-to-stage-internal-verify {
   set-github-internal-npm-credentials
+  NAMESPACE=$1
+  VERSION=$2
+  PACKAGE_NAME=${NAMESPACE}-js-client
 
-  mkdir -p ./stage-github-internal-verify
-  pushd ./stage-github-internal-verify || exit 1
+  mkdir -p ./stage-github-internal-verify-"${NAMESPACE}"
+  pushd ./stage-github-internal-verify-"${NAMESPACE}" || exit 1
 
   export PACKAGE=@nutanix-release-engineering/"${PACKAGE_NAME}"@"${VERSION}"
   if npm install "${PACKAGE}"; then
@@ -46,9 +65,12 @@ function deploy-to-stage-internal-verify {
 
 function deploy-to-stage-verify {
   set-npmjs-npm-credentials
+  NAMESPACE=$1
+  VERSION=$2
+  PACKAGE_NAME=${NAMESPACE}-js-client
 
-  mkdir -p ./stage-verify
-  pushd ./stage-verify || exit 1
+  mkdir -p ./stage-verify-"${NAMESPACE}"
+  pushd ./stage-verify-"${NAMESPACE}" || exit 1
   export PACKAGE=@nutanix-scratch/"${PACKAGE_NAME}"@"${VERSION}"
   if npm install "${PACKAGE}"; then
     PASS "NPM Package ${PACKAGE} Successfully Installed from @nutanix-scratch"
@@ -63,12 +85,16 @@ function deploy-to-stage-verify {
 
 function deploy-to-github-prod-verify {
   set-github-npm-credentials
+  NAMESPACE=$1
+  VERSION=$2
+  PACKAGE_NAME=${NAMESPACE}-js-client
 
-  mkdir -p ./prod-github-verify
-  pushd ./prod-github-verify || exit 1
+  mkdir -p ./prod-github-verify-"${NAMESPACE}"
+  pushd ./prod-github-verify-"${NAMESPACE}" || exit 1
 
   #echo "${EXTERNAL_GITHUB_NPM_PULL_CREDENTIALS}" > "${HOME}/.npmrc"
 
+  # HACK: Using orichter for testing. Proper domain should be @nutanix
   export PACKAGE=@orichter/"${PACKAGE_NAME}"@"${VERSION}"
   if npm install "${PACKAGE}"; then
     PASS "NPM Package ${PACKAGE} Successfully Installed from Github"
@@ -83,8 +109,10 @@ function deploy-to-github-prod-verify {
 
 function deploy-to-prod-verify {
   set-npmjs-npm-credentials
-  mkdir -p ./prod-verify
-  pushd ./prod-verify || exit 1
+
+
+  mkdir -p ./prod-verify-"${NAMESPACE}"
+  pushd ./prod-verify-"${NAMESPACE}" || exit 1
   export PACKAGE=@nutanix-api/"${PACKAGE_NAME}"@"${VERSION}"
   if npm install "${PACKAGE}"; then
     PASS "NPM Package ${PACKAGE} Successfully Installed from @nutanix-scratch"

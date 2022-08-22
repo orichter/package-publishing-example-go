@@ -34,8 +34,8 @@ function main {
     fi
 
     deploy-to-stage-internal "${NAMESPACE}" "${VERSION}"
-    #deploy-to-stage "${NAMESPACE}" "${VERSION}"
-    #deploy-to-github-prod "${NAMESPACE}" "${VERSION}"
+    deploy-to-stage "${NAMESPACE}" "${VERSION}"
+    deploy-to-github-prod "${NAMESPACE}" "${VERSION}"
     #deploy-to-prod "${NAMESPACE}" "${VERSION}"
 
   done
@@ -137,9 +137,7 @@ function deploy-to-stage {
 
   echo "//registry.npmjs.org/:_authToken=${PASSWORD_PUBLISH_NPM}" > "${HOME}"/.npmrc
 
-  #if npm publish --access public ; then
-  # HACK: Temporarily disable stage publish to review package.json
-  if true ; then
+  if npm publish --access public ; then
     PASS "NPM Package ${PACKAGE_NAME} Successfully Deployed to ${PACKAGE_URL}"
     PASS "${PACKAGE_URL}" >> "${PROJECT_ROOT}"/verify/npm-release-verify/successful-deployments.txt
   else
@@ -159,13 +157,13 @@ function deploy-to-github-prod {
   NAMESPACE=$1
   VERSION=$2
   PACKAGE_NAME=${NAMESPACE}-js-client
-
   pushd "${PROJECT_ROOT}"/verify/npm-release-verify || exit 1
 
   cp -rf package-"${NAMESPACE}" prod-github-package-"${NAMESPACE}"
 
   pushd prod-github-package-"${NAMESPACE}" || exit 1
   PUBLISH_FROM=@nutanix-core/"${PACKAGE_NAME}"
+  # HACK: Currently publishing to orichter for testing. Need to change to nutanix scope
   PUBLISH_TO=@orichter/"${PACKAGE_NAME}"
 
   sed -i "s|${PUBLISH_FROM}|${PUBLISH_TO}|g" package.json
@@ -177,8 +175,8 @@ function deploy-to-github-prod {
   PUBLISH_FROM_REPO=git://github.com/nutanix-core/ntnx-api-javascript-sdk-external.git
   PACKAGE_URL=https://github.com/orichter/package-publishing-examples
   PUBLISH_TO_REPO=git+"${PACKAGE_URL}".git
-  # It is unclear if /packages/1552884 is static, so it may need to be updated or removed.
-  PACKAGE_URL="${PACKAGE_URL}"/packages/1552884
+  # It is unclear if /packages/1509289 is static, so it may need to be updated or removed.
+  #PACKAGE_URL="${PACKAGE_URL}"/packages/TBD
 
   sed -i "s|${PUBLISH_FROM_REPO}|${PUBLISH_TO_REPO}|g" package.json
 
@@ -191,10 +189,9 @@ function deploy-to-github-prod {
 
   echo "@orichter:registry=https://npm.pkg.github.com/orichter" > "${HOME}"/.npmrc
   echo "//npm.pkg.github.com/:_authToken=${PASSWORD_PUBLISH_NPM_GITHUB}" >> "${HOME}"/.npmrc
+  INFO "${PACKAGE_URL}"
 
-  #if npm publish --access public ; then
-  # HACK: Temporarily disable github-prod publish to review package.json
-  if true ; then
+  if npm publish --access public ; then
     PASS "NPM Package ${PACKAGE_NAME} Successfully Deployed to ${PACKAGE_URL}"
     PASS "${PACKAGE_URL}" >> "${PROJECT_ROOT}"/verify/npm-release-verify/successful-deployments.txt
   else
@@ -204,6 +201,7 @@ function deploy-to-github-prod {
     export EXIT_STATUS=1
   fi
 
+  popd || exit 1
 
   popd || exit 1
 

@@ -116,8 +116,8 @@ function verify-deploy-to-test-pypi {
     PASS "Python Package ${PACKAGE_NAME} Version: ${VERSION} Successfully Installed from ${PACKAGE_URL}"
   else
     ERROR "Failed to Install Python Package ${PACKAGE_NAME} Version: ${VERSION} from ${PACKAGE_URL}"
-    debug
-    export EXIT_STATUS=1
+    #debug
+    #export EXIT_STATUS=1
   fi
 
 }

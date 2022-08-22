@@ -111,7 +111,7 @@ dev_deploy_config: &dev_deploy_config
     environment:
       BRANCH_FILTER: /^(?!main.*$).*/
       DEPLOY_FROM_TAG: "4.0.1-alpha.1"
-      DEPLOY_TO_TAG: "0.1.6"
+      DEPLOY_TO_TAG: "0.1.11"
       #FORCE_DEPLOYMENT_TAG: 16.7.0-SNAPSHOT
 test_deploy_config: &test_deploy_config
   run:
@@ -223,10 +223,10 @@ jobs:
       #- <<: *deploy_golang_verify
       #- <<: *deploy_maven
       #- <<: *deploy_maven_verify
+      - <<: *deploy_npm
+      - <<: *deploy_npm_verify
       - <<: *deploy_pip
       - <<: *deploy_pip_verify
-      #- <<: *deploy_npm
-      #- <<: *deploy_npm_verify
       - <<: *verify_hack_removal
 
   test_build:
