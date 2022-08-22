@@ -28,10 +28,26 @@ function main {
   mkdir -p "${PROJECT_ROOT}"/verify/pip-release-verify
   pushd "${PROJECT_ROOT}"/verify/pip-release-verify || exit 1
 
-  #deploy-to-stage-internal-verify
-  deploy-to-stage-verify
-  #deploy-to-github-prod-verify
-  #deploy-to-prod-verify
+  NAMESPACES="vmm prism clustermgmt aiops iam storage"
+  # Iterate the string variable using for loop
+  for NAMESPACE in ${NAMESPACES}; do
+    echo "PIP Deploying Namespace: ${NAMESPACE}"
+    # HACK: Crude deployment manifest which needs to be reworked.
+    if [ "${NAMESPACE}" = "storage" ] ; then
+      export DEPLOY_FROM_TAG="4.0.1-alpha.2"
+      VERSION=${DEPLOY_TO_TAG}${DEPLOY_FROM_TAG//./}
+    else
+      export DEPLOY_FROM_TAG="4.0.1-alpha.1"
+      VERSION=${DEPLOY_TO_TAG}${DEPLOY_FROM_TAG//./}
+    fi
+
+    #deploy-to-stage-internal-verify "${NAMESPACE}" "${VERSION}"
+    deploy-to-stage-verify "${NAMESPACE}" "${VERSION}"
+    #deploy-to-github-prod-verify "${NAMESPACE}" "${VERSION}"
+    #deploy-to-prod-verify "${NAMESPACE}" "${VERSION}"
+
+  done
+
   popd || exit 1
 }
 
@@ -41,24 +57,29 @@ function deploy-to-stage-internal-verify {
 }
 
 function deploy-to-stage-verify {
-  export PUBLISH_FROM_NAME=categories-sdk
-  export PACKAGE_NAME=release-candidate-"${PUBLISH_FROM_NAME}"
-  export PACKAGE_URL=https://test.pypi.org/simple/
+  #export PUBLISH_FROM_NAME=categories-sdk
+  #export PACKAGE_NAME=release-candidate-"${PUBLISH_FROM_NAME}"
+  #export PACKAGE_URL=https://test.pypi.org/simple/
+
+  NAMESPACE=$1
+  VERSION=$2
+  export PACKAGE_NAME="ntnx_${NAMESPACE}_py_client"
+
   pip3 config set global.no-cache-dir false
 
-  i=0
+  I=0
   # Due to artifactory caching delays, we expect a single verification failure.
   # So we throw away the output of the first call to avoid error logging.
   deploy-to-test-pypi > /dev/null 2>&1
-  until [ $i -gt 99 ]
+  until [ $I -gt 10 ]
   do
-    ((i=i+1))
-    if deploy-to-test-pypi ; then
+    ((I=I+1))
+    if verify-deploy-to-test-pypi  "${NAMESPACE}" "${VERSION}"; then
       echo "Verification Succeeded"
       return
     else
       INFO "Trying again in 10 seconds."
-      echo "Number of Retries: $i"
+      echo "Number of Retries: $I"
       sleep 10
       #deploy-to-stage-verify
     fi
@@ -67,7 +88,7 @@ function deploy-to-stage-verify {
   EXIT_STATUS=1
 }
 
-function deploy-to-test-pypi {
+function verify-deploy-to-test-pypi {
   #poetry cache clear --all .
   #rm -rf "${HOME}"/.cache/pip
   #mv "${HOME}"/.poetry "${HOME}"/.poetry.old
@@ -84,15 +105,19 @@ function deploy-to-test-pypi {
   #sleep 300
   #INFO "Waiting"
   #sleep 300
+  NAMESPACE=$1
+  VERSION=$2
+  export PACKAGE_NAME="ntnx_${NAMESPACE}_py_client"
+#  PACKAGE_URL=https://test.pypi.org/project/"${PACKAGE_NAME}/${VERSION}"
+  PACKAGE_URL=https://test.pypi.org/simple
 
   INFO "Verifying install of ${PACKAGE_NAME} Version: ${VERSION} from ${PACKAGE_URL} remote"
-  if pip3 install --no-deps --no-cache-dir --upgrade --index-url ${PACKAGE_URL} --extra-index-url https://pypi.org/simple/ "${PACKAGE_NAME}"=="${VERSION}" ; then
+  if pip3 install --no-deps --no-cache-dir --upgrade --index-url "${PACKAGE_URL}" --extra-index-url https://pypi.org/simple/ "${PACKAGE_NAME}"=="${VERSION}" ; then
     PASS "Python Package ${PACKAGE_NAME} Version: ${VERSION} Successfully Installed from ${PACKAGE_URL}"
   else
     ERROR "Failed to Install Python Package ${PACKAGE_NAME} Version: ${VERSION} from ${PACKAGE_URL}"
-    #debug
-    return 1
-    #export EXIT_STATUS=1
+    debug
+    export EXIT_STATUS=1
   fi
 
 }
@@ -103,12 +128,16 @@ function deploy-to-github-prod-verify {
 }
 
 function deploy-to-prod-verify {
-  PUBLISH_FROM_NAME=categories-sdk
-  PACKAGE_NAME=release-candidate-"${PUBLISH_FROM_NAME}"
-  PACKAGE_URL=https://pypi.org/
+  NAMESPACE=$1
+  VERSION=$2
+  export PACKAGE_NAME="ntnx_${NAMESPACE}_py_client"
+  #PACKAGE_URL=https://pypi.org/project/"${PACKAGE_NAME}/${VERSION}"
+  PACKAGE_URL=https://pypi.org/simple
 
-  INFO "Verifying install of ${PACKAGE_NAME} Version: ${VERSION} Successfully Installed from ${PACKAGE_URL} remote"
-  if pip install "${PACKAGE_NAME}"=="${VERSION}" ; then
+  INFO "Verifying install of ${PACKAGE_NAME} Version: ${VERSION} from ${PACKAGE_URL} remote"
+  # HACK: Testing Python Prod path through test.pypi. We need to revert before final publish. 
+  #if pip3 install --no-deps --no-cache-dir --upgrade "${PACKAGE_NAME}"=="${VERSION}" ; then
+  if pip3 install --no-deps --no-cache-dir --upgrade --index-url "${PACKAGE_URL}" --extra-index-url https://pypi.org/simple/ "${PACKAGE_NAME}"=="${VERSION}" ; then
     PASS "Python Package ${PACKAGE_NAME} Version: ${VERSION} Successfully Installed from ${PACKAGE_URL}"
   else
     ERROR "Failed to Install Python Package ${PACKAGE_NAME} Version: ${VERSION} from ${PACKAGE_URL}"
