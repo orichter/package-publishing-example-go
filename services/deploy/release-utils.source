@@ -53,3 +53,23 @@ function WARN {
   # shellcheck disable=SC2059
   printf "${RESET}" | sed 's/(B//'
 }
+
+function deploy-dummy {
+  echo "Namespace: $1 Version: $2"
+}
+
+function iterate-manifest {
+  APPLY_FUNCTION=$1
+  LANGUAGE=$2
+
+  for COMPONENT in $(jq -r '.[] | @base64' manifest.json); do
+    _jq() {
+      echo ${COMPONENT} | base64 --decode | jq -r ${1}
+    }
+    NAMESPACE="\"$(_jq '.Namespace')\""
+    LANGUAGEVERSION="$(_jq '.LanguageAndVersion')"
+    #echo $LANGUAGEVERSION
+    VERSION=$(echo $LANGUAGEVERSION| jq '.[] | select(.Language=="'$LANGUAGE'").Version')
+    $APPLY_FUNCTION $NAMESPACE $VERSION
+  done
+}

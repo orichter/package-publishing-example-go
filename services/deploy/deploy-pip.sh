@@ -10,6 +10,11 @@ source "${PROJECT_ROOT}"/services/deploy/release-utils.source
 #shellcheck disable=SC1091
 #shellcheck disable=SC1090
 source "${PROJECT_ROOT}"/release-config.source
+if [[ "${SUPPRESS_PIP}" == "true" ]]; then
+  WARN "Suppressing pip debloyments. See manage-package-deployments.sh"
+  exit
+fi
+
 # Python 2.x has problems with the - character as a deployment tag
 # So we strip it.
 PYTHON_DEPLOY_TO_TAG=${DEPLOY_TO_TAG//-/}

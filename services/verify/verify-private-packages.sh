@@ -37,21 +37,41 @@ function main {
     # HACK: Crude deployment manifest which needs to be reworked.
     if [ "${NAMESPACE}" = "storage" ] ; then
       VERSION="4.0.1-alpha.2"
-      MVN_VERSION="4.0.1-alpha-1"
+      #MVN_VERSION="4.0.1-alpha-1"
+      #MVN_VERSION="${DEPLOY_FROM_TAG}"
     else
       VERSION="${DEPLOY_FROM_TAG}"
-      MVN_VERSION="${DEPLOY_FROM_TAG}"
+      #MVN_VERSION="${DEPLOY_FROM_TAG}"
     fi
-    pip-internal-release-verify "${NAMESPACE}" "${VERSION}"
-    npm-internal-release-verify "${NAMESPACE}" "${VERSION}"
-    golang-internal-release-verify "${NAMESPACE}" "${VERSION}"
+
+    if [[ "${SUPPRESS_PIP}" == "true" ]]; then
+      WARN "Suppressing pip debloyments. See manage-package-deployments.sh"
+    else
+      pip-internal-release-verify "${NAMESPACE}" "${VERSION}"
+    fi
+
+    if [[ "${SUPPRESS_NPM}" == "true" ]]; then
+      WARN "Suppressing npm deployments. See manage-package-deployments.sh"
+    else
+      npm-internal-release-verify "${NAMESPACE}" "${VERSION}"
+    fi
+
+    if [[ "${SUPPRESS_GOLANG}" == "true" ]]; then
+      WARN "Suppressing golang deployments. See manage-package-deployments.sh"
+    else
+      golang-internal-release-verify "${NAMESPACE}" "${VERSION}"
+    fi
 
     # HACK: MVN Deployment Version is currently pinned.
     #VERSION="4.0.0-alpha-1"
-    MVN_VERSION="${MVN_VERSION/4.0.1/4.0.0}"
-    MVN_VERSION=${MVN_VERSION/alpha./alpha-}
-    WARN "MVN Version rewritten to: ${MVN_VERSION}"
-    mvn-internal-release-verify "${NAMESPACE}" "${MVN_VERSION}"
+    #MVN_VERSION="${MVN_VERSION/4.0.1/4.0.0}"
+    if [[ "${SUPPRESS_MVN}" == "true" ]]; then
+      WARN "Suppressing mvn deployments. See manage-package-deployments.sh"
+    else
+      MVN_VERSION=${VERSION/alpha./alpha-}
+      WARN "MVN Version rewritten to: ${MVN_VERSION}"
+      mvn-internal-release-verify "${NAMESPACE}" "${MVN_VERSION}"
+    fi
 
   done
 }
@@ -146,7 +166,6 @@ function mvn-internal-release-verify {
   cp "${PROJECT_ROOT}"/services/deploy/mvn/settings.xml .
   sed -i "s|.{env.DEPLOYMENT_TAG}|${MVN_VERSION}|g" pom.xml
   sed -i "s|-java-client|${PACKAGE_NAME}|g" pom.xml
-  #cat pom.xml
 
   if mvn package -q --settings settings.xml -DdownloadSources=true -DdownloadJavadocs=true ; then
     PASS "Successfully Downloaded Maven Package: ${PACKAGE_NAME} using pom:"
@@ -166,7 +185,7 @@ function mvn-internal-release-verify {
   else
     ERROR "Failed to Download Maven Package ${PACKAGE_NAME}"
     export EXIT_STATUS=1
-    debug
+    debug-maven
   fi
 
   #CMD="java -cp target/test-sdk-app-1.0-SNAPSHOT.jar com.nutanix.test.test-sdk.App"
@@ -284,9 +303,6 @@ function pip-internal-release-verify {
 
 }
 
-#shellcheck disable=SC1091
-#shellcheck disable=SC1090
-source "${PROJECT_ROOT}"/verify/services/deploy/release-utils.source
 function debug {
   #env |grep -v PASSWORD
   echo
@@ -326,6 +342,11 @@ function debug-maven {
   ls -lah "${PROJECT_ROOT}"/verify/maven-release-verify
   ls -lah "${PROJECT_ROOT}"/verify/maven-release-verify
   ls -lah "${PROJECT_ROOT}"/verify/maven-release-verify/package
+  WARN "Failed pom.xml:"
+  cat pom.xml
+  WARN "Failed settings.xml"
+  cat settings.xml
+
 }
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then

@@ -13,6 +13,11 @@ source "${PROJECT_ROOT}"/services/deploy/release-utils.source
 source ./release-config.source
 echo "Verifying npm package deployment using Release Params:"
 cat ./release-config.source
+if [[ "${SUPPRESS_NPM}" == "true" ]]; then
+  WARN "Suppressing npm debloyments. See manage-package-deployments.sh"
+  exit
+fi
+
 export VERSION="${DEPLOY_TO_TAG}"
 
 function main {

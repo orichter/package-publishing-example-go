@@ -10,6 +10,11 @@ source "${PROJECT_ROOT}"/services/deploy/release-utils.source
 #shellcheck disable=SC1091
 #shellcheck disable=SC1090
 source "${PROJECT_ROOT}"/release-config.source
+if [[ "${SUPPRESS_NPM}" == "true" ]]; then
+  WARN "Suppressing npm debloyments. See manage-package-deployments.sh"
+  exit
+fi
+
 export VERSION="${DEPLOY_TO_TAG}"
 INFO "Deploying npm packages using Release Params:"
 cat "${PROJECT_ROOT}"/release-config.source

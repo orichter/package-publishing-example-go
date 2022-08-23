@@ -35,8 +35,14 @@ export DEPLOY_TO_TAG=${DEPLOY_TO_TAG:-$MOST_RECENT_TAG}
   echo 'export DEPLOY_TO_TAG="'"${DEPLOY_TO_TAG}"'"'
   echo 'export BRANCH_FILTER="'"${BRANCH_FILTER}"'"'
   echo 'export TAG_FILTER="'"${TAG_FILTER}"'"'
-  echo 'export NAMESPACE="'"${NAMESPACE}"'"'
+
+  # Single place to suppress various language deployments.
+  #echo "export SUPPRESS_PIP=true"
+  #echo "export SUPPRESS_NPM=true"
+  #echo "export SUPPRESS_GOLANG=true"
+  #echo "export SUPPRESS_MVN=true"
 } >> ./release-config.source
+
 
 # Penultimate: second to last
 # Requires a git unshallow or a git clone

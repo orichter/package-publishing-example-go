@@ -9,14 +9,15 @@ source "${PROJECT_ROOT}"/services/deploy/release-utils.source
 #shellcheck disable=SC1091
 #shellcheck disable=SC1090
 source "${PROJECT_ROOT}"/release-config.source
+if [[ "${SUPPRESS_MVN}" == "true" ]]; then
+  WARN "Suppressing mvn debloyments. See manage-package-deployments.sh"
+  exit
+fi
+
 echo "Deploying maven package using Release Params:"
 cat "${PROJECT_ROOT}"/release-config.source
 export VERSION="${DEPLOY_TO_TAG}"
-# HACK: Pinned to DEPLOY_FROM_TAG=4.0.1-alpha-1
-# This java package is currently pinned to the version below
-# rather than inheriting from config.yml. This should be fixed before
-# production deployment
-export DEPLOY_FROM_TAG=4.0.0-alpha-1
+# HACK: Need more clarity on DEPLOY_TO_TAG vs. VERSION
 INFO "Version: ${VERSION}"
 echo
 
@@ -40,16 +41,16 @@ function main {
     echo "MVN Deploying Namespace: ${NAMESPACE}"
     # HACK: Crude deployment manifest which needs to be reworked.
     if [ "${NAMESPACE}" = "storage" ] ; then
-      export DEPLOY_FROM_TAG="4.0.0-alpha-1"
+      export DEPLOY_FROM_TAG="4.0.1-alpha-2"
       VERSION=${DEPLOY_TO_TAG}-${DEPLOY_FROM_TAG/./-}
     else
-      export DEPLOY_FROM_TAG="4.0.0-alpha-1"
+      export DEPLOY_FROM_TAG="4.0.1-alpha-1"
       VERSION=${DEPLOY_TO_TAG}-${DEPLOY_FROM_TAG/./-}
     fi
 
     mvn-github-internal-release "${NAMESPACE}" "${VERSION}"
-    #mvn-github-external-release "${NAMESPACE}" "${VERSION}"
-    #mvn-central-external-release "${NAMESPACE}" "${VERSION}"
+    mvn-github-external-release "${NAMESPACE}" "${VERSION}"
+    mvn-central-external-release "${NAMESPACE}" "${VERSION}"
 
   done
 
@@ -163,6 +164,7 @@ function mvn-central-external-release {
 
   export REPOSITORY_ID=maven-central
   if [[ "${VERSION}" =~ "-alpha" ]]; then
+    # Staging
     export REPOSITORY_URL=https://s01.oss.sonatype.org/content/repositories/snapshots
     # Ideally we would do this for a Github release candidate as well,
     # but gpg:sign-and-deploy-file doesnt work with -SNAPSHOT
@@ -171,6 +173,7 @@ function mvn-central-external-release {
     export VERSION="${VERSION}"-SNAPSHOT
     export PACKAGE_URL="${REPOSITORY_URL}/${GROUP_ID//.//}/${ARTIFACT_ID}/${VERSION}"
   else
+    # Prod
     export REPOSITORY_URL=https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/
     export VERSION="${VERSION}"
     export PACKAGE_URL="${REPOSITORY_URL}/${GROUP_ID//.//}/${ARTIFACT_ID}/${VERSION}"

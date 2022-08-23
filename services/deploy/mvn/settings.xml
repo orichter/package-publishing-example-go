@@ -56,7 +56,7 @@
     <server>
       <id>nutanix-public</id>
       <username>${env.USERNAME_PUBLISH_MVN}</username>
-      <password>${env.PASSWORD_PUBLISH_MVN}</password>      
+      <password>${env.PASSWORD_PUBLISH_MVN}</password>
     </server>
     <server>
       <id>nutanix-private-staging</id>
@@ -66,7 +66,7 @@
     <server>
       <id>nutanix-private</id>
       <username>${env.USERNAME_PUBLISH_MVN}</username>
-      <password>${env.GITHUB_PACKAGE_READ_TOKEN}</password>      
+      <password>${env.GITHUB_PACKAGE_READ_TOKEN}</password>
     </server>
     <server>
       <id>gpg.passphrase</id>
