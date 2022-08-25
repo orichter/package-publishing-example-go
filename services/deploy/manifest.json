@@ -1,0 +1,140 @@
+[
+  {
+    "Namespace": "vmm",
+    "Description": "Virtual Machine Management",
+    "APIVersion": "v4.0.a1",
+    "LanguageAndVersion": [
+      {
+        "Language": "Python",
+        "Version": "4.0.1-alpha.1"
+      },
+      {
+        "Language": "Java",
+        "Version": "4.0.1-alpha.1"
+      },
+      {
+        "Language": "Golang",
+        "Version": "v4.0.1-alpha.1"
+      },
+      {
+        "Language": "Javascript",
+        "Version": "4.0.1-alpha.1"
+      }
+    ]
+  },
+  {
+    "Namespace": "prism",
+    "Description": "Tasks and Monitoring",
+    "APIVersion": "v4.0.a1",
+    "LanguageAndVersion": [
+      {
+        "Language": "Python",
+        "Version": "4.0.1-alpha.1"
+      },
+      {
+        "Language": "Java",
+        "Version": "4.0.1-alpha.1"
+      },
+      {
+        "Language": "Golang",
+        "Version": "v4.0.1-alpha.1"
+      },
+      {
+        "Language": "Javascript",
+        "Version": "4.0.1-alpha.1"
+      }
+    ]
+  },
+  {
+    "Namespace": "clustermgmt",
+    "Description": "Infra Management",
+    "APIVersion": "v4.0.a1",
+    "LanguageAndVersion": [
+      {
+        "Language": "Python",
+        "Version": "4.0.1-alpha.1"
+      },
+      {
+        "Language": "Java",
+        "Version": "4.0.1-alpha.1"
+      },
+      {
+        "Language": "Golang",
+        "Version": "v4.0.1-alpha.1"
+      },
+      {
+        "Language": "Javascript",
+        "Version": "4.0.1-alpha.1"
+      }
+    ]
+  },
+  {
+    "Namespace": "aiops",
+    "Description": "Alerts and Resources",
+    "APIVersion": "v4.0.a1",
+    "LanguageAndVersion": [
+      {
+        "Language": "Python",
+        "Version": "4.0.1-alpha.1"
+      },
+      {
+        "Language": "Java",
+        "Version": "4.0.1-alpha.1"
+      },
+      {
+        "Language": "Golang",
+        "Version": "v4.0.1-alpha.1"
+      },
+      {
+        "Language": "Javascript",
+        "Version": "4.0.1-alpha.1"
+      }
+    ]
+  },
+  {
+    "Namespace": "storage",
+    "Description": "Storage Containers",
+    "APIVersion": "v4.0.a2",
+    "LanguageAndVersion": [
+      {
+        "Language": "Python",
+        "Version": "4.0.1-alpha.2"
+      },
+      {
+        "Language": "Java",
+        "Version": "4.0.1-alpha.2"
+      },
+      {
+        "Language": "Golang",
+        "Version": "v4.0.1-alpha.2"
+      },
+      {
+        "Language": "Javascript",
+        "Version": "4.0.1-alpha.2"
+      }
+    ]
+  },
+  {
+    "Namespace": "iam",
+    "Description": "Identity and Access Management",
+    "APIVersion": "v4.0.a1",
+    "LanguageAndVersion": [
+      {
+        "Language": "Python",
+        "Version": "4.0.1-alpha.1"
+      },
+      {
+        "Language": "Java",
+        "Version": "4.0.1-alpha.1"
+      },
+      {
+        "Language": "Golang",
+        "Version": "v4.0.1-alpha.1"
+      },
+      {
+        "Language": "Javascript",
+        "Version": "4.0.1-alpha.1"
+      }
+    ]
+  }
+]

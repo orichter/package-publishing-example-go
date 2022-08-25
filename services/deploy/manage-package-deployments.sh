@@ -37,10 +37,10 @@ export DEPLOY_TO_TAG=${DEPLOY_TO_TAG:-$MOST_RECENT_TAG}
   echo 'export TAG_FILTER="'"${TAG_FILTER}"'"'
 
   # Single place to suppress various language deployments.
-  #echo "export SUPPRESS_PIP=true"
-  #echo "export SUPPRESS_NPM=true"
+  echo "export SUPPRESS_PIP=true"
+  echo "export SUPPRESS_NPM=true"
   #echo "export SUPPRESS_GOLANG=true"
-  #echo "export SUPPRESS_MVN=true"
+  echo "export SUPPRESS_MVN=true"
 } >> ./release-config.source
 
 
