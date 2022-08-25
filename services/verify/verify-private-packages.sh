@@ -115,7 +115,7 @@ function golang-internal-release-verify {
   pushd "${REPO_NAME}" || exit 1
   git fetch --all --tags
 
-  # This is not a good tagging convention and should be refactored.
+  # HACK: This is not a good tagging convention and should be refactored.
   export PACKAGE_TAG="${PACKAGE_NAME}"/v"${VERSION}"
   if git checkout "${PACKAGE_TAG}" ; then
     PASS "Tag ${VERSION} of Package: ${PACKAGE_NAME} Successfully checked out from ${PACKAGE_URL}"
@@ -142,7 +142,8 @@ function golang-internal-release-verify {
   popd || exit 1
   # Rename package for standard deployment, and so we have a copy of the original
   # for debugging purposes.
-  cp -rf "${REPO_NAME}"/"${PACKAGE_NAME}" package
+  rm -rf ./package
+  cp -rf ./"${REPO_NAME}" ./package
   ls -lah package
   popd || exit 1
 
