@@ -14,7 +14,7 @@
 */
 package error
 import (
-  import1 "github.com/nutanix-core/ntnx-api-golang-sdk-external/iam-go-client/v4/models/common/v1/config"
+  import1 "github.com/nutanix-release-engineering/experiments-nutanix-sdk-golang/iam-go-client/v4/models/common/v1/config"
   "encoding/json"
   "errors"
   "fmt"

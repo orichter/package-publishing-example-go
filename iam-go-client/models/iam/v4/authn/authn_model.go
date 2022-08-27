@@ -15,12 +15,12 @@
 package authn
 import (
   "bytes"
-  import3 "github.com/nutanix-core/ntnx-api-golang-sdk-external/iam-go-client/v4/models/common/v1/config"
-  import2 "github.com/nutanix-core/ntnx-api-golang-sdk-external/iam-go-client/v4/models/common/v1/response"
+  import3 "github.com/nutanix-release-engineering/experiments-nutanix-sdk-golang/iam-go-client/v4/models/common/v1/config"
+  import2 "github.com/nutanix-release-engineering/experiments-nutanix-sdk-golang/iam-go-client/v4/models/common/v1/response"
   "encoding/json"
   "errors"
   "fmt"
-  import1 "github.com/nutanix-core/ntnx-api-golang-sdk-external/iam-go-client/v4/models/iam/v4/error"
+  import1 "github.com/nutanix-release-engineering/experiments-nutanix-sdk-golang/iam-go-client/v4/models/iam/v4/error"
   "time"
 )
 

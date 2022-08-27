@@ -2,9 +2,9 @@
 package api
 
 import (
-    "github.com/nutanix-core/ntnx-api-golang-sdk-external/iam-go-client/v4/client"
+    "github.com/nutanix-release-engineering/experiments-nutanix-sdk-golang/iam-go-client/v4/client"
 	"strings"
-	import3 "github.com/nutanix-core/ntnx-api-golang-sdk-external/iam-go-client/v4/models/iam/v4/authn"
+	import3 "github.com/nutanix-release-engineering/experiments-nutanix-sdk-golang/iam-go-client/v4/models/iam/v4/authn"
 	"encoding/json"
 	"net/http"
     "net/url"

@@ -2,10 +2,10 @@
 package api
 
 import (
-    "github.com/nutanix-core/ntnx-api-golang-sdk-external/iam-go-client/v4/client"
+    "github.com/nutanix-release-engineering/experiments-nutanix-sdk-golang/iam-go-client/v4/client"
 	"strings"
-	import2 "github.com/nutanix-core/ntnx-api-golang-sdk-external/iam-go-client/v4/models/common/v1/response"
-	import3 "github.com/nutanix-core/ntnx-api-golang-sdk-external/iam-go-client/v4/models/iam/v4/authn"
+	import2 "github.com/nutanix-release-engineering/experiments-nutanix-sdk-golang/iam-go-client/v4/models/common/v1/response"
+	import3 "github.com/nutanix-release-engineering/experiments-nutanix-sdk-golang/iam-go-client/v4/models/iam/v4/authn"
 	"time"
 	"encoding/json"
 	"net/http"
