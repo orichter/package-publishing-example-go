@@ -2,9 +2,9 @@
 package api
 
 import (
-    "github.com/nutanix-core/ntnx-api-golang-sdk-external/prism-go-client/v4/client"
+    "github.com/nutanix-release-engineering/experiments-nutanix-sdk-golang/prism-go-client/v4/client"
 	"strings"
-	import1 "github.com/nutanix-core/ntnx-api-golang-sdk-external/prism-go-client/v4/models/prism/v4/alerts"
+	import1 "github.com/nutanix-release-engineering/experiments-nutanix-sdk-golang/prism-go-client/v4/models/prism/v4/alerts"
 	"encoding/json"
 	"net/http"
     "net/url"

@@ -14,12 +14,12 @@
 */
 package events
 import (
-  import2 "github.com/nutanix-core/ntnx-api-golang-sdk-external/prism-go-client/v4/models/common/v1/response"
+  import2 "github.com/nutanix-release-engineering/experiments-nutanix-sdk-golang/prism-go-client/v4/models/common/v1/response"
   "encoding/json"
   "errors"
   "fmt"
-  import1 "github.com/nutanix-core/ntnx-api-golang-sdk-external/prism-go-client/v4/models/prism/v4/common"
-  import3 "github.com/nutanix-core/ntnx-api-golang-sdk-external/prism-go-client/v4/models/prism/v4/error"
+  import1 "github.com/nutanix-release-engineering/experiments-nutanix-sdk-golang/prism-go-client/v4/models/prism/v4/common"
+  import3 "github.com/nutanix-release-engineering/experiments-nutanix-sdk-golang/prism-go-client/v4/models/prism/v4/error"
 )
 
 

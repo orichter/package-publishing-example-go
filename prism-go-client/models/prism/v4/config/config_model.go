@@ -15,13 +15,13 @@
 package config
 import (
   "bytes"
-  import4 "github.com/nutanix-core/ntnx-api-golang-sdk-external/prism-go-client/v4/models/common/v1/config"
-  import1 "github.com/nutanix-core/ntnx-api-golang-sdk-external/prism-go-client/v4/models/common/v1/response"
+  import4 "github.com/nutanix-release-engineering/experiments-nutanix-sdk-golang/prism-go-client/v4/models/common/v1/config"
+  import1 "github.com/nutanix-release-engineering/experiments-nutanix-sdk-golang/prism-go-client/v4/models/common/v1/response"
   "encoding/json"
   "errors"
   "fmt"
-  import3 "github.com/nutanix-core/ntnx-api-golang-sdk-external/prism-go-client/v4/models/prism/v4/common"
-  import2 "github.com/nutanix-core/ntnx-api-golang-sdk-external/prism-go-client/v4/models/prism/v4/error"
+  import3 "github.com/nutanix-release-engineering/experiments-nutanix-sdk-golang/prism-go-client/v4/models/prism/v4/common"
+  import2 "github.com/nutanix-release-engineering/experiments-nutanix-sdk-golang/prism-go-client/v4/models/prism/v4/error"
   "time"
 )
 
