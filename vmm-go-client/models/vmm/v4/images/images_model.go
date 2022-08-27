@@ -15,12 +15,12 @@
 package images
 import (
   "bytes"
-  import1 "github.com/nutanix-core/ntnx-api-golang-sdk-external/vmm-go-client/v4/models/common/v1/response"
+  import1 "github.com/nutanix-release-engineering/experiments-nutanix-sdk-golang/vmm-go-client/v4/models/common/v1/response"
   "encoding/json"
   "errors"
   "fmt"
-  import3 "github.com/nutanix-core/ntnx-api-golang-sdk-external/vmm-go-client/v4/models/vmm/v4/config"
-  import2 "github.com/nutanix-core/ntnx-api-golang-sdk-external/vmm-go-client/v4/models/vmm/v4/error"
+  import3 "github.com/nutanix-release-engineering/experiments-nutanix-sdk-golang/vmm-go-client/v4/models/vmm/v4/config"
+  import2 "github.com/nutanix-release-engineering/experiments-nutanix-sdk-golang/vmm-go-client/v4/models/vmm/v4/error"
 )
 
 /**

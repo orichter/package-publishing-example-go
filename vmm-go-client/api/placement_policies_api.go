@@ -2,9 +2,9 @@
 package api
 
 import (
-    "github.com/nutanix-core/ntnx-api-golang-sdk-external/vmm-go-client/v4/client"
+    "github.com/nutanix-release-engineering/experiments-nutanix-sdk-golang/vmm-go-client/v4/client"
 	"strings"
-	import1 "github.com/nutanix-core/ntnx-api-golang-sdk-external/vmm-go-client/v4/models/vmm/v4/images"
+	import1 "github.com/nutanix-release-engineering/experiments-nutanix-sdk-golang/vmm-go-client/v4/models/vmm/v4/images"
 	"encoding/json"
 	"net/http"
     "net/url"
