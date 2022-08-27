@@ -2,8 +2,8 @@
 package api
 
 import (
-    "github.com/nutanix-core/ntnx-api-golang-sdk-external/storage-go-client/v4/client"
-	import1 "github.com/nutanix-core/ntnx-api-golang-sdk-external/storage-go-client/v4/models/storage/v4/config"
+    "github.com/nutanix-release-engineering/experiments-nutanix-sdk-golang/storage-go-client/v4/client"
+	import1 "github.com/nutanix-release-engineering/experiments-nutanix-sdk-golang/storage-go-client/v4/models/storage/v4/config"
 	"strings"
 	"encoding/json"
 	"net/http"

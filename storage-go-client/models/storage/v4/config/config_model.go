@@ -15,13 +15,13 @@
 package config
 import (
   "bytes"
-  import2 "github.com/nutanix-core/ntnx-api-golang-sdk-external/storage-go-client/v4/models/common/v1/config"
-  import1 "github.com/nutanix-core/ntnx-api-golang-sdk-external/storage-go-client/v4/models/common/v1/response"
+  import2 "github.com/nutanix-release-engineering/experiments-nutanix-sdk-golang/storage-go-client/v4/models/common/v1/config"
+  import1 "github.com/nutanix-release-engineering/experiments-nutanix-sdk-golang/storage-go-client/v4/models/common/v1/response"
   "encoding/json"
   "errors"
   "fmt"
-  import4 "github.com/nutanix-core/ntnx-api-golang-sdk-external/storage-go-client/v4/models/prism/v4/config"
-  import3 "github.com/nutanix-core/ntnx-api-golang-sdk-external/storage-go-client/v4/models/storage/v4/error"
+  import4 "github.com/nutanix-release-engineering/experiments-nutanix-sdk-golang/storage-go-client/v4/models/prism/v4/config"
+  import3 "github.com/nutanix-release-engineering/experiments-nutanix-sdk-golang/storage-go-client/v4/models/storage/v4/error"
 )
 
 
