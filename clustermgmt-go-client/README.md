@@ -25,13 +25,13 @@ Go 1.11 or above are fully supported and tested.
 ##### Install the latest version
 
 ```shell
-$ go get github.com/nutanix-core/ntnx-api-golang-sdk-external/clustermgmt-go-client/v4
+$ go get github.com/nutanix-release-engineering/experiments-nutanix-sdk-golang/clustermgmt-go-client/v4
 ```
 
 ##### Install a specific version
 
 ```shell
-$ go get github.com/nutanix-core/ntnx-api-golang-sdk-external/clustermgmt-go-client/v4/...@v4.0.1-alpha.1
+$ go get github.com/nutanix-release-engineering/experiments-nutanix-sdk-golang/clustermgmt-go-client/v4/...@v4.0.1-alpha.1
 ```
 
 #### Using go modules
@@ -46,7 +46,7 @@ module your-module
 go {GO_VERSION}
 
 require (
-	github.com/nutanix-core/ntnx-api-golang-sdk-external/clustermgmt-go-client/v4 latest
+	github.com/nutanix-release-engineering/experiments-nutanix-sdk-golang/clustermgmt-go-client/v4 latest
 )
 ```
 
@@ -60,7 +60,7 @@ module your-module
 go {GO_VERSION}
 
 require (
-	github.com/nutanix-core/ntnx-api-golang-sdk-external/clustermgmt-go-client/v4 v4.0.1-alpha.1
+	github.com/nutanix-release-engineering/experiments-nutanix-sdk-golang/clustermgmt-go-client/v4 v4.0.1-alpha.1
 )
 ```
 
@@ -84,7 +84,7 @@ The Go client for Nutanix Clustermgmt Versioned APIs can be configured with the 
 ### Sample Configuration
 ```go
 import (
-	"github.com/nutanix-core/ntnx-api-golang-sdk-external/clustermgmt-go-client/v4/client"
+	"github.com/nutanix-release-engineering/experiments-nutanix-sdk-golang/clustermgmt-go-client/v4/client"
 )
 var (
 	ApiClientInstance *client.ApiClient
@@ -111,7 +111,7 @@ The Go client can be configured to retry requests that fail with the following s
 
 ```go
 import (
-	"github.com/nutanix-core/ntnx-api-golang-sdk-external/clustermgmt-go-client/v4/client"
+	"github.com/nutanix-release-engineering/experiments-nutanix-sdk-golang/clustermgmt-go-client/v4/client"
 )
 var (
 	ApiClientInstance *client.ApiClient
@@ -128,8 +128,8 @@ ApiClientInstance.RetryInterval = 5000 // Interval in ms to use during retry att
 ```go
 // The following sample code is an example and does not reflect the real APIs provided by this client.
 import (
-	"github.com/nutanix-core/ntnx-api-golang-sdk-external/clustermgmt-go-client/v4/client"
-	"github.com/nutanix-core/ntnx-api-golang-sdk-external/clustermgmt-go-client/v4/api"
+	"github.com/nutanix-release-engineering/experiments-nutanix-sdk-golang/clustermgmt-go-client/v4/client"
+	"github.com/nutanix-release-engineering/experiments-nutanix-sdk-golang/clustermgmt-go-client/v4/api"
 )
 
 var (
@@ -159,7 +159,7 @@ The 'ApiClient' can be configured to send additional headers on each request.
 
 ```go
 import (
-	"github.com/nutanix-core/ntnx-api-golang-sdk-external/clustermgmt-go-client/v4/client"
+	"github.com/nutanix-release-engineering/experiments-nutanix-sdk-golang/clustermgmt-go-client/v4/client"
 )
 
 var (
@@ -177,8 +177,8 @@ Nutanix APIs require that concurrent updates are protected using [ETag](https://
 
 // The following sample code is an example and does not reflect the real APIs provided by this client.
 import (
-	"github.com/nutanix-core/ntnx-api-golang-sdk-external/clustermgmt-go-client/v4/client"
-	"github.com/nutanix-core/ntnx-api-golang-sdk-external/clustermgmt-go-client/v4/api"
+	"github.com/nutanix-release-engineering/experiments-nutanix-sdk-golang/clustermgmt-go-client/v4/client"
+	"github.com/nutanix-release-engineering/experiments-nutanix-sdk-golang/clustermgmt-go-client/v4/api"
 )
 
 var (
@@ -229,8 +229,8 @@ List Operations for Nutanix APIs support pagination, filtering, sorting and proj
 
 ```go
 import (
-	"github.com/nutanix-core/ntnx-api-golang-sdk-external/clustermgmt-go-client/v4/client"
-	"github.com/nutanix-core/ntnx-api-golang-sdk-external/clustermgmt-go-client/v4/api"
+	"github.com/nutanix-release-engineering/experiments-nutanix-sdk-golang/clustermgmt-go-client/v4/client"
+	"github.com/nutanix-release-engineering/experiments-nutanix-sdk-golang/clustermgmt-go-client/v4/api"
 )
 var (
 	ApiClientInstance *client.ApiClient

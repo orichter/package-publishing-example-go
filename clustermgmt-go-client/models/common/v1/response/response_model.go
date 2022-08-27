@@ -14,7 +14,7 @@
 */
 package response
 import (
-  import1 "github.com/nutanix-core/ntnx-api-golang-sdk-external/clustermgmt-go-client/v4/models/common/v1/config"
+  import1 "github.com/nutanix-release-engineering/experiments-nutanix-sdk-golang/clustermgmt-go-client/v4/models/common/v1/config"
 )
 
 /**

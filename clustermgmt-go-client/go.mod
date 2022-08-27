@@ -1,4 +1,4 @@
-module github.com/nutanix-core/ntnx-api-golang-sdk-external/clustermgmt-go-client/v4
+module github.com/nutanix-release-engineering/experiments-nutanix-sdk-golang/clustermgmt-go-client/v4
 
 go 1.17
 

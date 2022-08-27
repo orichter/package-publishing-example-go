@@ -15,8 +15,8 @@
 package config
 import (
   "bytes"
-  import2 "github.com/nutanix-core/ntnx-api-golang-sdk-external/clustermgmt-go-client/v4/models/clustermgmt/v4/error"
-  import1 "github.com/nutanix-core/ntnx-api-golang-sdk-external/clustermgmt-go-client/v4/models/common/v1/response"
+  import2 "github.com/nutanix-release-engineering/experiments-nutanix-sdk-golang/clustermgmt-go-client/v4/models/clustermgmt/v4/error"
+  import1 "github.com/nutanix-release-engineering/experiments-nutanix-sdk-golang/clustermgmt-go-client/v4/models/common/v1/response"
   "encoding/json"
   "errors"
   "fmt"

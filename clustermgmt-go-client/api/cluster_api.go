@@ -2,9 +2,9 @@
 package api
 
 import (
-    "github.com/nutanix-core/ntnx-api-golang-sdk-external/clustermgmt-go-client/v4/client"
+    "github.com/nutanix-release-engineering/experiments-nutanix-sdk-golang/clustermgmt-go-client/v4/client"
 	"strings"
-	import1 "github.com/nutanix-core/ntnx-api-golang-sdk-external/clustermgmt-go-client/v4/models/clustermgmt/v4/config"
+	import1 "github.com/nutanix-release-engineering/experiments-nutanix-sdk-golang/clustermgmt-go-client/v4/models/clustermgmt/v4/config"
 	"encoding/json"
 	"net/http"
     "net/url"
