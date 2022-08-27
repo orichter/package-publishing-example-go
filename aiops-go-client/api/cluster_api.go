@@ -2,9 +2,9 @@
 package api
 
 import (
-    "github.com/nutanix-core/ntnx-api-golang-sdk-external/aiops-go-client/v4/client"
+    "github.com/nutanix-release-engineering/experiments-nutanix-sdk-golang/aiops-go-client/v4/client"
 	"strings"
-	import1 "github.com/nutanix-core/ntnx-api-golang-sdk-external/aiops-go-client/v4/models/aiops/v4/clusterMetrics"
+	import1 "github.com/nutanix-release-engineering/experiments-nutanix-sdk-golang/aiops-go-client/v4/models/aiops/v4/clusterMetrics"
 	"encoding/json"
 	"net/http"
     "net/url"

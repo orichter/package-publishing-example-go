@@ -14,9 +14,9 @@
 */
 package clusterMetrics
 import (
-  import1 "github.com/nutanix-core/ntnx-api-golang-sdk-external/aiops-go-client/v4/models/aiops/v4/error"
-  import3 "github.com/nutanix-core/ntnx-api-golang-sdk-external/aiops-go-client/v4/models/common/v1/config"
-  import2 "github.com/nutanix-core/ntnx-api-golang-sdk-external/aiops-go-client/v4/models/common/v1/response"
+  import1 "github.com/nutanix-release-engineering/experiments-nutanix-sdk-golang/aiops-go-client/v4/models/aiops/v4/error"
+  import3 "github.com/nutanix-release-engineering/experiments-nutanix-sdk-golang/aiops-go-client/v4/models/common/v1/config"
+  import2 "github.com/nutanix-release-engineering/experiments-nutanix-sdk-golang/aiops-go-client/v4/models/common/v1/response"
   "encoding/json"
   "errors"
   "fmt"

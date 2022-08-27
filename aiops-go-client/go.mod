@@ -1,4 +1,4 @@
-module github.com/nutanix-core/ntnx-api-golang-sdk-external/aiops-go-client/v4
+module github.com/nutanix-release-engineering/experiments-nutanix-sdk-golang/aiops-go-client/v4
 
 go 1.17
 
