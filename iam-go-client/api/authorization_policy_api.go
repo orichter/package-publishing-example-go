@@ -10,17 +10,17 @@ import (
 	"strings"
 )
 
-type RoleApi struct {
+type AuthorizationPolicyApi struct {
 	ApiClient     *client.ApiClient
 	headersToSkip map[string]bool
 }
 
-func NewRoleApi(apiClient *client.ApiClient) *RoleApi {
+func NewAuthorizationPolicyApi(apiClient *client.ApiClient) *AuthorizationPolicyApi {
 	if apiClient == nil {
 		apiClient = client.NewApiClient()
 	}
 
-	a := &RoleApi{
+	a := &AuthorizationPolicyApi{
 		ApiClient: apiClient,
 	}
 
@@ -33,14 +33,14 @@ func NewRoleApi(apiClient *client.ApiClient) *RoleApi {
 	return a
 }
 
-// Create a role
-func (api *RoleApi) CreateRoleAPI(body *import2.Role, args ...map[string]interface{}) (*import2.CreateRoleApiResponse, error) {
+// Create an authorization policy
+func (api *AuthorizationPolicyApi) CreateAuthorizationPolicyAPI(body *import2.AuthorizationPolicy, args ...map[string]interface{}) (*import2.CreateAuthorizationPolicyApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
 	}
 
-	uri := "/api/iam/v4.0.b1/authz/roles"
+	uri := "/api/iam/v4.0.b1/authz/authorization-policies"
 
 	// verify the required parameter 'body' is set
 	if nil == body {
@@ -75,19 +75,19 @@ func (api *RoleApi) CreateRoleAPI(body *import2.Role, args ...map[string]interfa
 	if nil != err || nil == responseBody {
 		return nil, err
 	}
-	unmarshalledResp := new(import2.CreateRoleApiResponse)
+	unmarshalledResp := new(import2.CreateAuthorizationPolicyApiResponse)
 	json.Unmarshal(responseBody, &unmarshalledResp)
 	return unmarshalledResp, err
 }
 
-// Delete a role
-func (api *RoleApi) DeleteRoleAPI(extId *string, args ...map[string]interface{}) (*import2.DeleteRoleApiResponse, error) {
+// Delete an authorization policy
+func (api *AuthorizationPolicyApi) DeleteAuthorizationPolicyAPI(extId *string, args ...map[string]interface{}) (*import2.DeleteAuthorizationPolicyApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
 	}
 
-	uri := "/api/iam/v4.0.b1/authz/roles/{extId}"
+	uri := "/api/iam/v4.0.b1/authz/authorization-policies/{extId}"
 
 	// verify the required parameter 'extId' is set
 	if nil == extId {
@@ -124,19 +124,19 @@ func (api *RoleApi) DeleteRoleAPI(extId *string, args ...map[string]interface{})
 	if nil != err || nil == responseBody {
 		return nil, err
 	}
-	unmarshalledResp := new(import2.DeleteRoleApiResponse)
+	unmarshalledResp := new(import2.DeleteAuthorizationPolicyApiResponse)
 	json.Unmarshal(responseBody, &unmarshalledResp)
 	return unmarshalledResp, err
 }
 
-// List all the role(s)
-func (api *RoleApi) ListRoleAPI(page_ *int, limit_ *int, filter_ *string, orderby_ *string, select_ *string, args ...map[string]interface{}) (*import2.ListRoleApiResponse, error) {
+// List all the authorization policy(ies)
+func (api *AuthorizationPolicyApi) ListAuthorizationPolicyAPI(page_ *int, limit_ *int, filter_ *string, orderby_ *string, expand_ *string, select_ *string, args ...map[string]interface{}) (*import2.ListAuthorizationPolicyApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
 	}
 
-	uri := "/api/iam/v4.0.b1/authz/roles"
+	uri := "/api/iam/v4.0.b1/authz/authorization-policies"
 
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -165,6 +165,10 @@ func (api *RoleApi) ListRoleAPI(page_ *int, limit_ *int, filter_ *string, orderb
 
 		queryParams.Add("$orderby", client.ParameterToString(*orderby_, ""))
 	}
+	if expand_ != nil {
+
+		queryParams.Add("$expand", client.ParameterToString(*expand_, ""))
+	}
 	if select_ != nil {
 
 		queryParams.Add("$select", client.ParameterToString(*select_, ""))
@@ -187,19 +191,19 @@ func (api *RoleApi) ListRoleAPI(page_ *int, limit_ *int, filter_ *string, orderb
 	if nil != err || nil == responseBody {
 		return nil, err
 	}
-	unmarshalledResp := new(import2.ListRoleApiResponse)
+	unmarshalledResp := new(import2.ListAuthorizationPolicyApiResponse)
 	json.Unmarshal(responseBody, &unmarshalledResp)
 	return unmarshalledResp, err
 }
 
-// Update a role
-func (api *RoleApi) UpdateRoleAPI(extId *string, body *import2.Role, args ...map[string]interface{}) (*import2.UpdateRoleApiResponse, error) {
+// Update an authorization policy
+func (api *AuthorizationPolicyApi) UpdateAuthorizationPolicyAPI(extId *string, body *import2.AuthorizationPolicy, args ...map[string]interface{}) (*import2.UpdateAuthorizationPolicyApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
 	}
 
-	uri := "/api/iam/v4.0.b1/authz/roles/{extId}"
+	uri := "/api/iam/v4.0.b1/authz/authorization-policies/{extId}"
 
 	// verify the required parameter 'extId' is set
 	if nil == extId {
@@ -240,19 +244,19 @@ func (api *RoleApi) UpdateRoleAPI(extId *string, body *import2.Role, args ...map
 	if nil != err || nil == responseBody {
 		return nil, err
 	}
-	unmarshalledResp := new(import2.UpdateRoleApiResponse)
+	unmarshalledResp := new(import2.UpdateAuthorizationPolicyApiResponse)
 	json.Unmarshal(responseBody, &unmarshalledResp)
 	return unmarshalledResp, err
 }
 
-// View a role
-func (api *RoleApi) ViewRoleAPI(extId *string, args ...map[string]interface{}) (*import2.ViewRoleApiResponse, error) {
+// View an authorization policy
+func (api *AuthorizationPolicyApi) ViewAuthorizationPolicyAPI(extId *string, args ...map[string]interface{}) (*import2.ViewAuthorizationPolicyApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
 	}
 
-	uri := "/api/iam/v4.0.b1/authz/roles/{extId}"
+	uri := "/api/iam/v4.0.b1/authz/authorization-policies/{extId}"
 
 	// verify the required parameter 'extId' is set
 	if nil == extId {
@@ -289,7 +293,7 @@ func (api *RoleApi) ViewRoleAPI(extId *string, args ...map[string]interface{}) (
 	if nil != err || nil == responseBody {
 		return nil, err
 	}
-	unmarshalledResp := new(import2.ViewRoleApiResponse)
+	unmarshalledResp := new(import2.ViewAuthorizationPolicyApiResponse)
 	json.Unmarshal(responseBody, &unmarshalledResp)
 	return unmarshalledResp, err
 }
