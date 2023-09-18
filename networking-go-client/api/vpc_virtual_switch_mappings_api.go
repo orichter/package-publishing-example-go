@@ -10,17 +10,17 @@ import (
 	"strings"
 )
 
-type SubnetReserveUnreserveIpApi struct {
+type VpcVirtualSwitchMappingsApi struct {
 	ApiClient     *client.ApiClient
 	headersToSkip map[string]bool
 }
 
-func NewSubnetReserveUnreserveIpApi(apiClient *client.ApiClient) *SubnetReserveUnreserveIpApi {
+func NewVpcVirtualSwitchMappingsApi(apiClient *client.ApiClient) *VpcVirtualSwitchMappingsApi {
 	if apiClient == nil {
 		apiClient = client.NewApiClient()
 	}
 
-	a := &SubnetReserveUnreserveIpApi{
+	a := &VpcVirtualSwitchMappingsApi{
 		ApiClient: apiClient,
 	}
 
@@ -33,36 +33,38 @@ func NewSubnetReserveUnreserveIpApi(apiClient *client.ApiClient) *SubnetReserveU
 	return a
 }
 
-// Reserve IP addresses on a subnet. Requires Prism Central >= pc.2022.9.
-func (api *SubnetReserveUnreserveIpApi) ReserveIps(extId *string, body *import1.IpReserveSpec, args ...map[string]interface{}) (*import1.TaskReferenceApiResponse, error) {
+// Get the VPC for virtual switch mappings config. Requires Prism Central >= pc.2023.1.
+func (api *VpcVirtualSwitchMappingsApi) GetVpcVirtualSwitchMappings(page_ *int, limit_ *int, filter_ *string, args ...map[string]interface{}) (*import1.VpcVirtualSwitchMappingsApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
 	}
 
-	uri := "/api/networking/v4.0.b1/config/subnets/{extId}/addresses/$actions/reserve"
+	uri := "/api/networking/v4.0.b1/config/vpc-virtual-switch-mappings"
 
-	// verify the required parameter 'extId' is set
-	if nil == extId {
-		return nil, client.ReportError("extId is required and must be specified")
-	}
-	// verify the required parameter 'body' is set
-	if nil == body {
-		return nil, client.ReportError("body is required and must be specified")
-	}
-
-	// Path Params
-	uri = strings.Replace(uri, "{"+"extId"+"}", url.PathEscape(client.ParameterToString(*extId, "")), -1)
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
 	formParams := url.Values{}
 
 	// to determine the Content-Type header
-	contentTypes := []string{"application/json"}
+	contentTypes := []string{}
 
 	// to determine the Accept header
 	accepts := []string{"application/json"}
 
+	// Query Params
+	if page_ != nil {
+
+		queryParams.Add("$page", client.ParameterToString(*page_, ""))
+	}
+	if limit_ != nil {
+
+		queryParams.Add("$limit", client.ParameterToString(*limit_, ""))
+	}
+	if filter_ != nil {
+
+		queryParams.Add("$filter", client.ParameterToString(*filter_, ""))
+	}
 	// Headers provided explicitly on operation takes precedence
 	for headerKey, value := range argMap {
 		// Skip platform generated headers
@@ -77,35 +79,29 @@ func (api *SubnetReserveUnreserveIpApi) ReserveIps(extId *string, body *import1.
 
 	authNames := []string{"basicAuthScheme"}
 
-	responseBody, err := api.ApiClient.CallApi(&uri, http.MethodPost, body, queryParams, headerParams, formParams, accepts, contentTypes, authNames)
+	responseBody, err := api.ApiClient.CallApi(&uri, http.MethodGet, nil, queryParams, headerParams, formParams, accepts, contentTypes, authNames)
 	if nil != err || nil == responseBody {
 		return nil, err
 	}
-	unmarshalledResp := new(import1.TaskReferenceApiResponse)
+	unmarshalledResp := new(import1.VpcVirtualSwitchMappingsApiResponse)
 	json.Unmarshal(responseBody, &unmarshalledResp)
 	return unmarshalledResp, err
 }
 
-// Unreserve IP addresses on a subnet. Requires Prism Central >= pc.2022.9.
-func (api *SubnetReserveUnreserveIpApi) UnreserveIps(extId *string, body *import1.IpUnreserveSpec, args ...map[string]interface{}) (*import1.TaskReferenceApiResponse, error) {
+// Set VPC for virtual switch mappings traffic config. Requires Prism Central >= pc.2023.1.
+func (api *VpcVirtualSwitchMappingsApi) SetVpcVirtualSwitchMappings(body *[]import1.VpcVirtualSwitchMapping, args ...map[string]interface{}) (*import1.TaskReferenceApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
 	}
 
-	uri := "/api/networking/v4.0.b1/config/subnets/{extId}/addresses/$actions/unreserve"
+	uri := "/api/networking/v4.0.b1/config/vpc-virtual-switch-mappings"
 
-	// verify the required parameter 'extId' is set
-	if nil == extId {
-		return nil, client.ReportError("extId is required and must be specified")
-	}
 	// verify the required parameter 'body' is set
 	if nil == body {
 		return nil, client.ReportError("body is required and must be specified")
 	}
 
-	// Path Params
-	uri = strings.Replace(uri, "{"+"extId"+"}", url.PathEscape(client.ParameterToString(*extId, "")), -1)
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
 	formParams := url.Values{}
