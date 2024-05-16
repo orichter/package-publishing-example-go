@@ -10,21 +10,21 @@ import (
 	"strings"
 )
 
-type SubnetApi struct {
+type TrafficMirrorsApi struct {
 	ApiClient     *client.ApiClient
 	headersToSkip map[string]bool
 }
 
-func NewSubnetApi(apiClient *client.ApiClient) *SubnetApi {
+func NewTrafficMirrorsApi(apiClient *client.ApiClient) *TrafficMirrorsApi {
 	if apiClient == nil {
 		apiClient = client.NewApiClient()
 	}
 
-	a := &SubnetApi{
+	a := &TrafficMirrorsApi{
 		ApiClient: apiClient,
 	}
 
-	headers := []string{"authorization", "cookie", "ntnx-request-id", "host", "user-agent"}
+	headers := []string{"authorization", "cookie", "host", "user-agent"}
 	a.headersToSkip = make(map[string]bool)
 	for _, header := range headers {
 		a.headersToSkip[header] = true
@@ -33,14 +33,14 @@ func NewSubnetApi(apiClient *client.ApiClient) *SubnetApi {
 	return a
 }
 
-// Create a subnet. Requires Prism Central >= pc.2022.9.
-func (api *SubnetApi) CreateSubnet(body *import1.Subnet, args ...map[string]interface{}) (*import1.TaskReferenceApiResponse, error) {
+// Create Traffic mirror session.
+func (api *TrafficMirrorsApi) CreateTrafficMirror(body *import1.TrafficMirror, args ...map[string]interface{}) (*import1.TaskReferenceApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
 	}
 
-	uri := "/api/networking/v4.0.b1/config/subnets"
+	uri := "/api/networking/v4.0.b1/config/traffic-mirrors"
 
 	// verify the required parameter 'body' is set
 	if nil == body {
@@ -75,19 +75,20 @@ func (api *SubnetApi) CreateSubnet(body *import1.Subnet, args ...map[string]inte
 	if nil != err || nil == responseBody {
 		return nil, err
 	}
+
 	unmarshalledResp := new(import1.TaskReferenceApiResponse)
-	json.Unmarshal(responseBody, &unmarshalledResp)
+	json.Unmarshal(responseBody.([]byte), &unmarshalledResp)
 	return unmarshalledResp, err
 }
 
-// Delete the specified subnet. Requires Prism Central >= pc.2022.9.
-func (api *SubnetApi) DeleteSubnet(extId *string, args ...map[string]interface{}) (*import1.TaskReferenceApiResponse, error) {
+// Delete Traffic mirror session request body.
+func (api *TrafficMirrorsApi) DeleteTrafficMirrorById(extId *string, args ...map[string]interface{}) (*import1.TaskReferenceApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
 	}
 
-	uri := "/api/networking/v4.0.b1/config/subnets/{extId}"
+	uri := "/api/networking/v4.0.b1/config/traffic-mirrors/{extId}"
 
 	// verify the required parameter 'extId' is set
 	if nil == extId {
@@ -95,6 +96,7 @@ func (api *SubnetApi) DeleteSubnet(extId *string, args ...map[string]interface{}
 	}
 
 	// Path Params
+
 	uri = strings.Replace(uri, "{"+"extId"+"}", url.PathEscape(client.ParameterToString(*extId, "")), -1)
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -124,19 +126,20 @@ func (api *SubnetApi) DeleteSubnet(extId *string, args ...map[string]interface{}
 	if nil != err || nil == responseBody {
 		return nil, err
 	}
+
 	unmarshalledResp := new(import1.TaskReferenceApiResponse)
-	json.Unmarshal(responseBody, &unmarshalledResp)
+	json.Unmarshal(responseBody.([]byte), &unmarshalledResp)
 	return unmarshalledResp, err
 }
 
-// Get a subnet with the specified UUID. Requires Prism Central >= pc.2022.9.
-func (api *SubnetApi) GetSubnet(extId *string, args ...map[string]interface{}) (*import1.SubnetApiResponse, error) {
+// Get Traffic mirror session.
+func (api *TrafficMirrorsApi) GetTrafficMirrorById(extId *string, args ...map[string]interface{}) (*import1.GetTrafficMirrorApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
 	}
 
-	uri := "/api/networking/v4.0.b1/config/subnets/{extId}"
+	uri := "/api/networking/v4.0.b1/config/traffic-mirrors/{extId}"
 
 	// verify the required parameter 'extId' is set
 	if nil == extId {
@@ -144,6 +147,7 @@ func (api *SubnetApi) GetSubnet(extId *string, args ...map[string]interface{}) (
 	}
 
 	// Path Params
+
 	uri = strings.Replace(uri, "{"+"extId"+"}", url.PathEscape(client.ParameterToString(*extId, "")), -1)
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -173,19 +177,20 @@ func (api *SubnetApi) GetSubnet(extId *string, args ...map[string]interface{}) (
 	if nil != err || nil == responseBody {
 		return nil, err
 	}
-	unmarshalledResp := new(import1.SubnetApiResponse)
-	json.Unmarshal(responseBody, &unmarshalledResp)
+
+	unmarshalledResp := new(import1.GetTrafficMirrorApiResponse)
+	json.Unmarshal(responseBody.([]byte), &unmarshalledResp)
 	return unmarshalledResp, err
 }
 
-// Get the list of existing subnets. Requires Prism Central >= pc.2022.9. With filtering, the following rules apply:   VLAN     (subnet_type==[no_val] OR subnet_type==VLAN) AND     (is_external==[no_val] OR is_external==false)   OVERLAY     (subnet_type==OVERLAY) AND     (is_external==[no_val] OR is_external==false)   External     is_external==true
-func (api *SubnetApi) ListSubnets(page_ *int, limit_ *int, filter_ *string, orderby_ *string, expand_ *string, select_ *string, args ...map[string]interface{}) (*import1.SubnetListApiResponse, error) {
+// List Traffic mirror sessions.
+func (api *TrafficMirrorsApi) ListTrafficMirrors(page_ *int, limit_ *int, filter_ *string, orderby_ *string, args ...map[string]interface{}) (*import1.ListTrafficMirrorsApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
 	}
 
-	uri := "/api/networking/v4.0.b1/config/subnets"
+	uri := "/api/networking/v4.0.b1/config/traffic-mirrors"
 
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -214,14 +219,6 @@ func (api *SubnetApi) ListSubnets(page_ *int, limit_ *int, filter_ *string, orde
 
 		queryParams.Add("$orderby", client.ParameterToString(*orderby_, ""))
 	}
-	if expand_ != nil {
-
-		queryParams.Add("$expand", client.ParameterToString(*expand_, ""))
-	}
-	if select_ != nil {
-
-		queryParams.Add("$select", client.ParameterToString(*select_, ""))
-	}
 	// Headers provided explicitly on operation takes precedence
 	for headerKey, value := range argMap {
 		// Skip platform generated headers
@@ -240,19 +237,20 @@ func (api *SubnetApi) ListSubnets(page_ *int, limit_ *int, filter_ *string, orde
 	if nil != err || nil == responseBody {
 		return nil, err
 	}
-	unmarshalledResp := new(import1.SubnetListApiResponse)
-	json.Unmarshal(responseBody, &unmarshalledResp)
+
+	unmarshalledResp := new(import1.ListTrafficMirrorsApiResponse)
+	json.Unmarshal(responseBody.([]byte), &unmarshalledResp)
 	return unmarshalledResp, err
 }
 
-// Update the specified subnet. Requires Prism Central >= pc.2022.9.
-func (api *SubnetApi) UpdateSubnet(extId *string, body *import1.Subnet, args ...map[string]interface{}) (*import1.TaskReferenceApiResponse, error) {
+// Update Traffic mirror session.
+func (api *TrafficMirrorsApi) UpdateTrafficMirrorById(extId *string, body *import1.TrafficMirror, args ...map[string]interface{}) (*import1.TaskReferenceApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
 	}
 
-	uri := "/api/networking/v4.0.b1/config/subnets/{extId}"
+	uri := "/api/networking/v4.0.b1/config/traffic-mirrors/{extId}"
 
 	// verify the required parameter 'extId' is set
 	if nil == extId {
@@ -264,6 +262,7 @@ func (api *SubnetApi) UpdateSubnet(extId *string, body *import1.Subnet, args ...
 	}
 
 	// Path Params
+
 	uri = strings.Replace(uri, "{"+"extId"+"}", url.PathEscape(client.ParameterToString(*extId, "")), -1)
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -293,7 +292,8 @@ func (api *SubnetApi) UpdateSubnet(extId *string, body *import1.Subnet, args ...
 	if nil != err || nil == responseBody {
 		return nil, err
 	}
+
 	unmarshalledResp := new(import1.TaskReferenceApiResponse)
-	json.Unmarshal(responseBody, &unmarshalledResp)
+	json.Unmarshal(responseBody.([]byte), &unmarshalledResp)
 	return unmarshalledResp, err
 }

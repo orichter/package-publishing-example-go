@@ -10,21 +10,21 @@ import (
 	"strings"
 )
 
-type RouteTableApi struct {
+type RouteTablesApi struct {
 	ApiClient     *client.ApiClient
 	headersToSkip map[string]bool
 }
 
-func NewRouteTableApi(apiClient *client.ApiClient) *RouteTableApi {
+func NewRouteTablesApi(apiClient *client.ApiClient) *RouteTablesApi {
 	if apiClient == nil {
 		apiClient = client.NewApiClient()
 	}
 
-	a := &RouteTableApi{
+	a := &RouteTablesApi{
 		ApiClient: apiClient,
 	}
 
-	headers := []string{"authorization", "cookie", "ntnx-request-id", "host", "user-agent"}
+	headers := []string{"authorization", "cookie", "host", "user-agent"}
 	a.headersToSkip = make(map[string]bool)
 	for _, header := range headers {
 		a.headersToSkip[header] = true
@@ -33,8 +33,8 @@ func NewRouteTableApi(apiClient *client.ApiClient) *RouteTableApi {
 	return a
 }
 
-// Get the route table for the specified extId. Requires Prism Central >= pc.2022.9.
-func (api *RouteTableApi) GetRouteTable(extId *string, args ...map[string]interface{}) (*import1.RouteTableApiResponse, error) {
+// Get the route table for the specified extId.
+func (api *RouteTablesApi) GetRouteTableById(extId *string, args ...map[string]interface{}) (*import1.GetRouteTableApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
@@ -48,6 +48,7 @@ func (api *RouteTableApi) GetRouteTable(extId *string, args ...map[string]interf
 	}
 
 	// Path Params
+
 	uri = strings.Replace(uri, "{"+"extId"+"}", url.PathEscape(client.ParameterToString(*extId, "")), -1)
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -77,13 +78,14 @@ func (api *RouteTableApi) GetRouteTable(extId *string, args ...map[string]interf
 	if nil != err || nil == responseBody {
 		return nil, err
 	}
-	unmarshalledResp := new(import1.RouteTableApiResponse)
-	json.Unmarshal(responseBody, &unmarshalledResp)
+
+	unmarshalledResp := new(import1.GetRouteTableApiResponse)
+	json.Unmarshal(responseBody.([]byte), &unmarshalledResp)
 	return unmarshalledResp, err
 }
 
-// List route tables. Requires Prism Central >= pc.2022.9.
-func (api *RouteTableApi) ListRouteTables(page_ *int, limit_ *int, filter_ *string, args ...map[string]interface{}) (*import1.RouteTableListApiResponse, error) {
+// List route tables.
+func (api *RouteTablesApi) ListRouteTables(page_ *int, limit_ *int, filter_ *string, args ...map[string]interface{}) (*import1.ListRouteTablesApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
@@ -132,13 +134,14 @@ func (api *RouteTableApi) ListRouteTables(page_ *int, limit_ *int, filter_ *stri
 	if nil != err || nil == responseBody {
 		return nil, err
 	}
-	unmarshalledResp := new(import1.RouteTableListApiResponse)
-	json.Unmarshal(responseBody, &unmarshalledResp)
+
+	unmarshalledResp := new(import1.ListRouteTablesApiResponse)
+	json.Unmarshal(responseBody.([]byte), &unmarshalledResp)
 	return unmarshalledResp, err
 }
 
-// Update route table. Requires Prism Central >= pc.2022.9.
-func (api *RouteTableApi) UpdateRouteTable(extId *string, body *import1.RouteTable, args ...map[string]interface{}) (*import1.TaskReferenceApiResponse, error) {
+// Update route table.
+func (api *RouteTablesApi) UpdateRouteTableById(extId *string, body *import1.RouteTable, args ...map[string]interface{}) (*import1.TaskReferenceApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
@@ -156,6 +159,7 @@ func (api *RouteTableApi) UpdateRouteTable(extId *string, body *import1.RouteTab
 	}
 
 	// Path Params
+
 	uri = strings.Replace(uri, "{"+"extId"+"}", url.PathEscape(client.ParameterToString(*extId, "")), -1)
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -185,7 +189,8 @@ func (api *RouteTableApi) UpdateRouteTable(extId *string, body *import1.RouteTab
 	if nil != err || nil == responseBody {
 		return nil, err
 	}
+
 	unmarshalledResp := new(import1.TaskReferenceApiResponse)
-	json.Unmarshal(responseBody, &unmarshalledResp)
+	json.Unmarshal(responseBody.([]byte), &unmarshalledResp)
 	return unmarshalledResp, err
 }

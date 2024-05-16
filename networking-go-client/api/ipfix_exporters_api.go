@@ -10,21 +10,21 @@ import (
 	"strings"
 )
 
-type NetworkControllerApi struct {
+type IPFIXExportersApi struct {
 	ApiClient     *client.ApiClient
 	headersToSkip map[string]bool
 }
 
-func NewNetworkControllerApi(apiClient *client.ApiClient) *NetworkControllerApi {
+func NewIPFIXExportersApi(apiClient *client.ApiClient) *IPFIXExportersApi {
 	if apiClient == nil {
 		apiClient = client.NewApiClient()
 	}
 
-	a := &NetworkControllerApi{
+	a := &IPFIXExportersApi{
 		ApiClient: apiClient,
 	}
 
-	headers := []string{"authorization", "cookie", "ntnx-request-id", "host", "user-agent"}
+	headers := []string{"authorization", "cookie", "host", "user-agent"}
 	a.headersToSkip = make(map[string]bool)
 	for _, header := range headers {
 		a.headersToSkip[header] = true
@@ -33,14 +33,14 @@ func NewNetworkControllerApi(apiClient *client.ApiClient) *NetworkControllerApi 
 	return a
 }
 
-// Create a network controller. For large Prism Centrals, an additional 3GB of memory and 3 vCPUs are required, for each Prism Central node. For small Prism Centrals, an additional 1GB of memory and 1 vCPU is required, for each Prism Central node. Requires Prism Central >= pc.2022.9.
-func (api *NetworkControllerApi) CreateNetworkController(body *import1.NetworkController, args ...map[string]interface{}) (*import1.TaskReferenceApiResponse, error) {
+// Create an IPFIX Exporter.
+func (api *IPFIXExportersApi) CreateIpfixExporter(body *import1.IPFIXExporter, args ...map[string]interface{}) (*import1.TaskReferenceApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
 	}
 
-	uri := "/api/networking/v4.0.b1/config/controllers"
+	uri := "/api/networking/v4.0.b1/config/ipfix-exporters"
 
 	// verify the required parameter 'body' is set
 	if nil == body {
@@ -75,19 +75,20 @@ func (api *NetworkControllerApi) CreateNetworkController(body *import1.NetworkCo
 	if nil != err || nil == responseBody {
 		return nil, err
 	}
+
 	unmarshalledResp := new(import1.TaskReferenceApiResponse)
-	json.Unmarshal(responseBody, &unmarshalledResp)
+	json.Unmarshal(responseBody.([]byte), &unmarshalledResp)
 	return unmarshalledResp, err
 }
 
-// Delete a network controller. Requires Prism Central >= pc.2022.9.
-func (api *NetworkControllerApi) DeleteNetworkController(extId *string, args ...map[string]interface{}) (*import1.TaskReferenceApiResponse, error) {
+// Delete the specified IPFIX exporter.
+func (api *IPFIXExportersApi) DeleteIpfixExporterById(extId *string, args ...map[string]interface{}) (*import1.TaskReferenceApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
 	}
 
-	uri := "/api/networking/v4.0.b1/config/controllers/{extId}"
+	uri := "/api/networking/v4.0.b1/config/ipfix-exporters/{extId}"
 
 	// verify the required parameter 'extId' is set
 	if nil == extId {
@@ -95,6 +96,7 @@ func (api *NetworkControllerApi) DeleteNetworkController(extId *string, args ...
 	}
 
 	// Path Params
+
 	uri = strings.Replace(uri, "{"+"extId"+"}", url.PathEscape(client.ParameterToString(*extId, "")), -1)
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -124,19 +126,20 @@ func (api *NetworkControllerApi) DeleteNetworkController(extId *string, args ...
 	if nil != err || nil == responseBody {
 		return nil, err
 	}
+
 	unmarshalledResp := new(import1.TaskReferenceApiResponse)
-	json.Unmarshal(responseBody, &unmarshalledResp)
+	json.Unmarshal(responseBody.([]byte), &unmarshalledResp)
 	return unmarshalledResp, err
 }
 
-// Get the network controller with the specified UUID. Requires Prism Central >= pc.2022.9.
-func (api *NetworkControllerApi) GetNetworkController(extId *string, args ...map[string]interface{}) (*import1.NetworkControllerApiResponse, error) {
+// Get the IPFIX exporter for the given extId.
+func (api *IPFIXExportersApi) GetIpfixExporterById(extId *string, args ...map[string]interface{}) (*import1.GetIPFIXExporterApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
 	}
 
-	uri := "/api/networking/v4.0.b1/config/controllers/{extId}"
+	uri := "/api/networking/v4.0.b1/config/ipfix-exporters/{extId}"
 
 	// verify the required parameter 'extId' is set
 	if nil == extId {
@@ -144,6 +147,7 @@ func (api *NetworkControllerApi) GetNetworkController(extId *string, args ...map
 	}
 
 	// Path Params
+
 	uri = strings.Replace(uri, "{"+"extId"+"}", url.PathEscape(client.ParameterToString(*extId, "")), -1)
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -173,19 +177,20 @@ func (api *NetworkControllerApi) GetNetworkController(extId *string, args ...map
 	if nil != err || nil == responseBody {
 		return nil, err
 	}
-	unmarshalledResp := new(import1.NetworkControllerApiResponse)
-	json.Unmarshal(responseBody, &unmarshalledResp)
+
+	unmarshalledResp := new(import1.GetIPFIXExporterApiResponse)
+	json.Unmarshal(responseBody.([]byte), &unmarshalledResp)
 	return unmarshalledResp, err
 }
 
-// Gets the list of existing network controllers. Requires Prism Central >= pc.2022.9.
-func (api *NetworkControllerApi) ListNetworkControllers(page_ *int, limit_ *int, args ...map[string]interface{}) (*import1.NetworkControllerListApiResponse, error) {
+// Get the list of existing IPFIX exporters.
+func (api *IPFIXExportersApi) ListIpfixExporters(args ...map[string]interface{}) (*import1.ListIPFIXExportersApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
 	}
 
-	uri := "/api/networking/v4.0.b1/config/controllers"
+	uri := "/api/networking/v4.0.b1/config/ipfix-exporters"
 
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -197,15 +202,6 @@ func (api *NetworkControllerApi) ListNetworkControllers(page_ *int, limit_ *int,
 	// to determine the Accept header
 	accepts := []string{"application/json"}
 
-	// Query Params
-	if page_ != nil {
-
-		queryParams.Add("$page", client.ParameterToString(*page_, ""))
-	}
-	if limit_ != nil {
-
-		queryParams.Add("$limit", client.ParameterToString(*limit_, ""))
-	}
 	// Headers provided explicitly on operation takes precedence
 	for headerKey, value := range argMap {
 		// Skip platform generated headers
@@ -224,19 +220,20 @@ func (api *NetworkControllerApi) ListNetworkControllers(page_ *int, limit_ *int,
 	if nil != err || nil == responseBody {
 		return nil, err
 	}
-	unmarshalledResp := new(import1.NetworkControllerListApiResponse)
-	json.Unmarshal(responseBody, &unmarshalledResp)
+
+	unmarshalledResp := new(import1.ListIPFIXExportersApiResponse)
+	json.Unmarshal(responseBody.([]byte), &unmarshalledResp)
 	return unmarshalledResp, err
 }
 
-// Update a network controller. Requires Prism Central >= pc.2022.9.
-func (api *NetworkControllerApi) UpdateNetworkController(extId *string, body *import1.NetworkController, args ...map[string]interface{}) (*import1.TaskReferenceApiResponse, error) {
+// Update the specified IPFIX exporter.
+func (api *IPFIXExportersApi) UpdateIpfixExporterById(extId *string, body *import1.IPFIXExporter, args ...map[string]interface{}) (*import1.TaskReferenceApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
 	}
 
-	uri := "/api/networking/v4.0.b1/config/controllers/{extId}"
+	uri := "/api/networking/v4.0.b1/config/ipfix-exporters/{extId}"
 
 	// verify the required parameter 'extId' is set
 	if nil == extId {
@@ -248,6 +245,7 @@ func (api *NetworkControllerApi) UpdateNetworkController(extId *string, body *im
 	}
 
 	// Path Params
+
 	uri = strings.Replace(uri, "{"+"extId"+"}", url.PathEscape(client.ParameterToString(*extId, "")), -1)
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -277,7 +275,8 @@ func (api *NetworkControllerApi) UpdateNetworkController(extId *string, body *im
 	if nil != err || nil == responseBody {
 		return nil, err
 	}
+
 	unmarshalledResp := new(import1.TaskReferenceApiResponse)
-	json.Unmarshal(responseBody, &unmarshalledResp)
+	json.Unmarshal(responseBody.([]byte), &unmarshalledResp)
 	return unmarshalledResp, err
 }

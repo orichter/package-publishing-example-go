@@ -10,21 +10,21 @@ import (
 	"strings"
 )
 
-type ClusterCapabilityApi struct {
+type VirtualSwitchNodesInfoApi struct {
 	ApiClient     *client.ApiClient
 	headersToSkip map[string]bool
 }
 
-func NewClusterCapabilityApi(apiClient *client.ApiClient) *ClusterCapabilityApi {
+func NewVirtualSwitchNodesInfoApi(apiClient *client.ApiClient) *VirtualSwitchNodesInfoApi {
 	if apiClient == nil {
 		apiClient = client.NewApiClient()
 	}
 
-	a := &ClusterCapabilityApi{
+	a := &VirtualSwitchNodesInfoApi{
 		ApiClient: apiClient,
 	}
 
-	headers := []string{"authorization", "cookie", "ntnx-request-id", "host", "user-agent"}
+	headers := []string{"authorization", "cookie", "host", "user-agent"}
 	a.headersToSkip = make(map[string]bool)
 	for _, header := range headers {
 		a.headersToSkip[header] = true
@@ -33,14 +33,14 @@ func NewClusterCapabilityApi(apiClient *client.ApiClient) *ClusterCapabilityApi 
 	return a
 }
 
-// List the capabilities for one or more cluster UUIDs. Requires Prism Central >= pc.2023.3.
-func (api *ClusterCapabilityApi) GetClusterCapabilities(page_ *int, limit_ *int, filter_ *string, args ...map[string]interface{}) (*import1.ClusterCapabilityApiResponse, error) {
+// Check to see whether a node in a cluster is a storage-only node or not
+func (api *VirtualSwitchNodesInfoApi) ListNodeSchedulableStatus(xClusterId *string, args ...map[string]interface{}) (*import1.ListNodeSchedulableStatusesApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
 	}
 
-	uri := "/api/networking/v4.0.b1/config/capabilities"
+	uri := "/api/networking/v4.0.b1/config/node-schedulable-status"
 
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -52,18 +52,8 @@ func (api *ClusterCapabilityApi) GetClusterCapabilities(page_ *int, limit_ *int,
 	// to determine the Accept header
 	accepts := []string{"application/json"}
 
-	// Query Params
-	if page_ != nil {
-
-		queryParams.Add("$page", client.ParameterToString(*page_, ""))
-	}
-	if limit_ != nil {
-
-		queryParams.Add("$limit", client.ParameterToString(*limit_, ""))
-	}
-	if filter_ != nil {
-
-		queryParams.Add("$filter", client.ParameterToString(*filter_, ""))
+	if xClusterId != nil {
+		headerParams["X-Cluster-Id"] = client.ParameterToString(*xClusterId, "")
 	}
 	// Headers provided explicitly on operation takes precedence
 	for headerKey, value := range argMap {
@@ -83,7 +73,8 @@ func (api *ClusterCapabilityApi) GetClusterCapabilities(page_ *int, limit_ *int,
 	if nil != err || nil == responseBody {
 		return nil, err
 	}
-	unmarshalledResp := new(import1.ClusterCapabilityApiResponse)
-	json.Unmarshal(responseBody, &unmarshalledResp)
+
+	unmarshalledResp := new(import1.ListNodeSchedulableStatusesApiResponse)
+	json.Unmarshal(responseBody.([]byte), &unmarshalledResp)
 	return unmarshalledResp, err
 }

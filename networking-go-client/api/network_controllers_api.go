@@ -10,21 +10,21 @@ import (
 	"strings"
 )
 
-type FloatingIpApi struct {
+type NetworkControllersApi struct {
 	ApiClient     *client.ApiClient
 	headersToSkip map[string]bool
 }
 
-func NewFloatingIpApi(apiClient *client.ApiClient) *FloatingIpApi {
+func NewNetworkControllersApi(apiClient *client.ApiClient) *NetworkControllersApi {
 	if apiClient == nil {
 		apiClient = client.NewApiClient()
 	}
 
-	a := &FloatingIpApi{
+	a := &NetworkControllersApi{
 		ApiClient: apiClient,
 	}
 
-	headers := []string{"authorization", "cookie", "ntnx-request-id", "host", "user-agent"}
+	headers := []string{"authorization", "cookie", "host", "user-agent"}
 	a.headersToSkip = make(map[string]bool)
 	for _, header := range headers {
 		a.headersToSkip[header] = true
@@ -33,14 +33,14 @@ func NewFloatingIpApi(apiClient *client.ApiClient) *FloatingIpApi {
 	return a
 }
 
-// Configure a floating IP.
-func (api *FloatingIpApi) CreateFloatingIp(body *import1.FloatingIp, args ...map[string]interface{}) (*import1.TaskReferenceApiResponse, error) {
+// Create a network controller. For large Prism Centrals, an additional 3GB of memory and 3 vCPUs are required, for each Prism Central node. For small Prism Centrals, an additional 1GB of memory and 1 vCPU is required, for each Prism Central node.
+func (api *NetworkControllersApi) CreateNetworkController(body *import1.NetworkController, args ...map[string]interface{}) (*import1.TaskReferenceApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
 	}
 
-	uri := "/api/networking/v4.0.b1/config/floating-ips"
+	uri := "/api/networking/v4.0.b1/config/controllers"
 
 	// verify the required parameter 'body' is set
 	if nil == body {
@@ -75,19 +75,20 @@ func (api *FloatingIpApi) CreateFloatingIp(body *import1.FloatingIp, args ...map
 	if nil != err || nil == responseBody {
 		return nil, err
 	}
+
 	unmarshalledResp := new(import1.TaskReferenceApiResponse)
-	json.Unmarshal(responseBody, &unmarshalledResp)
+	json.Unmarshal(responseBody.([]byte), &unmarshalledResp)
 	return unmarshalledResp, err
 }
 
-// Delete the floating IP corresponding to the extId. Requires Prism Central >= pc.2022.9.
-func (api *FloatingIpApi) DeleteFloatingIp(extId *string, args ...map[string]interface{}) (*import1.TaskReferenceApiResponse, error) {
+// Delete a network controller.
+func (api *NetworkControllersApi) DeleteNetworkControllerById(extId *string, args ...map[string]interface{}) (*import1.TaskReferenceApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
 	}
 
-	uri := "/api/networking/v4.0.b1/config/floating-ips/{extId}"
+	uri := "/api/networking/v4.0.b1/config/controllers/{extId}"
 
 	// verify the required parameter 'extId' is set
 	if nil == extId {
@@ -95,6 +96,7 @@ func (api *FloatingIpApi) DeleteFloatingIp(extId *string, args ...map[string]int
 	}
 
 	// Path Params
+
 	uri = strings.Replace(uri, "{"+"extId"+"}", url.PathEscape(client.ParameterToString(*extId, "")), -1)
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -124,19 +126,20 @@ func (api *FloatingIpApi) DeleteFloatingIp(extId *string, args ...map[string]int
 	if nil != err || nil == responseBody {
 		return nil, err
 	}
+
 	unmarshalledResp := new(import1.TaskReferenceApiResponse)
-	json.Unmarshal(responseBody, &unmarshalledResp)
+	json.Unmarshal(responseBody.([]byte), &unmarshalledResp)
 	return unmarshalledResp, err
 }
 
-// Get the floating IP for the specific extId. Requires Prism Central >= pc.2022.9.
-func (api *FloatingIpApi) GetFloatingIp(extId *string, args ...map[string]interface{}) (*import1.FloatingIpApiResponse, error) {
+// Get the network controller with the specified UUID.
+func (api *NetworkControllersApi) GetNetworkControllerById(extId *string, args ...map[string]interface{}) (*import1.GetNetworkControllerApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
 	}
 
-	uri := "/api/networking/v4.0.b1/config/floating-ips/{extId}"
+	uri := "/api/networking/v4.0.b1/config/controllers/{extId}"
 
 	// verify the required parameter 'extId' is set
 	if nil == extId {
@@ -144,6 +147,7 @@ func (api *FloatingIpApi) GetFloatingIp(extId *string, args ...map[string]interf
 	}
 
 	// Path Params
+
 	uri = strings.Replace(uri, "{"+"extId"+"}", url.PathEscape(client.ParameterToString(*extId, "")), -1)
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -173,19 +177,20 @@ func (api *FloatingIpApi) GetFloatingIp(extId *string, args ...map[string]interf
 	if nil != err || nil == responseBody {
 		return nil, err
 	}
-	unmarshalledResp := new(import1.FloatingIpApiResponse)
-	json.Unmarshal(responseBody, &unmarshalledResp)
+
+	unmarshalledResp := new(import1.GetNetworkControllerApiResponse)
+	json.Unmarshal(responseBody.([]byte), &unmarshalledResp)
 	return unmarshalledResp, err
 }
 
-// Get a list of floating IPs. Requires Prism Central >= pc.2022.9.
-func (api *FloatingIpApi) ListFloatingIp(page_ *int, limit_ *int, filter_ *string, orderby_ *string, expand_ *string, args ...map[string]interface{}) (*import1.FloatingIpListApiResponse, error) {
+// Gets the list of existing network controllers.
+func (api *NetworkControllersApi) ListNetworkControllers(page_ *int, limit_ *int, args ...map[string]interface{}) (*import1.ListNetworkControllersApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
 	}
 
-	uri := "/api/networking/v4.0.b1/config/floating-ips"
+	uri := "/api/networking/v4.0.b1/config/controllers"
 
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -206,18 +211,6 @@ func (api *FloatingIpApi) ListFloatingIp(page_ *int, limit_ *int, filter_ *strin
 
 		queryParams.Add("$limit", client.ParameterToString(*limit_, ""))
 	}
-	if filter_ != nil {
-
-		queryParams.Add("$filter", client.ParameterToString(*filter_, ""))
-	}
-	if orderby_ != nil {
-
-		queryParams.Add("$orderby", client.ParameterToString(*orderby_, ""))
-	}
-	if expand_ != nil {
-
-		queryParams.Add("$expand", client.ParameterToString(*expand_, ""))
-	}
 	// Headers provided explicitly on operation takes precedence
 	for headerKey, value := range argMap {
 		// Skip platform generated headers
@@ -236,19 +229,20 @@ func (api *FloatingIpApi) ListFloatingIp(page_ *int, limit_ *int, filter_ *strin
 	if nil != err || nil == responseBody {
 		return nil, err
 	}
-	unmarshalledResp := new(import1.FloatingIpListApiResponse)
-	json.Unmarshal(responseBody, &unmarshalledResp)
+
+	unmarshalledResp := new(import1.ListNetworkControllersApiResponse)
+	json.Unmarshal(responseBody.([]byte), &unmarshalledResp)
 	return unmarshalledResp, err
 }
 
-// Update the floating IP for this extId. Requires Prism Central >= pc.2022.9.
-func (api *FloatingIpApi) PutFloatingIp(extId *string, body *import1.FloatingIp, args ...map[string]interface{}) (*import1.TaskReferenceApiResponse, error) {
+// Update a network controller.
+func (api *NetworkControllersApi) UpdateNetworkControllerById(extId *string, body *import1.NetworkController, args ...map[string]interface{}) (*import1.TaskReferenceApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
 	}
 
-	uri := "/api/networking/v4.0.b1/config/floating-ips/{extId}"
+	uri := "/api/networking/v4.0.b1/config/controllers/{extId}"
 
 	// verify the required parameter 'extId' is set
 	if nil == extId {
@@ -260,6 +254,7 @@ func (api *FloatingIpApi) PutFloatingIp(extId *string, body *import1.FloatingIp,
 	}
 
 	// Path Params
+
 	uri = strings.Replace(uri, "{"+"extId"+"}", url.PathEscape(client.ParameterToString(*extId, "")), -1)
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -289,7 +284,8 @@ func (api *FloatingIpApi) PutFloatingIp(extId *string, body *import1.FloatingIp,
 	if nil != err || nil == responseBody {
 		return nil, err
 	}
+
 	unmarshalledResp := new(import1.TaskReferenceApiResponse)
-	json.Unmarshal(responseBody, &unmarshalledResp)
+	json.Unmarshal(responseBody.([]byte), &unmarshalledResp)
 	return unmarshalledResp, err
 }

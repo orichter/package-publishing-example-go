@@ -10,21 +10,21 @@ import (
 	"strings"
 )
 
-type VirtualSwitchNodeInfoApi struct {
+type BridgesApi struct {
 	ApiClient     *client.ApiClient
 	headersToSkip map[string]bool
 }
 
-func NewVirtualSwitchNodeInfoApi(apiClient *client.ApiClient) *VirtualSwitchNodeInfoApi {
+func NewBridgesApi(apiClient *client.ApiClient) *BridgesApi {
 	if apiClient == nil {
 		apiClient = client.NewApiClient()
 	}
 
-	a := &VirtualSwitchNodeInfoApi{
+	a := &BridgesApi{
 		ApiClient: apiClient,
 	}
 
-	headers := []string{"authorization", "cookie", "ntnx-request-id", "host", "user-agent"}
+	headers := []string{"authorization", "cookie", "host", "user-agent"}
 	a.headersToSkip = make(map[string]bool)
 	for _, header := range headers {
 		a.headersToSkip[header] = true
@@ -33,21 +33,26 @@ func NewVirtualSwitchNodeInfoApi(apiClient *client.ApiClient) *VirtualSwitchNode
 	return a
 }
 
-// Check to see whether a node in a cluster is a storage-only node or not
-func (api *VirtualSwitchNodeInfoApi) GetNodeSchedulableStatus(xClusterId *string, args ...map[string]interface{}) (*import1.NodeSchedulableStatusApiResponse, error) {
+// Create a Virtual Switch from an existing bridge.
+func (api *BridgesApi) MigrateBridge(body *import1.Bridge, xClusterId *string, args ...map[string]interface{}) (*import1.TaskReferenceApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
 	}
 
-	uri := "/api/networking/v4.0.b1/config/node-schedulable-status"
+	uri := "/api/networking/v4.0.b1/config/virtual-switches/$actions/migrate"
+
+	// verify the required parameter 'body' is set
+	if nil == body {
+		return nil, client.ReportError("body is required and must be specified")
+	}
 
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
 	formParams := url.Values{}
 
 	// to determine the Content-Type header
-	contentTypes := []string{}
+	contentTypes := []string{"application/json"}
 
 	// to determine the Accept header
 	accepts := []string{"application/json"}
@@ -69,11 +74,12 @@ func (api *VirtualSwitchNodeInfoApi) GetNodeSchedulableStatus(xClusterId *string
 
 	authNames := []string{"basicAuthScheme"}
 
-	responseBody, err := api.ApiClient.CallApi(&uri, http.MethodGet, nil, queryParams, headerParams, formParams, accepts, contentTypes, authNames)
+	responseBody, err := api.ApiClient.CallApi(&uri, http.MethodPost, body, queryParams, headerParams, formParams, accepts, contentTypes, authNames)
 	if nil != err || nil == responseBody {
 		return nil, err
 	}
-	unmarshalledResp := new(import1.NodeSchedulableStatusApiResponse)
-	json.Unmarshal(responseBody, &unmarshalledResp)
+
+	unmarshalledResp := new(import1.TaskReferenceApiResponse)
+	json.Unmarshal(responseBody.([]byte), &unmarshalledResp)
 	return unmarshalledResp, err
 }

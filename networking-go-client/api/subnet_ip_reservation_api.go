@@ -10,21 +10,21 @@ import (
 	"strings"
 )
 
-type SubnetReserveUnreserveIpApi struct {
+type SubnetIPReservationApi struct {
 	ApiClient     *client.ApiClient
 	headersToSkip map[string]bool
 }
 
-func NewSubnetReserveUnreserveIpApi(apiClient *client.ApiClient) *SubnetReserveUnreserveIpApi {
+func NewSubnetIPReservationApi(apiClient *client.ApiClient) *SubnetIPReservationApi {
 	if apiClient == nil {
 		apiClient = client.NewApiClient()
 	}
 
-	a := &SubnetReserveUnreserveIpApi{
+	a := &SubnetIPReservationApi{
 		ApiClient: apiClient,
 	}
 
-	headers := []string{"authorization", "cookie", "ntnx-request-id", "host", "user-agent"}
+	headers := []string{"authorization", "cookie", "host", "user-agent"}
 	a.headersToSkip = make(map[string]bool)
 	for _, header := range headers {
 		a.headersToSkip[header] = true
@@ -33,8 +33,8 @@ func NewSubnetReserveUnreserveIpApi(apiClient *client.ApiClient) *SubnetReserveU
 	return a
 }
 
-// Reserve IP addresses on a subnet. Requires Prism Central >= pc.2022.9.
-func (api *SubnetReserveUnreserveIpApi) ReserveIps(extId *string, body *import1.IpReserveSpec, args ...map[string]interface{}) (*import1.TaskReferenceApiResponse, error) {
+// Reserve IP addresses on a subnet.
+func (api *SubnetIPReservationApi) ReserveIpsBySubnetId(extId *string, body *import1.IpReserveSpec, args ...map[string]interface{}) (*import1.TaskReferenceApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
@@ -52,6 +52,7 @@ func (api *SubnetReserveUnreserveIpApi) ReserveIps(extId *string, body *import1.
 	}
 
 	// Path Params
+
 	uri = strings.Replace(uri, "{"+"extId"+"}", url.PathEscape(client.ParameterToString(*extId, "")), -1)
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -81,13 +82,14 @@ func (api *SubnetReserveUnreserveIpApi) ReserveIps(extId *string, body *import1.
 	if nil != err || nil == responseBody {
 		return nil, err
 	}
+
 	unmarshalledResp := new(import1.TaskReferenceApiResponse)
-	json.Unmarshal(responseBody, &unmarshalledResp)
+	json.Unmarshal(responseBody.([]byte), &unmarshalledResp)
 	return unmarshalledResp, err
 }
 
-// Unreserve IP addresses on a subnet. Requires Prism Central >= pc.2022.9.
-func (api *SubnetReserveUnreserveIpApi) UnreserveIps(extId *string, body *import1.IpUnreserveSpec, args ...map[string]interface{}) (*import1.TaskReferenceApiResponse, error) {
+// Unreserve IP addresses on a subnet.
+func (api *SubnetIPReservationApi) UnreserveIpsBySubnetId(extId *string, body *import1.IpUnreserveSpec, args ...map[string]interface{}) (*import1.TaskReferenceApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
@@ -105,6 +107,7 @@ func (api *SubnetReserveUnreserveIpApi) UnreserveIps(extId *string, body *import
 	}
 
 	// Path Params
+
 	uri = strings.Replace(uri, "{"+"extId"+"}", url.PathEscape(client.ParameterToString(*extId, "")), -1)
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -134,7 +137,8 @@ func (api *SubnetReserveUnreserveIpApi) UnreserveIps(extId *string, body *import
 	if nil != err || nil == responseBody {
 		return nil, err
 	}
+
 	unmarshalledResp := new(import1.TaskReferenceApiResponse)
-	json.Unmarshal(responseBody, &unmarshalledResp)
+	json.Unmarshal(responseBody.([]byte), &unmarshalledResp)
 	return unmarshalledResp, err
 }

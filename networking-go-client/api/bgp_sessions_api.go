@@ -10,21 +10,21 @@ import (
 	"strings"
 )
 
-type BgpSessionApi struct {
+type BgpSessionsApi struct {
 	ApiClient     *client.ApiClient
 	headersToSkip map[string]bool
 }
 
-func NewBgpSessionApi(apiClient *client.ApiClient) *BgpSessionApi {
+func NewBgpSessionsApi(apiClient *client.ApiClient) *BgpSessionsApi {
 	if apiClient == nil {
 		apiClient = client.NewApiClient()
 	}
 
-	a := &BgpSessionApi{
+	a := &BgpSessionsApi{
 		ApiClient: apiClient,
 	}
 
-	headers := []string{"authorization", "cookie", "ntnx-request-id", "host", "user-agent"}
+	headers := []string{"authorization", "cookie", "host", "user-agent"}
 	a.headersToSkip = make(map[string]bool)
 	for _, header := range headers {
 		a.headersToSkip[header] = true
@@ -33,8 +33,8 @@ func NewBgpSessionApi(apiClient *client.ApiClient) *BgpSessionApi {
 	return a
 }
 
-// Create BGP session. Requires Prism Central >= pc.2022.9.
-func (api *BgpSessionApi) CreateBgpSession(body *import1.BgpSession, args ...map[string]interface{}) (*import1.TaskReferenceApiResponse, error) {
+// Create BGP session.
+func (api *BgpSessionsApi) CreateBgpSession(body *import1.BgpSession, args ...map[string]interface{}) (*import1.TaskReferenceApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
@@ -75,13 +75,14 @@ func (api *BgpSessionApi) CreateBgpSession(body *import1.BgpSession, args ...map
 	if nil != err || nil == responseBody {
 		return nil, err
 	}
+
 	unmarshalledResp := new(import1.TaskReferenceApiResponse)
-	json.Unmarshal(responseBody, &unmarshalledResp)
+	json.Unmarshal(responseBody.([]byte), &unmarshalledResp)
 	return unmarshalledResp, err
 }
 
-// Delete BGP session for the specified {extId}. Requires Prism Central >= pc.2022.9.
-func (api *BgpSessionApi) DeleteBgpSession(extId *string, args ...map[string]interface{}) (*import1.TaskReferenceApiResponse, error) {
+// Delete BGP session for the specified {extId}.
+func (api *BgpSessionsApi) DeleteBgpSessionById(extId *string, args ...map[string]interface{}) (*import1.TaskReferenceApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
@@ -95,6 +96,7 @@ func (api *BgpSessionApi) DeleteBgpSession(extId *string, args ...map[string]int
 	}
 
 	// Path Params
+
 	uri = strings.Replace(uri, "{"+"extId"+"}", url.PathEscape(client.ParameterToString(*extId, "")), -1)
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -124,13 +126,14 @@ func (api *BgpSessionApi) DeleteBgpSession(extId *string, args ...map[string]int
 	if nil != err || nil == responseBody {
 		return nil, err
 	}
+
 	unmarshalledResp := new(import1.TaskReferenceApiResponse)
-	json.Unmarshal(responseBody, &unmarshalledResp)
+	json.Unmarshal(responseBody.([]byte), &unmarshalledResp)
 	return unmarshalledResp, err
 }
 
-// Get BGP session for the specified {extId}. Requires Prism Central >= pc.2022.9.
-func (api *BgpSessionApi) GetBgpSession(extId *string, args ...map[string]interface{}) (*import1.BgpSessionApiResponse, error) {
+// Get BGP session for the specified {extId}.
+func (api *BgpSessionsApi) GetBgpSessionById(extId *string, args ...map[string]interface{}) (*import1.GetBgpSessionApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
@@ -144,6 +147,7 @@ func (api *BgpSessionApi) GetBgpSession(extId *string, args ...map[string]interf
 	}
 
 	// Path Params
+
 	uri = strings.Replace(uri, "{"+"extId"+"}", url.PathEscape(client.ParameterToString(*extId, "")), -1)
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -173,13 +177,14 @@ func (api *BgpSessionApi) GetBgpSession(extId *string, args ...map[string]interf
 	if nil != err || nil == responseBody {
 		return nil, err
 	}
-	unmarshalledResp := new(import1.BgpSessionApiResponse)
-	json.Unmarshal(responseBody, &unmarshalledResp)
+
+	unmarshalledResp := new(import1.GetBgpSessionApiResponse)
+	json.Unmarshal(responseBody.([]byte), &unmarshalledResp)
 	return unmarshalledResp, err
 }
 
-// List BGP sessions request. Requires Prism Central >= pc.2022.9.
-func (api *BgpSessionApi) ListBgpSessions(page_ *int, limit_ *int, filter_ *string, orderby_ *string, expand_ *string, args ...map[string]interface{}) (*import1.BgpSessionListApiResponse, error) {
+// List BGP sessions request.
+func (api *BgpSessionsApi) ListBgpSessions(page_ *int, limit_ *int, filter_ *string, orderby_ *string, expand_ *string, args ...map[string]interface{}) (*import1.ListBgpSessionsApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
@@ -236,13 +241,14 @@ func (api *BgpSessionApi) ListBgpSessions(page_ *int, limit_ *int, filter_ *stri
 	if nil != err || nil == responseBody {
 		return nil, err
 	}
-	unmarshalledResp := new(import1.BgpSessionListApiResponse)
-	json.Unmarshal(responseBody, &unmarshalledResp)
+
+	unmarshalledResp := new(import1.ListBgpSessionsApiResponse)
+	json.Unmarshal(responseBody.([]byte), &unmarshalledResp)
 	return unmarshalledResp, err
 }
 
-// Update BGP session for the specified {extId}. Requires Prism Central >= pc.2022.9.
-func (api *BgpSessionApi) UpdateBgpSession(extId *string, body *import1.BgpSession, args ...map[string]interface{}) (*import1.TaskReferenceApiResponse, error) {
+// Update BGP session for the specified {extId}.
+func (api *BgpSessionsApi) UpdateBgpSessionById(extId *string, body *import1.BgpSession, args ...map[string]interface{}) (*import1.TaskReferenceApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
@@ -260,6 +266,7 @@ func (api *BgpSessionApi) UpdateBgpSession(extId *string, body *import1.BgpSessi
 	}
 
 	// Path Params
+
 	uri = strings.Replace(uri, "{"+"extId"+"}", url.PathEscape(client.ParameterToString(*extId, "")), -1)
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -289,7 +296,8 @@ func (api *BgpSessionApi) UpdateBgpSession(extId *string, body *import1.BgpSessi
 	if nil != err || nil == responseBody {
 		return nil, err
 	}
+
 	unmarshalledResp := new(import1.TaskReferenceApiResponse)
-	json.Unmarshal(responseBody, &unmarshalledResp)
+	json.Unmarshal(responseBody.([]byte), &unmarshalledResp)
 	return unmarshalledResp, err
 }

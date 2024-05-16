@@ -10,21 +10,21 @@ import (
 	"strings"
 )
 
-type TrafficMirrorApi struct {
+type Layer2StretchesApi struct {
 	ApiClient     *client.ApiClient
 	headersToSkip map[string]bool
 }
 
-func NewTrafficMirrorApi(apiClient *client.ApiClient) *TrafficMirrorApi {
+func NewLayer2StretchesApi(apiClient *client.ApiClient) *Layer2StretchesApi {
 	if apiClient == nil {
 		apiClient = client.NewApiClient()
 	}
 
-	a := &TrafficMirrorApi{
+	a := &Layer2StretchesApi{
 		ApiClient: apiClient,
 	}
 
-	headers := []string{"authorization", "cookie", "ntnx-request-id", "host", "user-agent"}
+	headers := []string{"authorization", "cookie", "host", "user-agent"}
 	a.headersToSkip = make(map[string]bool)
 	for _, header := range headers {
 		a.headersToSkip[header] = true
@@ -33,14 +33,14 @@ func NewTrafficMirrorApi(apiClient *client.ApiClient) *TrafficMirrorApi {
 	return a
 }
 
-// Create Traffic mirror session. Requires Prism Central >= pc.2023.3.
-func (api *TrafficMirrorApi) CreateTrafficMirror(body *import1.TrafficMirror, args ...map[string]interface{}) (*import1.TaskReferenceApiResponse, error) {
+// Create a Layer2Stretch configuration.
+func (api *Layer2StretchesApi) CreateLayer2Stretch(body *import1.Layer2Stretch, args ...map[string]interface{}) (*import1.TaskReferenceApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
 	}
 
-	uri := "/api/networking/v4.0.b1/config/traffic-mirrors"
+	uri := "/api/networking/v4.0.b1/config/layer2-stretches"
 
 	// verify the required parameter 'body' is set
 	if nil == body {
@@ -75,19 +75,20 @@ func (api *TrafficMirrorApi) CreateTrafficMirror(body *import1.TrafficMirror, ar
 	if nil != err || nil == responseBody {
 		return nil, err
 	}
+
 	unmarshalledResp := new(import1.TaskReferenceApiResponse)
-	json.Unmarshal(responseBody, &unmarshalledResp)
+	json.Unmarshal(responseBody.([]byte), &unmarshalledResp)
 	return unmarshalledResp, err
 }
 
-// Delete Traffic mirror session request body.
-func (api *TrafficMirrorApi) DeleteTrafficMirror(extId *string, args ...map[string]interface{}) (*import1.TaskReferenceApiResponse, error) {
+// Delete the specified Layer2Stretch configuration.
+func (api *Layer2StretchesApi) DeleteLayer2StretchById(extId *string, args ...map[string]interface{}) (*import1.TaskReferenceApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
 	}
 
-	uri := "/api/networking/v4.0.b1/config/traffic-mirrors/{extId}"
+	uri := "/api/networking/v4.0.b1/config/layer2-stretches/{extId}"
 
 	// verify the required parameter 'extId' is set
 	if nil == extId {
@@ -95,6 +96,7 @@ func (api *TrafficMirrorApi) DeleteTrafficMirror(extId *string, args ...map[stri
 	}
 
 	// Path Params
+
 	uri = strings.Replace(uri, "{"+"extId"+"}", url.PathEscape(client.ParameterToString(*extId, "")), -1)
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -124,19 +126,20 @@ func (api *TrafficMirrorApi) DeleteTrafficMirror(extId *string, args ...map[stri
 	if nil != err || nil == responseBody {
 		return nil, err
 	}
+
 	unmarshalledResp := new(import1.TaskReferenceApiResponse)
-	json.Unmarshal(responseBody, &unmarshalledResp)
+	json.Unmarshal(responseBody.([]byte), &unmarshalledResp)
 	return unmarshalledResp, err
 }
 
-// Get Traffic mirror session. Requires Prism Central >= pc.2023.3.
-func (api *TrafficMirrorApi) GetTrafficMirror(extId *string, args ...map[string]interface{}) (*import1.TrafficMirrorApiResponse, error) {
+// Get the Layer2Stretch configuration with the specified UUID.
+func (api *Layer2StretchesApi) GetLayer2StretchById(extId *string, args ...map[string]interface{}) (*import1.GetLayer2StretchApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
 	}
 
-	uri := "/api/networking/v4.0.b1/config/traffic-mirrors/{extId}"
+	uri := "/api/networking/v4.0.b1/config/layer2-stretches/{extId}"
 
 	// verify the required parameter 'extId' is set
 	if nil == extId {
@@ -144,6 +147,7 @@ func (api *TrafficMirrorApi) GetTrafficMirror(extId *string, args ...map[string]
 	}
 
 	// Path Params
+
 	uri = strings.Replace(uri, "{"+"extId"+"}", url.PathEscape(client.ParameterToString(*extId, "")), -1)
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -173,19 +177,71 @@ func (api *TrafficMirrorApi) GetTrafficMirror(extId *string, args ...map[string]
 	if nil != err || nil == responseBody {
 		return nil, err
 	}
-	unmarshalledResp := new(import1.TrafficMirrorApiResponse)
-	json.Unmarshal(responseBody, &unmarshalledResp)
+
+	unmarshalledResp := new(import1.GetLayer2StretchApiResponse)
+	json.Unmarshal(responseBody.([]byte), &unmarshalledResp)
 	return unmarshalledResp, err
 }
 
-// List Traffic mirror sessions. Requires Prism Central >= pc.2023.3.
-func (api *TrafficMirrorApi) ListTrafficMirrors(page_ *int, limit_ *int, filter_ *string, orderby_ *string, args ...map[string]interface{}) (*import1.TrafficMirrorListApiResponse, error) {
+// Get the stretch-related entities from the specified Prism Central cluster.
+func (api *Layer2StretchesApi) ListLayer2StretchRelatedEntitiesByClusterId(extId *string, args ...map[string]interface{}) (*import1.ListLayer2StretchRelatedEntitiesApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
 	}
 
-	uri := "/api/networking/v4.0.b1/config/traffic-mirrors"
+	uri := "/api/networking/v4.0.b1/config/clusters/{extId}/layer2-stretches/related-entities"
+
+	// verify the required parameter 'extId' is set
+	if nil == extId {
+		return nil, client.ReportError("extId is required and must be specified")
+	}
+
+	// Path Params
+
+	uri = strings.Replace(uri, "{"+"extId"+"}", url.PathEscape(client.ParameterToString(*extId, "")), -1)
+	headerParams := make(map[string]string)
+	queryParams := url.Values{}
+	formParams := url.Values{}
+
+	// to determine the Content-Type header
+	contentTypes := []string{}
+
+	// to determine the Accept header
+	accepts := []string{"application/json"}
+
+	// Headers provided explicitly on operation takes precedence
+	for headerKey, value := range argMap {
+		// Skip platform generated headers
+		if !api.headersToSkip[strings.ToLower(headerKey)] {
+			if value != nil {
+				if headerValue, headerValueOk := value.(string); headerValueOk {
+					headerParams[headerKey] = headerValue
+				}
+			}
+		}
+	}
+
+	authNames := []string{"basicAuthScheme"}
+
+	responseBody, err := api.ApiClient.CallApi(&uri, http.MethodGet, nil, queryParams, headerParams, formParams, accepts, contentTypes, authNames)
+	if nil != err || nil == responseBody {
+		return nil, err
+	}
+
+	unmarshalledResp := new(import1.ListLayer2StretchRelatedEntitiesApiResponse)
+	json.Unmarshal(responseBody.([]byte), &unmarshalledResp)
+	return unmarshalledResp, err
+}
+
+// Get the list of existing Layer2Stretch configurations.
+func (api *Layer2StretchesApi) ListLayer2Stretches(page_ *int, limit_ *int, filter_ *string, orderby_ *string, args ...map[string]interface{}) (*import1.ListLayer2StretchesApiResponse, error) {
+	argMap := make(map[string]interface{})
+	if len(args) > 0 {
+		argMap = args[0]
+	}
+
+	uri := "/api/networking/v4.0.b1/config/layer2-stretches"
 
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -232,19 +288,20 @@ func (api *TrafficMirrorApi) ListTrafficMirrors(page_ *int, limit_ *int, filter_
 	if nil != err || nil == responseBody {
 		return nil, err
 	}
-	unmarshalledResp := new(import1.TrafficMirrorListApiResponse)
-	json.Unmarshal(responseBody, &unmarshalledResp)
+
+	unmarshalledResp := new(import1.ListLayer2StretchesApiResponse)
+	json.Unmarshal(responseBody.([]byte), &unmarshalledResp)
 	return unmarshalledResp, err
 }
 
-// Update Traffic mirror session. Requires Prism Central >= pc.2023.3.
-func (api *TrafficMirrorApi) UpdateTrafficMirror(extId *string, body *import1.TrafficMirror, args ...map[string]interface{}) (*import1.TaskReferenceApiResponse, error) {
+// Update the specified Layer2Stretch configuration.
+func (api *Layer2StretchesApi) UpdateLayer2StretchById(extId *string, body *import1.Layer2Stretch, args ...map[string]interface{}) (*import1.TaskReferenceApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
 	}
 
-	uri := "/api/networking/v4.0.b1/config/traffic-mirrors/{extId}"
+	uri := "/api/networking/v4.0.b1/config/layer2-stretches/{extId}"
 
 	// verify the required parameter 'extId' is set
 	if nil == extId {
@@ -256,6 +313,7 @@ func (api *TrafficMirrorApi) UpdateTrafficMirror(extId *string, body *import1.Tr
 	}
 
 	// Path Params
+
 	uri = strings.Replace(uri, "{"+"extId"+"}", url.PathEscape(client.ParameterToString(*extId, "")), -1)
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -285,7 +343,8 @@ func (api *TrafficMirrorApi) UpdateTrafficMirror(extId *string, body *import1.Tr
 	if nil != err || nil == responseBody {
 		return nil, err
 	}
+
 	unmarshalledResp := new(import1.TaskReferenceApiResponse)
-	json.Unmarshal(responseBody, &unmarshalledResp)
+	json.Unmarshal(responseBody.([]byte), &unmarshalledResp)
 	return unmarshalledResp, err
 }

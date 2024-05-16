@@ -10,21 +10,21 @@ import (
 	"strings"
 )
 
-type RoutingPolicyApi struct {
+type GatewaysApi struct {
 	ApiClient     *client.ApiClient
 	headersToSkip map[string]bool
 }
 
-func NewRoutingPolicyApi(apiClient *client.ApiClient) *RoutingPolicyApi {
+func NewGatewaysApi(apiClient *client.ApiClient) *GatewaysApi {
 	if apiClient == nil {
 		apiClient = client.NewApiClient()
 	}
 
-	a := &RoutingPolicyApi{
+	a := &GatewaysApi{
 		ApiClient: apiClient,
 	}
 
-	headers := []string{"authorization", "cookie", "ntnx-request-id", "host", "user-agent"}
+	headers := []string{"authorization", "cookie", "host", "user-agent"}
 	a.headersToSkip = make(map[string]bool)
 	for _, header := range headers {
 		a.headersToSkip[header] = true
@@ -33,14 +33,14 @@ func NewRoutingPolicyApi(apiClient *client.ApiClient) *RoutingPolicyApi {
 	return a
 }
 
-// Create a routing policy. Requires Prism Central >= pc.2022.9.
-func (api *RoutingPolicyApi) CreateRoutingPolicy(body *import1.RoutingPolicy, args ...map[string]interface{}) (*import1.TaskReferenceApiResponse, error) {
+// Create gateway.
+func (api *GatewaysApi) CreateGateway(body *import1.Gateway, args ...map[string]interface{}) (*import1.TaskReferenceApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
 	}
 
-	uri := "/api/networking/v4.0.b1/config/routing-policies"
+	uri := "/api/networking/v4.0.b1/config/gateways"
 
 	// verify the required parameter 'body' is set
 	if nil == body {
@@ -75,19 +75,20 @@ func (api *RoutingPolicyApi) CreateRoutingPolicy(body *import1.RoutingPolicy, ar
 	if nil != err || nil == responseBody {
 		return nil, err
 	}
+
 	unmarshalledResp := new(import1.TaskReferenceApiResponse)
-	json.Unmarshal(responseBody, &unmarshalledResp)
+	json.Unmarshal(responseBody.([]byte), &unmarshalledResp)
 	return unmarshalledResp, err
 }
 
-// Delete the routing policy corresponding to the extId. Requires Prism Central >= pc.2022.9.
-func (api *RoutingPolicyApi) DeleteRoutingPolicy(extId *string, args ...map[string]interface{}) (*import1.TaskReferenceApiResponse, error) {
+// Delete gateway for the specified UUID
+func (api *GatewaysApi) DeleteGatewayById(extId *string, args ...map[string]interface{}) (*import1.TaskReferenceApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
 	}
 
-	uri := "/api/networking/v4.0.b1/config/routing-policies/{extId}"
+	uri := "/api/networking/v4.0.b1/config/gateways/{extId}"
 
 	// verify the required parameter 'extId' is set
 	if nil == extId {
@@ -95,6 +96,7 @@ func (api *RoutingPolicyApi) DeleteRoutingPolicy(extId *string, args ...map[stri
 	}
 
 	// Path Params
+
 	uri = strings.Replace(uri, "{"+"extId"+"}", url.PathEscape(client.ParameterToString(*extId, "")), -1)
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -124,19 +126,20 @@ func (api *RoutingPolicyApi) DeleteRoutingPolicy(extId *string, args ...map[stri
 	if nil != err || nil == responseBody {
 		return nil, err
 	}
+
 	unmarshalledResp := new(import1.TaskReferenceApiResponse)
-	json.Unmarshal(responseBody, &unmarshalledResp)
+	json.Unmarshal(responseBody.([]byte), &unmarshalledResp)
 	return unmarshalledResp, err
 }
 
-// Get a single routing policy corresponding to the extId. Requires Prism Central >= pc.2022.9.
-func (api *RoutingPolicyApi) GetRoutingPolicy(extId *string, args ...map[string]interface{}) (*import1.RoutingPolicyApiResponse, error) {
+// Get the gateway for the specified extId.
+func (api *GatewaysApi) GetGatewayById(extId *string, args ...map[string]interface{}) (*import1.GetGatewayApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
 	}
 
-	uri := "/api/networking/v4.0.b1/config/routing-policies/{extId}"
+	uri := "/api/networking/v4.0.b1/config/gateways/{extId}"
 
 	// verify the required parameter 'extId' is set
 	if nil == extId {
@@ -144,6 +147,7 @@ func (api *RoutingPolicyApi) GetRoutingPolicy(extId *string, args ...map[string]
 	}
 
 	// Path Params
+
 	uri = strings.Replace(uri, "{"+"extId"+"}", url.PathEscape(client.ParameterToString(*extId, "")), -1)
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -173,19 +177,20 @@ func (api *RoutingPolicyApi) GetRoutingPolicy(extId *string, args ...map[string]
 	if nil != err || nil == responseBody {
 		return nil, err
 	}
-	unmarshalledResp := new(import1.RoutingPolicyApiResponse)
-	json.Unmarshal(responseBody, &unmarshalledResp)
+
+	unmarshalledResp := new(import1.GetGatewayApiResponse)
+	json.Unmarshal(responseBody.([]byte), &unmarshalledResp)
 	return unmarshalledResp, err
 }
 
-// Get a list of routing policies. Requires Prism Central >= pc.2022.9.
-func (api *RoutingPolicyApi) ListRoutingPolicies(page_ *int, limit_ *int, filter_ *string, orderby_ *string, args ...map[string]interface{}) (*import1.RoutingPolicyListApiResponse, error) {
+// Get the list of the existing Network gateways.
+func (api *GatewaysApi) ListGateways(page_ *int, limit_ *int, filter_ *string, orderby_ *string, expand_ *string, select_ *string, args ...map[string]interface{}) (*import1.ListGatewaysApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
 	}
 
-	uri := "/api/networking/v4.0.b1/config/routing-policies"
+	uri := "/api/networking/v4.0.b1/config/gateways"
 
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -214,6 +219,14 @@ func (api *RoutingPolicyApi) ListRoutingPolicies(page_ *int, limit_ *int, filter
 
 		queryParams.Add("$orderby", client.ParameterToString(*orderby_, ""))
 	}
+	if expand_ != nil {
+
+		queryParams.Add("$expand", client.ParameterToString(*expand_, ""))
+	}
+	if select_ != nil {
+
+		queryParams.Add("$select", client.ParameterToString(*select_, ""))
+	}
 	// Headers provided explicitly on operation takes precedence
 	for headerKey, value := range argMap {
 		// Skip platform generated headers
@@ -232,19 +245,20 @@ func (api *RoutingPolicyApi) ListRoutingPolicies(page_ *int, limit_ *int, filter
 	if nil != err || nil == responseBody {
 		return nil, err
 	}
-	unmarshalledResp := new(import1.RoutingPolicyListApiResponse)
-	json.Unmarshal(responseBody, &unmarshalledResp)
+
+	unmarshalledResp := new(import1.ListGatewaysApiResponse)
+	json.Unmarshal(responseBody.([]byte), &unmarshalledResp)
 	return unmarshalledResp, err
 }
 
-// Update the Routing Policy corresponding to the extId. Requires Prism Central >= pc.2022.9.
-func (api *RoutingPolicyApi) PutRoutingPolicy(extId *string, body *import1.RoutingPolicy, args ...map[string]interface{}) (*import1.TaskReferenceApiResponse, error) {
+// Update gateway.
+func (api *GatewaysApi) UpdateGatewayById(extId *string, body *import1.Gateway, args ...map[string]interface{}) (*import1.TaskReferenceApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
 	}
 
-	uri := "/api/networking/v4.0.b1/config/routing-policies/{extId}"
+	uri := "/api/networking/v4.0.b1/config/gateways/{extId}"
 
 	// verify the required parameter 'extId' is set
 	if nil == extId {
@@ -256,6 +270,7 @@ func (api *RoutingPolicyApi) PutRoutingPolicy(extId *string, body *import1.Routi
 	}
 
 	// Path Params
+
 	uri = strings.Replace(uri, "{"+"extId"+"}", url.PathEscape(client.ParameterToString(*extId, "")), -1)
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -285,7 +300,59 @@ func (api *RoutingPolicyApi) PutRoutingPolicy(extId *string, body *import1.Routi
 	if nil != err || nil == responseBody {
 		return nil, err
 	}
+
 	unmarshalledResp := new(import1.TaskReferenceApiResponse)
-	json.Unmarshal(responseBody, &unmarshalledResp)
+	json.Unmarshal(responseBody.([]byte), &unmarshalledResp)
+	return unmarshalledResp, err
+}
+
+// Upgrade the gateway for the specified UUID.
+func (api *GatewaysApi) UpgradeGatewayById(extId *string, args ...map[string]interface{}) (*import1.TaskReferenceApiResponse, error) {
+	argMap := make(map[string]interface{})
+	if len(args) > 0 {
+		argMap = args[0]
+	}
+
+	uri := "/api/networking/v4.0.b1/config/gateways/{extId}/$actions/upgrade"
+
+	// verify the required parameter 'extId' is set
+	if nil == extId {
+		return nil, client.ReportError("extId is required and must be specified")
+	}
+
+	// Path Params
+
+	uri = strings.Replace(uri, "{"+"extId"+"}", url.PathEscape(client.ParameterToString(*extId, "")), -1)
+	headerParams := make(map[string]string)
+	queryParams := url.Values{}
+	formParams := url.Values{}
+
+	// to determine the Content-Type header
+	contentTypes := []string{}
+
+	// to determine the Accept header
+	accepts := []string{"application/json"}
+
+	// Headers provided explicitly on operation takes precedence
+	for headerKey, value := range argMap {
+		// Skip platform generated headers
+		if !api.headersToSkip[strings.ToLower(headerKey)] {
+			if value != nil {
+				if headerValue, headerValueOk := value.(string); headerValueOk {
+					headerParams[headerKey] = headerValue
+				}
+			}
+		}
+	}
+
+	authNames := []string{"basicAuthScheme"}
+
+	responseBody, err := api.ApiClient.CallApi(&uri, http.MethodPost, nil, queryParams, headerParams, formParams, accepts, contentTypes, authNames)
+	if nil != err || nil == responseBody {
+		return nil, err
+	}
+
+	unmarshalledResp := new(import1.TaskReferenceApiResponse)
+	json.Unmarshal(responseBody.([]byte), &unmarshalledResp)
 	return unmarshalledResp, err
 }
