@@ -4,27 +4,27 @@ package api
 import (
 	"encoding/json"
 	"github.com/orichter/package-publishing-example-go/vmm-go-client/v4/client"
-	import2 "github.com/orichter/package-publishing-example-go/vmm-go-client/v4/models/vmm/v4/images"
+	import4 "github.com/orichter/package-publishing-example-go/vmm-go-client/v4/models/vmm/v4/images/config"
 	"net/http"
 	"net/url"
 	"strings"
 )
 
-type RateLimitsApi struct {
+type ImagePlacementPoliciesApi struct {
 	ApiClient     *client.ApiClient
 	headersToSkip map[string]bool
 }
 
-func NewRateLimitsApi(apiClient *client.ApiClient) *RateLimitsApi {
+func NewImagePlacementPoliciesApi(apiClient *client.ApiClient) *ImagePlacementPoliciesApi {
 	if apiClient == nil {
 		apiClient = client.NewApiClient()
 	}
 
-	a := &RateLimitsApi{
+	a := &ImagePlacementPoliciesApi{
 		ApiClient: apiClient,
 	}
 
-	headers := []string{"authorization", "cookie", "ntnx-request-id", "host", "user-agent"}
+	headers := []string{"authorization", "cookie", "host", "user-agent"}
 	a.headersToSkip = make(map[string]bool)
 	for _, header := range headers {
 		a.headersToSkip[header] = true
@@ -33,14 +33,14 @@ func NewRateLimitsApi(apiClient *client.ApiClient) *RateLimitsApi {
 	return a
 }
 
-// Create an image rate limit.
-func (api *RateLimitsApi) CreateRateLimit(body *import2.RateLimit, args ...map[string]interface{}) (*import2.ImagesTaskApiResponse, error) {
+// Create an image placement policy using the provided request body. Name, placementType, clusterEntityFilter & imageEntityFilter are mandatory fields to create an image placement policy.
+func (api *ImagePlacementPoliciesApi) CreatePlacementPolicy(body *import4.PlacementPolicy, args ...map[string]interface{}) (*import4.CreatePlacementPolicyApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
 	}
 
-	uri := "/api/vmm/v4.0.a1/images/rate-limits"
+	uri := "/api/vmm/v4.0.b1/images/config/placement-policies"
 
 	// verify the required parameter 'body' is set
 	if nil == body {
@@ -75,66 +75,20 @@ func (api *RateLimitsApi) CreateRateLimit(body *import2.RateLimit, args ...map[s
 	if nil != err || nil == responseBody {
 		return nil, err
 	}
-	unmarshalledResp := new(import2.ImagesTaskApiResponse)
-	json.Unmarshal(responseBody, &unmarshalledResp)
+
+	unmarshalledResp := new(import4.CreatePlacementPolicyApiResponse)
+	json.Unmarshal(responseBody.([]byte), &unmarshalledResp)
 	return unmarshalledResp, err
 }
 
-// Delete the image rate limits with the specified extIds.
-func (api *RateLimitsApi) DeleteMultipleRateLimits(body *import2.RateLimitIdList, args ...map[string]interface{}) (*import2.RateLimitTaskListApiResponse, error) {
+// Delete the image placement policy with the given external identifier.
+func (api *ImagePlacementPoliciesApi) DeletePlacementPolicyById(extId *string, args ...map[string]interface{}) (*import4.DeletePlacementPolicyApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
 	}
 
-	uri := "/api/vmm/v4.0.a1/images/rate-limits/$actions/delete"
-
-	// verify the required parameter 'body' is set
-	if nil == body {
-		return nil, client.ReportError("body is required and must be specified")
-	}
-
-	headerParams := make(map[string]string)
-	queryParams := url.Values{}
-	formParams := url.Values{}
-
-	// to determine the Content-Type header
-	contentTypes := []string{"application/json"}
-
-	// to determine the Accept header
-	accepts := []string{"application/json"}
-
-	// Headers provided explicitly on operation takes precedence
-	for headerKey, value := range argMap {
-		// Skip platform generated headers
-		if !api.headersToSkip[strings.ToLower(headerKey)] {
-			if value != nil {
-				if headerValue, headerValueOk := value.(string); headerValueOk {
-					headerParams[headerKey] = headerValue
-				}
-			}
-		}
-	}
-
-	authNames := []string{"basicAuthScheme"}
-
-	responseBody, err := api.ApiClient.CallApi(&uri, http.MethodPost, body, queryParams, headerParams, formParams, accepts, contentTypes, authNames)
-	if nil != err || nil == responseBody {
-		return nil, err
-	}
-	unmarshalledResp := new(import2.RateLimitTaskListApiResponse)
-	json.Unmarshal(responseBody, &unmarshalledResp)
-	return unmarshalledResp, err
-}
-
-// Delete the image rate limit with the given extId.
-func (api *RateLimitsApi) DeleteRateLimitByExtId(extId *string, args ...map[string]interface{}) (*import2.ImagesTaskApiResponse, error) {
-	argMap := make(map[string]interface{})
-	if len(args) > 0 {
-		argMap = args[0]
-	}
-
-	uri := "/api/vmm/v4.0.a1/images/rate-limits/{extId}"
+	uri := "/api/vmm/v4.0.b1/images/config/placement-policies/{extId}"
 
 	// verify the required parameter 'extId' is set
 	if nil == extId {
@@ -142,6 +96,7 @@ func (api *RateLimitsApi) DeleteRateLimitByExtId(extId *string, args ...map[stri
 	}
 
 	// Path Params
+
 	uri = strings.Replace(uri, "{"+"extId"+"}", url.PathEscape(client.ParameterToString(*extId, "")), -1)
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -171,19 +126,20 @@ func (api *RateLimitsApi) DeleteRateLimitByExtId(extId *string, args ...map[stri
 	if nil != err || nil == responseBody {
 		return nil, err
 	}
-	unmarshalledResp := new(import2.ImagesTaskApiResponse)
-	json.Unmarshal(responseBody, &unmarshalledResp)
+
+	unmarshalledResp := new(import4.DeletePlacementPolicyApiResponse)
+	json.Unmarshal(responseBody.([]byte), &unmarshalledResp)
 	return unmarshalledResp, err
 }
 
-// Get the image rate limit with the given extId.
-func (api *RateLimitsApi) GetRateLimitByExtId(extId *string, args ...map[string]interface{}) (*import2.RateLimitApiResponse, error) {
+// Retrieve the image placement policy details for the provided external identifier.
+func (api *ImagePlacementPoliciesApi) GetPlacementPolicyById(extId *string, args ...map[string]interface{}) (*import4.GetPlacementPolicyApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
 	}
 
-	uri := "/api/vmm/v4.0.a1/images/rate-limits/{extId}"
+	uri := "/api/vmm/v4.0.b1/images/config/placement-policies/{extId}"
 
 	// verify the required parameter 'extId' is set
 	if nil == extId {
@@ -191,6 +147,7 @@ func (api *RateLimitsApi) GetRateLimitByExtId(extId *string, args ...map[string]
 	}
 
 	// Path Params
+
 	uri = strings.Replace(uri, "{"+"extId"+"}", url.PathEscape(client.ParameterToString(*extId, "")), -1)
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -220,19 +177,20 @@ func (api *RateLimitsApi) GetRateLimitByExtId(extId *string, args ...map[string]
 	if nil != err || nil == responseBody {
 		return nil, err
 	}
-	unmarshalledResp := new(import2.RateLimitApiResponse)
-	json.Unmarshal(responseBody, &unmarshalledResp)
+
+	unmarshalledResp := new(import4.GetPlacementPolicyApiResponse)
+	json.Unmarshal(responseBody.([]byte), &unmarshalledResp)
 	return unmarshalledResp, err
 }
 
-// List image rate limits.
-func (api *RateLimitsApi) GetRateLimitsList(page_ *int, limit_ *int, filter_ *string, orderby_ *string, args ...map[string]interface{}) (*import2.RateLimitListApiResponse, error) {
+// List image placement policies created on the Prism Central along with the details like, name, description etc. The API supports operations like filtering, sorting, selection & pagination.
+func (api *ImagePlacementPoliciesApi) ListPlacementPolicies(page_ *int, limit_ *int, filter_ *string, orderby_ *string, select_ *string, args ...map[string]interface{}) (*import4.ListPlacementPoliciesApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
 	}
 
-	uri := "/api/vmm/v4.0.a1/images/rate-limits"
+	uri := "/api/vmm/v4.0.b1/images/config/placement-policies"
 
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -261,6 +219,10 @@ func (api *RateLimitsApi) GetRateLimitsList(page_ *int, limit_ *int, filter_ *st
 
 		queryParams.Add("$orderby", client.ParameterToString(*orderby_, ""))
 	}
+	if select_ != nil {
+
+		queryParams.Add("$select", client.ParameterToString(*select_, ""))
+	}
 	// Headers provided explicitly on operation takes precedence
 	for headerKey, value := range argMap {
 		// Skip platform generated headers
@@ -279,25 +241,84 @@ func (api *RateLimitsApi) GetRateLimitsList(page_ *int, limit_ *int, filter_ *st
 	if nil != err || nil == responseBody {
 		return nil, err
 	}
-	unmarshalledResp := new(import2.RateLimitListApiResponse)
-	json.Unmarshal(responseBody, &unmarshalledResp)
+
+	unmarshalledResp := new(import4.ListPlacementPoliciesApiResponse)
+	json.Unmarshal(responseBody.([]byte), &unmarshalledResp)
 	return unmarshalledResp, err
 }
 
-// Resolve the effective image rate limit for the given Prism Elements when multiple image rate limits apply.
-func (api *RateLimitsApi) ResolveRateLimits(body *import2.ClusterIdList, args ...map[string]interface{}) (*import2.ResolveRateLimitsApiResponse, error) {
+// Resume a suspended image placement policy. A suspended image placement policy is the one that is not being considered for enforcement.
+func (api *ImagePlacementPoliciesApi) ResumePlacementPolicy(extId *string, args ...map[string]interface{}) (*import4.ResumePlacementPolicyApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
 	}
 
-	uri := "/api/vmm/v4.0.a1/images/rate-limits/$actions/resolve"
+	uri := "/api/vmm/v4.0.b1/images/config/placement-policies/{extId}/$actions/resume"
 
+	// verify the required parameter 'extId' is set
+	if nil == extId {
+		return nil, client.ReportError("extId is required and must be specified")
+	}
+
+	// Path Params
+
+	uri = strings.Replace(uri, "{"+"extId"+"}", url.PathEscape(client.ParameterToString(*extId, "")), -1)
+	headerParams := make(map[string]string)
+	queryParams := url.Values{}
+	formParams := url.Values{}
+
+	// to determine the Content-Type header
+	contentTypes := []string{}
+
+	// to determine the Accept header
+	accepts := []string{"application/json"}
+
+	// Headers provided explicitly on operation takes precedence
+	for headerKey, value := range argMap {
+		// Skip platform generated headers
+		if !api.headersToSkip[strings.ToLower(headerKey)] {
+			if value != nil {
+				if headerValue, headerValueOk := value.(string); headerValueOk {
+					headerParams[headerKey] = headerValue
+				}
+			}
+		}
+	}
+
+	authNames := []string{"basicAuthScheme"}
+
+	responseBody, err := api.ApiClient.CallApi(&uri, http.MethodPost, nil, queryParams, headerParams, formParams, accepts, contentTypes, authNames)
+	if nil != err || nil == responseBody {
+		return nil, err
+	}
+
+	unmarshalledResp := new(import4.ResumePlacementPolicyApiResponse)
+	json.Unmarshal(responseBody.([]byte), &unmarshalledResp)
+	return unmarshalledResp, err
+}
+
+// Suspend an active image placement policy. An active image placement policy is the one that is being considered for enforcement.
+func (api *ImagePlacementPoliciesApi) SuspendPlacementPolicy(extId *string, body *import4.SuspendPlacementPolicyConfig, args ...map[string]interface{}) (*import4.SuspendPlacementPolicyApiResponse, error) {
+	argMap := make(map[string]interface{})
+	if len(args) > 0 {
+		argMap = args[0]
+	}
+
+	uri := "/api/vmm/v4.0.b1/images/config/placement-policies/{extId}/$actions/suspend"
+
+	// verify the required parameter 'extId' is set
+	if nil == extId {
+		return nil, client.ReportError("extId is required and must be specified")
+	}
 	// verify the required parameter 'body' is set
 	if nil == body {
 		return nil, client.ReportError("body is required and must be specified")
 	}
 
+	// Path Params
+
+	uri = strings.Replace(uri, "{"+"extId"+"}", url.PathEscape(client.ParameterToString(*extId, "")), -1)
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
 	formParams := url.Values{}
@@ -326,19 +347,20 @@ func (api *RateLimitsApi) ResolveRateLimits(body *import2.ClusterIdList, args ..
 	if nil != err || nil == responseBody {
 		return nil, err
 	}
-	unmarshalledResp := new(import2.ResolveRateLimitsApiResponse)
-	json.Unmarshal(responseBody, &unmarshalledResp)
+
+	unmarshalledResp := new(import4.SuspendPlacementPolicyApiResponse)
+	json.Unmarshal(responseBody.([]byte), &unmarshalledResp)
 	return unmarshalledResp, err
 }
 
-// Update an image rate limit.
-func (api *RateLimitsApi) UpdateRateLimitByExtId(extId *string, body *import2.RateLimit, args ...map[string]interface{}) (*import2.ImagesTaskApiResponse, error) {
+// Update the image placement policy with the given external identifier using the provided request body. To make sure the correct ETag is used, it is always recommended to do a GET on a resource before doing a PUT.
+func (api *ImagePlacementPoliciesApi) UpdatePlacementPolicyById(extId *string, body *import4.PlacementPolicy, args ...map[string]interface{}) (*import4.UpdatePlacementPolicyApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
 	}
 
-	uri := "/api/vmm/v4.0.a1/images/rate-limits/{extId}"
+	uri := "/api/vmm/v4.0.b1/images/config/placement-policies/{extId}"
 
 	// verify the required parameter 'extId' is set
 	if nil == extId {
@@ -350,6 +372,7 @@ func (api *RateLimitsApi) UpdateRateLimitByExtId(extId *string, body *import2.Ra
 	}
 
 	// Path Params
+
 	uri = strings.Replace(uri, "{"+"extId"+"}", url.PathEscape(client.ParameterToString(*extId, "")), -1)
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -379,7 +402,8 @@ func (api *RateLimitsApi) UpdateRateLimitByExtId(extId *string, body *import2.Ra
 	if nil != err || nil == responseBody {
 		return nil, err
 	}
-	unmarshalledResp := new(import2.ImagesTaskApiResponse)
-	json.Unmarshal(responseBody, &unmarshalledResp)
+
+	unmarshalledResp := new(import4.UpdatePlacementPolicyApiResponse)
+	json.Unmarshal(responseBody.([]byte), &unmarshalledResp)
 	return unmarshalledResp, err
 }
