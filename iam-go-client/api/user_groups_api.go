@@ -4,27 +4,27 @@ package api
 import (
 	"encoding/json"
 	"github.com/orichter/package-publishing-example-go/iam-go-client/v4/client"
-	import2 "github.com/orichter/package-publishing-example-go/iam-go-client/v4/models/iam/v4/authz"
+	import1 "github.com/orichter/package-publishing-example-go/iam-go-client/v4/models/iam/v4/authn"
 	"net/http"
 	"net/url"
 	"strings"
 )
 
-type AuthorizationPolicyApi struct {
+type UserGroupsApi struct {
 	ApiClient     *client.ApiClient
 	headersToSkip map[string]bool
 }
 
-func NewAuthorizationPolicyApi(apiClient *client.ApiClient) *AuthorizationPolicyApi {
+func NewUserGroupsApi(apiClient *client.ApiClient) *UserGroupsApi {
 	if apiClient == nil {
 		apiClient = client.NewApiClient()
 	}
 
-	a := &AuthorizationPolicyApi{
+	a := &UserGroupsApi{
 		ApiClient: apiClient,
 	}
 
-	headers := []string{"authorization", "cookie", "ntnx-request-id", "host", "user-agent"}
+	headers := []string{"authorization", "cookie", "host", "user-agent"}
 	a.headersToSkip = make(map[string]bool)
 	for _, header := range headers {
 		a.headersToSkip[header] = true
@@ -33,14 +33,14 @@ func NewAuthorizationPolicyApi(apiClient *client.ApiClient) *AuthorizationPolicy
 	return a
 }
 
-// Create an authorization policy
-func (api *AuthorizationPolicyApi) CreateAuthorizationPolicyAPI(body *import2.AuthorizationPolicy, args ...map[string]interface{}) (*import2.CreateAuthorizationPolicyApiResponse, error) {
+// Create a User Group.
+func (api *UserGroupsApi) CreateUserGroup(body *import1.UserGroup, args ...map[string]interface{}) (*import1.CreateUserGroupApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
 	}
 
-	uri := "/api/iam/v4.0.b1/authz/authorization-policies"
+	uri := "/api/iam/v4.0.b2/authn/user-groups"
 
 	// verify the required parameter 'body' is set
 	if nil == body {
@@ -75,19 +75,20 @@ func (api *AuthorizationPolicyApi) CreateAuthorizationPolicyAPI(body *import2.Au
 	if nil != err || nil == responseBody {
 		return nil, err
 	}
-	unmarshalledResp := new(import2.CreateAuthorizationPolicyApiResponse)
-	json.Unmarshal(responseBody, &unmarshalledResp)
+
+	unmarshalledResp := new(import1.CreateUserGroupApiResponse)
+	json.Unmarshal(responseBody.([]byte), &unmarshalledResp)
 	return unmarshalledResp, err
 }
 
-// Delete an authorization policy
-func (api *AuthorizationPolicyApi) DeleteAuthorizationPolicyAPI(extId *string, args ...map[string]interface{}) (*import2.DeleteAuthorizationPolicyApiResponse, error) {
+// Delete a User Group.
+func (api *UserGroupsApi) DeleteUserGroupById(extId *string, args ...map[string]interface{}) (*import1.DeleteUserGroupApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
 	}
 
-	uri := "/api/iam/v4.0.b1/authz/authorization-policies/{extId}"
+	uri := "/api/iam/v4.0.b2/authn/user-groups/{extId}"
 
 	// verify the required parameter 'extId' is set
 	if nil == extId {
@@ -95,6 +96,7 @@ func (api *AuthorizationPolicyApi) DeleteAuthorizationPolicyAPI(extId *string, a
 	}
 
 	// Path Params
+
 	uri = strings.Replace(uri, "{"+"extId"+"}", url.PathEscape(client.ParameterToString(*extId, "")), -1)
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -124,19 +126,71 @@ func (api *AuthorizationPolicyApi) DeleteAuthorizationPolicyAPI(extId *string, a
 	if nil != err || nil == responseBody {
 		return nil, err
 	}
-	unmarshalledResp := new(import2.DeleteAuthorizationPolicyApiResponse)
-	json.Unmarshal(responseBody, &unmarshalledResp)
+
+	unmarshalledResp := new(import1.DeleteUserGroupApiResponse)
+	json.Unmarshal(responseBody.([]byte), &unmarshalledResp)
 	return unmarshalledResp, err
 }
 
-// List all the authorization policy(ies)
-func (api *AuthorizationPolicyApi) ListAuthorizationPolicyAPI(page_ *int, limit_ *int, filter_ *string, orderby_ *string, expand_ *string, select_ *string, args ...map[string]interface{}) (*import2.ListAuthorizationPolicyApiResponse, error) {
+// View a User Group.
+func (api *UserGroupsApi) GetUserGroupById(extId *string, args ...map[string]interface{}) (*import1.GetUserGroupApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
 	}
 
-	uri := "/api/iam/v4.0.b1/authz/authorization-policies"
+	uri := "/api/iam/v4.0.b2/authn/user-groups/{extId}"
+
+	// verify the required parameter 'extId' is set
+	if nil == extId {
+		return nil, client.ReportError("extId is required and must be specified")
+	}
+
+	// Path Params
+
+	uri = strings.Replace(uri, "{"+"extId"+"}", url.PathEscape(client.ParameterToString(*extId, "")), -1)
+	headerParams := make(map[string]string)
+	queryParams := url.Values{}
+	formParams := url.Values{}
+
+	// to determine the Content-Type header
+	contentTypes := []string{}
+
+	// to determine the Accept header
+	accepts := []string{"application/json"}
+
+	// Headers provided explicitly on operation takes precedence
+	for headerKey, value := range argMap {
+		// Skip platform generated headers
+		if !api.headersToSkip[strings.ToLower(headerKey)] {
+			if value != nil {
+				if headerValue, headerValueOk := value.(string); headerValueOk {
+					headerParams[headerKey] = headerValue
+				}
+			}
+		}
+	}
+
+	authNames := []string{"basicAuthScheme"}
+
+	responseBody, err := api.ApiClient.CallApi(&uri, http.MethodGet, nil, queryParams, headerParams, formParams, accepts, contentTypes, authNames)
+	if nil != err || nil == responseBody {
+		return nil, err
+	}
+
+	unmarshalledResp := new(import1.GetUserGroupApiResponse)
+	json.Unmarshal(responseBody.([]byte), &unmarshalledResp)
+	return unmarshalledResp, err
+}
+
+// List all User Group(s).
+func (api *UserGroupsApi) ListUserGroups(page_ *int, limit_ *int, filter_ *string, orderby_ *string, select_ *string, args ...map[string]interface{}) (*import1.ListUserGroupsApiResponse, error) {
+	argMap := make(map[string]interface{})
+	if len(args) > 0 {
+		argMap = args[0]
+	}
+
+	uri := "/api/iam/v4.0.b2/authn/user-groups"
 
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -165,10 +219,6 @@ func (api *AuthorizationPolicyApi) ListAuthorizationPolicyAPI(page_ *int, limit_
 
 		queryParams.Add("$orderby", client.ParameterToString(*orderby_, ""))
 	}
-	if expand_ != nil {
-
-		queryParams.Add("$expand", client.ParameterToString(*expand_, ""))
-	}
 	if select_ != nil {
 
 		queryParams.Add("$select", client.ParameterToString(*select_, ""))
@@ -191,109 +241,8 @@ func (api *AuthorizationPolicyApi) ListAuthorizationPolicyAPI(page_ *int, limit_
 	if nil != err || nil == responseBody {
 		return nil, err
 	}
-	unmarshalledResp := new(import2.ListAuthorizationPolicyApiResponse)
-	json.Unmarshal(responseBody, &unmarshalledResp)
-	return unmarshalledResp, err
-}
 
-// Update an authorization policy
-func (api *AuthorizationPolicyApi) UpdateAuthorizationPolicyAPI(extId *string, body *import2.AuthorizationPolicy, args ...map[string]interface{}) (*import2.UpdateAuthorizationPolicyApiResponse, error) {
-	argMap := make(map[string]interface{})
-	if len(args) > 0 {
-		argMap = args[0]
-	}
-
-	uri := "/api/iam/v4.0.b1/authz/authorization-policies/{extId}"
-
-	// verify the required parameter 'extId' is set
-	if nil == extId {
-		return nil, client.ReportError("extId is required and must be specified")
-	}
-	// verify the required parameter 'body' is set
-	if nil == body {
-		return nil, client.ReportError("body is required and must be specified")
-	}
-
-	// Path Params
-	uri = strings.Replace(uri, "{"+"extId"+"}", url.PathEscape(client.ParameterToString(*extId, "")), -1)
-	headerParams := make(map[string]string)
-	queryParams := url.Values{}
-	formParams := url.Values{}
-
-	// to determine the Content-Type header
-	contentTypes := []string{"application/json"}
-
-	// to determine the Accept header
-	accepts := []string{"application/json"}
-
-	// Headers provided explicitly on operation takes precedence
-	for headerKey, value := range argMap {
-		// Skip platform generated headers
-		if !api.headersToSkip[strings.ToLower(headerKey)] {
-			if value != nil {
-				if headerValue, headerValueOk := value.(string); headerValueOk {
-					headerParams[headerKey] = headerValue
-				}
-			}
-		}
-	}
-
-	authNames := []string{"basicAuthScheme"}
-
-	responseBody, err := api.ApiClient.CallApi(&uri, http.MethodPut, body, queryParams, headerParams, formParams, accepts, contentTypes, authNames)
-	if nil != err || nil == responseBody {
-		return nil, err
-	}
-	unmarshalledResp := new(import2.UpdateAuthorizationPolicyApiResponse)
-	json.Unmarshal(responseBody, &unmarshalledResp)
-	return unmarshalledResp, err
-}
-
-// View an authorization policy
-func (api *AuthorizationPolicyApi) ViewAuthorizationPolicyAPI(extId *string, args ...map[string]interface{}) (*import2.ViewAuthorizationPolicyApiResponse, error) {
-	argMap := make(map[string]interface{})
-	if len(args) > 0 {
-		argMap = args[0]
-	}
-
-	uri := "/api/iam/v4.0.b1/authz/authorization-policies/{extId}"
-
-	// verify the required parameter 'extId' is set
-	if nil == extId {
-		return nil, client.ReportError("extId is required and must be specified")
-	}
-
-	// Path Params
-	uri = strings.Replace(uri, "{"+"extId"+"}", url.PathEscape(client.ParameterToString(*extId, "")), -1)
-	headerParams := make(map[string]string)
-	queryParams := url.Values{}
-	formParams := url.Values{}
-
-	// to determine the Content-Type header
-	contentTypes := []string{}
-
-	// to determine the Accept header
-	accepts := []string{"application/json"}
-
-	// Headers provided explicitly on operation takes precedence
-	for headerKey, value := range argMap {
-		// Skip platform generated headers
-		if !api.headersToSkip[strings.ToLower(headerKey)] {
-			if value != nil {
-				if headerValue, headerValueOk := value.(string); headerValueOk {
-					headerParams[headerKey] = headerValue
-				}
-			}
-		}
-	}
-
-	authNames := []string{"basicAuthScheme"}
-
-	responseBody, err := api.ApiClient.CallApi(&uri, http.MethodGet, nil, queryParams, headerParams, formParams, accepts, contentTypes, authNames)
-	if nil != err || nil == responseBody {
-		return nil, err
-	}
-	unmarshalledResp := new(import2.ViewAuthorizationPolicyApiResponse)
-	json.Unmarshal(responseBody, &unmarshalledResp)
+	unmarshalledResp := new(import1.ListUserGroupsApiResponse)
+	json.Unmarshal(responseBody.([]byte), &unmarshalledResp)
 	return unmarshalledResp, err
 }
