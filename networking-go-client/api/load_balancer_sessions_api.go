@@ -9,17 +9,17 @@ import (
 	"strings"
 )
 
-type VirtualSwitchesApi struct {
+type LoadBalancerSessionsApi struct {
 	ApiClient     *client.ApiClient
 	headersToSkip map[string]bool
 }
 
-func NewVirtualSwitchesApi(apiClient *client.ApiClient) *VirtualSwitchesApi {
+func NewLoadBalancerSessionsApi(apiClient *client.ApiClient) *LoadBalancerSessionsApi {
 	if apiClient == nil {
 		apiClient = client.NewApiClient()
 	}
 
-	a := &VirtualSwitchesApi{
+	a := &LoadBalancerSessionsApi{
 		ApiClient: apiClient,
 	}
 
@@ -32,14 +32,14 @@ func NewVirtualSwitchesApi(apiClient *client.ApiClient) *VirtualSwitchesApi {
 	return a
 }
 
-// Create a Virtual Switch.
-func (api *VirtualSwitchesApi) CreateVirtualSwitch(body *import2.VirtualSwitch, xClusterId *string, args ...map[string]interface{}) (*import2.TaskReferenceApiResponse, error) {
+// Create a load balancer session.
+func (api *LoadBalancerSessionsApi) CreateLoadBalancerSession(body *import2.LoadBalancerSession, args ...map[string]interface{}) (*import2.TaskReferenceApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
 	}
 
-	uri := "/api/networking/v4.0/config/virtual-switches"
+	uri := "/api/networking/v4.0/config/load-balancer-sessions"
 
 	// verify the required parameter 'body' is set
 	if nil == body {
@@ -56,9 +56,6 @@ func (api *VirtualSwitchesApi) CreateVirtualSwitch(body *import2.VirtualSwitch, 
 	// to determine the Accept header
 	accepts := []string{"application/json"}
 
-	if xClusterId != nil {
-		headerParams["X-Cluster-Id"] = client.ParameterToString(*xClusterId, "")
-	}
 	// Headers provided explicitly on operation takes precedence
 	for headerKey, value := range argMap {
 		// Skip platform generated headers
@@ -83,14 +80,14 @@ func (api *VirtualSwitchesApi) CreateVirtualSwitch(body *import2.VirtualSwitch, 
 	return unmarshalledResp, err
 }
 
-// Delete a Virtual Switch.
-func (api *VirtualSwitchesApi) DeleteVirtualSwitchById(extId *string, xClusterId *string, args ...map[string]interface{}) (*import2.TaskReferenceApiResponse, error) {
+// Delete the specified load balancer session.
+func (api *LoadBalancerSessionsApi) DeleteLoadBalancerSessionById(extId *string, args ...map[string]interface{}) (*import2.TaskReferenceApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
 	}
 
-	uri := "/api/networking/v4.0/config/virtual-switches/{extId}"
+	uri := "/api/networking/v4.0/config/load-balancer-sessions/{extId}"
 
 	// verify the required parameter 'extId' is set
 	if nil == extId {
@@ -109,9 +106,6 @@ func (api *VirtualSwitchesApi) DeleteVirtualSwitchById(extId *string, xClusterId
 	// to determine the Accept header
 	accepts := []string{"application/json"}
 
-	if xClusterId != nil {
-		headerParams["X-Cluster-Id"] = client.ParameterToString(*xClusterId, "")
-	}
 	// Headers provided explicitly on operation takes precedence
 	for headerKey, value := range argMap {
 		// Skip platform generated headers
@@ -136,14 +130,14 @@ func (api *VirtualSwitchesApi) DeleteVirtualSwitchById(extId *string, xClusterId
 	return unmarshalledResp, err
 }
 
-// Get single Virtual Switch given its UUID.
-func (api *VirtualSwitchesApi) GetVirtualSwitchById(extId *string, xClusterId *string, args ...map[string]interface{}) (*import2.GetVirtualSwitchApiResponse, error) {
+// Get a load balancer session with the specified UUID.
+func (api *LoadBalancerSessionsApi) GetLoadBalancerSessionById(extId *string, select_ *string, args ...map[string]interface{}) (*import2.GetLoadBalancerSessionApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
 	}
 
-	uri := "/api/networking/v4.0/config/virtual-switches/{extId}"
+	uri := "/api/networking/v4.0/config/load-balancer-sessions/{extId}"
 
 	// verify the required parameter 'extId' is set
 	if nil == extId {
@@ -162,8 +156,9 @@ func (api *VirtualSwitchesApi) GetVirtualSwitchById(extId *string, xClusterId *s
 	// to determine the Accept header
 	accepts := []string{"application/json"}
 
-	if xClusterId != nil {
-		headerParams["X-Cluster-Id"] = client.ParameterToString(*xClusterId, "")
+	// Query Params
+	if select_ != nil {
+		queryParams.Add("$select", client.ParameterToString(*select_, ""))
 	}
 	// Headers provided explicitly on operation takes precedence
 	for headerKey, value := range argMap {
@@ -184,19 +179,19 @@ func (api *VirtualSwitchesApi) GetVirtualSwitchById(extId *string, xClusterId *s
 		return nil, err
 	}
 
-	unmarshalledResp := new(import2.GetVirtualSwitchApiResponse)
+	unmarshalledResp := new(import2.GetLoadBalancerSessionApiResponse)
 	json.Unmarshal(apiClientResponse.([]byte), &unmarshalledResp)
 	return unmarshalledResp, err
 }
 
-// Get list of Virtual Switches.
-func (api *VirtualSwitchesApi) ListVirtualSwitches(xClusterId *string, page_ *int, limit_ *int, filter_ *string, orderby_ *string, args ...map[string]interface{}) (*import2.ListVirtualSwitchesApiResponse, error) {
+// Fetches the list of existing load balancer sessions.
+func (api *LoadBalancerSessionsApi) ListLoadBalancerSessions(page_ *int, limit_ *int, filter_ *string, orderby_ *string, select_ *string, args ...map[string]interface{}) (*import2.ListLoadBalancerSessionsApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
 	}
 
-	uri := "/api/networking/v4.0/config/virtual-switches"
+	uri := "/api/networking/v4.0/config/load-balancer-sessions"
 
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -221,8 +216,8 @@ func (api *VirtualSwitchesApi) ListVirtualSwitches(xClusterId *string, page_ *in
 	if orderby_ != nil {
 		queryParams.Add("$orderby", client.ParameterToString(*orderby_, ""))
 	}
-	if xClusterId != nil {
-		headerParams["X-Cluster-Id"] = client.ParameterToString(*xClusterId, "")
+	if select_ != nil {
+		queryParams.Add("$select", client.ParameterToString(*select_, ""))
 	}
 	// Headers provided explicitly on operation takes precedence
 	for headerKey, value := range argMap {
@@ -243,19 +238,19 @@ func (api *VirtualSwitchesApi) ListVirtualSwitches(xClusterId *string, page_ *in
 		return nil, err
 	}
 
-	unmarshalledResp := new(import2.ListVirtualSwitchesApiResponse)
+	unmarshalledResp := new(import2.ListLoadBalancerSessionsApiResponse)
 	json.Unmarshal(apiClientResponse.([]byte), &unmarshalledResp)
 	return unmarshalledResp, err
 }
 
-// Update a Virtual Switch.
-func (api *VirtualSwitchesApi) UpdateVirtualSwitchById(extId *string, body *import2.VirtualSwitch, xClusterId *string, args ...map[string]interface{}) (*import2.TaskReferenceApiResponse, error) {
+// Update the specified load balancer session.
+func (api *LoadBalancerSessionsApi) UpdateLoadBalancerSessionById(extId *string, body *import2.LoadBalancerSession, args ...map[string]interface{}) (*import2.TaskReferenceApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
 	}
 
-	uri := "/api/networking/v4.0/config/virtual-switches/{extId}"
+	uri := "/api/networking/v4.0/config/load-balancer-sessions/{extId}"
 
 	// verify the required parameter 'extId' is set
 	if nil == extId {
@@ -278,9 +273,6 @@ func (api *VirtualSwitchesApi) UpdateVirtualSwitchById(extId *string, body *impo
 	// to determine the Accept header
 	accepts := []string{"application/json"}
 
-	if xClusterId != nil {
-		headerParams["X-Cluster-Id"] = client.ParameterToString(*xClusterId, "")
-	}
 	// Headers provided explicitly on operation takes precedence
 	for headerKey, value := range argMap {
 		// Skip platform generated headers

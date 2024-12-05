@@ -9,17 +9,17 @@ import (
 	"strings"
 )
 
-type VirtualSwitchesApi struct {
+type RoutesApi struct {
 	ApiClient     *client.ApiClient
 	headersToSkip map[string]bool
 }
 
-func NewVirtualSwitchesApi(apiClient *client.ApiClient) *VirtualSwitchesApi {
+func NewRoutesApi(apiClient *client.ApiClient) *RoutesApi {
 	if apiClient == nil {
 		apiClient = client.NewApiClient()
 	}
 
-	a := &VirtualSwitchesApi{
+	a := &RoutesApi{
 		ApiClient: apiClient,
 	}
 
@@ -32,20 +32,26 @@ func NewVirtualSwitchesApi(apiClient *client.ApiClient) *VirtualSwitchesApi {
 	return a
 }
 
-// Create a Virtual Switch.
-func (api *VirtualSwitchesApi) CreateVirtualSwitch(body *import2.VirtualSwitch, xClusterId *string, args ...map[string]interface{}) (*import2.TaskReferenceApiResponse, error) {
+// Creates a route based on the provided route table.
+func (api *RoutesApi) CreateRouteForRouteTable(routeTableExtId *string, body *import2.Route, args ...map[string]interface{}) (*import2.TaskReferenceApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
 	}
 
-	uri := "/api/networking/v4.0/config/virtual-switches"
+	uri := "/api/networking/v4.0/config/route-tables/{routeTableExtId}/routes"
 
+	// verify the required parameter 'routeTableExtId' is set
+	if nil == routeTableExtId {
+		return nil, client.ReportError("routeTableExtId is required and must be specified")
+	}
 	// verify the required parameter 'body' is set
 	if nil == body {
 		return nil, client.ReportError("body is required and must be specified")
 	}
 
+	// Path Params
+	uri = strings.Replace(uri, "{"+"routeTableExtId"+"}", url.PathEscape(client.ParameterToString(*routeTableExtId, "")), -1)
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
 	formParams := url.Values{}
@@ -56,9 +62,6 @@ func (api *VirtualSwitchesApi) CreateVirtualSwitch(body *import2.VirtualSwitch, 
 	// to determine the Accept header
 	accepts := []string{"application/json"}
 
-	if xClusterId != nil {
-		headerParams["X-Cluster-Id"] = client.ParameterToString(*xClusterId, "")
-	}
 	// Headers provided explicitly on operation takes precedence
 	for headerKey, value := range argMap {
 		// Skip platform generated headers
@@ -83,22 +86,27 @@ func (api *VirtualSwitchesApi) CreateVirtualSwitch(body *import2.VirtualSwitch, 
 	return unmarshalledResp, err
 }
 
-// Delete a Virtual Switch.
-func (api *VirtualSwitchesApi) DeleteVirtualSwitchById(extId *string, xClusterId *string, args ...map[string]interface{}) (*import2.TaskReferenceApiResponse, error) {
+// Deletes the route by the specified external identifier.
+func (api *RoutesApi) DeleteRouteForRouteTableById(extId *string, routeTableExtId *string, args ...map[string]interface{}) (*import2.TaskReferenceApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
 	}
 
-	uri := "/api/networking/v4.0/config/virtual-switches/{extId}"
+	uri := "/api/networking/v4.0/config/route-tables/{routeTableExtId}/routes/{extId}"
 
 	// verify the required parameter 'extId' is set
 	if nil == extId {
 		return nil, client.ReportError("extId is required and must be specified")
 	}
+	// verify the required parameter 'routeTableExtId' is set
+	if nil == routeTableExtId {
+		return nil, client.ReportError("routeTableExtId is required and must be specified")
+	}
 
 	// Path Params
 	uri = strings.Replace(uri, "{"+"extId"+"}", url.PathEscape(client.ParameterToString(*extId, "")), -1)
+	uri = strings.Replace(uri, "{"+"routeTableExtId"+"}", url.PathEscape(client.ParameterToString(*routeTableExtId, "")), -1)
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
 	formParams := url.Values{}
@@ -109,9 +117,6 @@ func (api *VirtualSwitchesApi) DeleteVirtualSwitchById(extId *string, xClusterId
 	// to determine the Accept header
 	accepts := []string{"application/json"}
 
-	if xClusterId != nil {
-		headerParams["X-Cluster-Id"] = client.ParameterToString(*xClusterId, "")
-	}
 	// Headers provided explicitly on operation takes precedence
 	for headerKey, value := range argMap {
 		// Skip platform generated headers
@@ -136,22 +141,27 @@ func (api *VirtualSwitchesApi) DeleteVirtualSwitchById(extId *string, xClusterId
 	return unmarshalledResp, err
 }
 
-// Get single Virtual Switch given its UUID.
-func (api *VirtualSwitchesApi) GetVirtualSwitchById(extId *string, xClusterId *string, args ...map[string]interface{}) (*import2.GetVirtualSwitchApiResponse, error) {
+// Fetches a route from the specified route table.
+func (api *RoutesApi) GetRouteForRouteTableById(extId *string, routeTableExtId *string, args ...map[string]interface{}) (*import2.GetRouteApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
 	}
 
-	uri := "/api/networking/v4.0/config/virtual-switches/{extId}"
+	uri := "/api/networking/v4.0/config/route-tables/{routeTableExtId}/routes/{extId}"
 
 	// verify the required parameter 'extId' is set
 	if nil == extId {
 		return nil, client.ReportError("extId is required and must be specified")
 	}
+	// verify the required parameter 'routeTableExtId' is set
+	if nil == routeTableExtId {
+		return nil, client.ReportError("routeTableExtId is required and must be specified")
+	}
 
 	// Path Params
 	uri = strings.Replace(uri, "{"+"extId"+"}", url.PathEscape(client.ParameterToString(*extId, "")), -1)
+	uri = strings.Replace(uri, "{"+"routeTableExtId"+"}", url.PathEscape(client.ParameterToString(*routeTableExtId, "")), -1)
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
 	formParams := url.Values{}
@@ -162,9 +172,6 @@ func (api *VirtualSwitchesApi) GetVirtualSwitchById(extId *string, xClusterId *s
 	// to determine the Accept header
 	accepts := []string{"application/json"}
 
-	if xClusterId != nil {
-		headerParams["X-Cluster-Id"] = client.ParameterToString(*xClusterId, "")
-	}
 	// Headers provided explicitly on operation takes precedence
 	for headerKey, value := range argMap {
 		// Skip platform generated headers
@@ -184,20 +191,27 @@ func (api *VirtualSwitchesApi) GetVirtualSwitchById(extId *string, xClusterId *s
 		return nil, err
 	}
 
-	unmarshalledResp := new(import2.GetVirtualSwitchApiResponse)
+	unmarshalledResp := new(import2.GetRouteApiResponse)
 	json.Unmarshal(apiClientResponse.([]byte), &unmarshalledResp)
 	return unmarshalledResp, err
 }
 
-// Get list of Virtual Switches.
-func (api *VirtualSwitchesApi) ListVirtualSwitches(xClusterId *string, page_ *int, limit_ *int, filter_ *string, orderby_ *string, args ...map[string]interface{}) (*import2.ListVirtualSwitchesApiResponse, error) {
+// Lists routes for a specified route table.
+func (api *RoutesApi) ListRoutesByRouteTableId(routeTableExtId *string, page_ *int, limit_ *int, filter_ *string, orderby_ *string, args ...map[string]interface{}) (*import2.ListRoutesApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
 	}
 
-	uri := "/api/networking/v4.0/config/virtual-switches"
+	uri := "/api/networking/v4.0/config/route-tables/{routeTableExtId}/routes"
 
+	// verify the required parameter 'routeTableExtId' is set
+	if nil == routeTableExtId {
+		return nil, client.ReportError("routeTableExtId is required and must be specified")
+	}
+
+	// Path Params
+	uri = strings.Replace(uri, "{"+"routeTableExtId"+"}", url.PathEscape(client.ParameterToString(*routeTableExtId, "")), -1)
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
 	formParams := url.Values{}
@@ -221,9 +235,6 @@ func (api *VirtualSwitchesApi) ListVirtualSwitches(xClusterId *string, page_ *in
 	if orderby_ != nil {
 		queryParams.Add("$orderby", client.ParameterToString(*orderby_, ""))
 	}
-	if xClusterId != nil {
-		headerParams["X-Cluster-Id"] = client.ParameterToString(*xClusterId, "")
-	}
 	// Headers provided explicitly on operation takes precedence
 	for headerKey, value := range argMap {
 		// Skip platform generated headers
@@ -243,23 +254,27 @@ func (api *VirtualSwitchesApi) ListVirtualSwitches(xClusterId *string, page_ *in
 		return nil, err
 	}
 
-	unmarshalledResp := new(import2.ListVirtualSwitchesApiResponse)
+	unmarshalledResp := new(import2.ListRoutesApiResponse)
 	json.Unmarshal(apiClientResponse.([]byte), &unmarshalledResp)
 	return unmarshalledResp, err
 }
 
-// Update a Virtual Switch.
-func (api *VirtualSwitchesApi) UpdateVirtualSwitchById(extId *string, body *import2.VirtualSwitch, xClusterId *string, args ...map[string]interface{}) (*import2.TaskReferenceApiResponse, error) {
+// Update route for the specified external identifier.
+func (api *RoutesApi) UpdateRouteForRouteTableById(extId *string, routeTableExtId *string, body *import2.Route, args ...map[string]interface{}) (*import2.TaskReferenceApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
 	}
 
-	uri := "/api/networking/v4.0/config/virtual-switches/{extId}"
+	uri := "/api/networking/v4.0/config/route-tables/{routeTableExtId}/routes/{extId}"
 
 	// verify the required parameter 'extId' is set
 	if nil == extId {
 		return nil, client.ReportError("extId is required and must be specified")
+	}
+	// verify the required parameter 'routeTableExtId' is set
+	if nil == routeTableExtId {
+		return nil, client.ReportError("routeTableExtId is required and must be specified")
 	}
 	// verify the required parameter 'body' is set
 	if nil == body {
@@ -268,6 +283,7 @@ func (api *VirtualSwitchesApi) UpdateVirtualSwitchById(extId *string, body *impo
 
 	// Path Params
 	uri = strings.Replace(uri, "{"+"extId"+"}", url.PathEscape(client.ParameterToString(*extId, "")), -1)
+	uri = strings.Replace(uri, "{"+"routeTableExtId"+"}", url.PathEscape(client.ParameterToString(*routeTableExtId, "")), -1)
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
 	formParams := url.Values{}
@@ -278,9 +294,6 @@ func (api *VirtualSwitchesApi) UpdateVirtualSwitchById(extId *string, body *impo
 	// to determine the Accept header
 	accepts := []string{"application/json"}
 
-	if xClusterId != nil {
-		headerParams["X-Cluster-Id"] = client.ParameterToString(*xClusterId, "")
-	}
 	// Headers provided explicitly on operation takes precedence
 	for headerKey, value := range argMap {
 		// Skip platform generated headers

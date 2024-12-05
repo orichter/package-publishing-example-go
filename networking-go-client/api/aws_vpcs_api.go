@@ -3,23 +3,23 @@ package api
 import (
 	"encoding/json"
 	"github.com/orichter/package-publishing-example-go/networking-go-client/v4/client"
-	import2 "github.com/orichter/package-publishing-example-go/networking-go-client/v4/models/networking/v4/config"
+	import1 "github.com/orichter/package-publishing-example-go/networking-go-client/v4/models/networking/v4/aws/config"
 	"net/http"
 	"net/url"
 	"strings"
 )
 
-type BridgesApi struct {
+type AwsVpcsApi struct {
 	ApiClient     *client.ApiClient
 	headersToSkip map[string]bool
 }
 
-func NewBridgesApi(apiClient *client.ApiClient) *BridgesApi {
+func NewAwsVpcsApi(apiClient *client.ApiClient) *AwsVpcsApi {
 	if apiClient == nil {
 		apiClient = client.NewApiClient()
 	}
 
-	a := &BridgesApi{
+	a := &AwsVpcsApi{
 		ApiClient: apiClient,
 	}
 
@@ -32,18 +32,18 @@ func NewBridgesApi(apiClient *client.ApiClient) *BridgesApi {
 	return a
 }
 
-// Create a Virtual Switch from an existing bridge.
-func (api *BridgesApi) MigrateBridge(body *import2.Bridge, xClusterId *string, args ...map[string]interface{}) (*import2.TaskReferenceApiResponse, error) {
+// Get the list of NC2 AWS VPCs associated with a Cluster.
+func (api *AwsVpcsApi) ListAwsVpcs(xClusterId *string, args ...map[string]interface{}) (*import1.ListAwsVpcsApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
 	}
 
-	uri := "/api/networking/v4.0/config/virtual-switches/$actions/migrate"
+	uri := "/api/networking/v4.0/aws/config/vpcs"
 
-	// verify the required parameter 'body' is set
-	if nil == body {
-		return nil, client.ReportError("body is required and must be specified")
+	// verify the required parameter 'xClusterId' is set
+	if nil == xClusterId {
+		return nil, client.ReportError("xClusterId is required and must be specified")
 	}
 
 	headerParams := make(map[string]string)
@@ -51,14 +51,12 @@ func (api *BridgesApi) MigrateBridge(body *import2.Bridge, xClusterId *string, a
 	formParams := url.Values{}
 
 	// to determine the Content-Type header
-	contentTypes := []string{"application/json"}
+	contentTypes := []string{}
 
 	// to determine the Accept header
 	accepts := []string{"application/json"}
 
-	if xClusterId != nil {
-		headerParams["X-Cluster-Id"] = client.ParameterToString(*xClusterId, "")
-	}
+	headerParams["X-Cluster-Id"] = client.ParameterToString(*xClusterId, "")
 	// Headers provided explicitly on operation takes precedence
 	for headerKey, value := range argMap {
 		// Skip platform generated headers
@@ -73,12 +71,12 @@ func (api *BridgesApi) MigrateBridge(body *import2.Bridge, xClusterId *string, a
 
 	authNames := []string{"apiKeyAuthScheme", "basicAuthScheme"}
 
-	apiClientResponse, err := api.ApiClient.CallApi(&uri, http.MethodPost, body, queryParams, headerParams, formParams, accepts, contentTypes, authNames)
+	apiClientResponse, err := api.ApiClient.CallApi(&uri, http.MethodGet, nil, queryParams, headerParams, formParams, accepts, contentTypes, authNames)
 	if nil != err || nil == apiClientResponse {
 		return nil, err
 	}
 
-	unmarshalledResp := new(import2.TaskReferenceApiResponse)
+	unmarshalledResp := new(import1.ListAwsVpcsApiResponse)
 	json.Unmarshal(apiClientResponse.([]byte), &unmarshalledResp)
 	return unmarshalledResp, err
 }
