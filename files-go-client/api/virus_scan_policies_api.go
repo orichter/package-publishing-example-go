@@ -9,17 +9,17 @@ import (
 	"strings"
 )
 
-type AntivirusServersApi struct {
+type VirusScanPoliciesApi struct {
 	ApiClient     *client.ApiClient
 	headersToSkip map[string]bool
 }
 
-func NewAntivirusServersApi(apiClient *client.ApiClient) *AntivirusServersApi {
+func NewVirusScanPoliciesApi(apiClient *client.ApiClient) *VirusScanPoliciesApi {
 	if apiClient == nil {
 		apiClient = client.NewApiClient()
 	}
 
-	a := &AntivirusServersApi{
+	a := &VirusScanPoliciesApi{
 		ApiClient: apiClient,
 	}
 
@@ -32,14 +32,14 @@ func NewAntivirusServersApi(apiClient *client.ApiClient) *AntivirusServersApi {
 	return a
 }
 
-// Create a new antivirus server. Please refer model section to get more details about fields.
-func (api *AntivirusServersApi) CreateAntivirusServer(fileServerExtId *string, body *import3.AntivirusServer, args ...map[string]interface{}) (*import3.CreateAntivirusServerApiResponse, error) {
+// Creates a new virus scan policy. Users can create a virus scan policy at the file-server level for all shares or an individual mount target. When no mountTargetReference is passed in the request body, a policy will be created for the file server. When mountTargetReference is passed in the body, the policy will be created for that specific mount target.
+func (api *VirusScanPoliciesApi) CreateVirusScanPolicy(fileServerExtId *string, body *import3.VirusScanPolicy, args ...map[string]interface{}) (*import3.CreateVirusScanPolicyApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
 	}
 
-	uri := "/api/files/v4.0/config/file-servers/{fileServerExtId}/anti-virus-servers"
+	uri := "/api/files/v4.0/config/file-servers/{fileServerExtId}/virus-scan-policies"
 
 	// verify the required parameter 'fileServerExtId' is set
 	if nil == fileServerExtId {
@@ -81,19 +81,19 @@ func (api *AntivirusServersApi) CreateAntivirusServer(fileServerExtId *string, b
 		return nil, err
 	}
 
-	unmarshalledResp := new(import3.CreateAntivirusServerApiResponse)
+	unmarshalledResp := new(import3.CreateVirusScanPolicyApiResponse)
 	json.Unmarshal(apiClientResponse.([]byte), &unmarshalledResp)
 	return unmarshalledResp, err
 }
 
-// Delete the antivirus server with the given external identifier.  Specify a valid identifier of the file server (`fileServerExtId`) and  of the antivirus server (`extId`).
-func (api *AntivirusServersApi) DeleteAntivirusServerById(fileServerExtId *string, extId *string, args ...map[string]interface{}) (*import3.DeleteAntivirusServerApiResponse, error) {
+// Deletes a virus scan policy for a mount target that is identified by the mountTargetExtId in the request body. The option to delete file-server level policy is not supported.
+func (api *VirusScanPoliciesApi) DeleteVirusScanPolicyById(fileServerExtId *string, extId *string, args ...map[string]interface{}) (*import3.DeleteVirusScanPolicyApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
 	}
 
-	uri := "/api/files/v4.0/config/file-servers/{fileServerExtId}/anti-virus-servers/{extId}"
+	uri := "/api/files/v4.0/config/file-servers/{fileServerExtId}/virus-scan-policies/{extId}"
 
 	// verify the required parameter 'fileServerExtId' is set
 	if nil == fileServerExtId {
@@ -136,19 +136,19 @@ func (api *AntivirusServersApi) DeleteAntivirusServerById(fileServerExtId *strin
 		return nil, err
 	}
 
-	unmarshalledResp := new(import3.DeleteAntivirusServerApiResponse)
+	unmarshalledResp := new(import3.DeleteVirusScanPolicyApiResponse)
 	json.Unmarshal(apiClientResponse.([]byte), &unmarshalledResp)
 	return unmarshalledResp, err
 }
 
-// Get antivirus server for the provided external identifier.  Specify a valid identifier of the file server (`fileServerExtId`)  and  of the antivirus server (`extId`).
-func (api *AntivirusServersApi) GetAntivirusServerById(fileServerExtId *string, extId *string, args ...map[string]interface{}) (*import3.GetAntivirusServerApiResponse, error) {
+// Fetch details of a virus scan policy identified by external identifier.
+func (api *VirusScanPoliciesApi) GetVirusScanPolicyById(fileServerExtId *string, extId *string, args ...map[string]interface{}) (*import3.GetVirusScanPolicyApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
 	}
 
-	uri := "/api/files/v4.0/config/file-servers/{fileServerExtId}/anti-virus-servers/{extId}"
+	uri := "/api/files/v4.0/config/file-servers/{fileServerExtId}/virus-scan-policies/{extId}"
 
 	// verify the required parameter 'fileServerExtId' is set
 	if nil == fileServerExtId {
@@ -191,19 +191,19 @@ func (api *AntivirusServersApi) GetAntivirusServerById(fileServerExtId *string, 
 		return nil, err
 	}
 
-	unmarshalledResp := new(import3.GetAntivirusServerApiResponse)
+	unmarshalledResp := new(import3.GetVirusScanPolicyApiResponse)
 	json.Unmarshal(apiClientResponse.([]byte), &unmarshalledResp)
 	return unmarshalledResp, err
 }
 
-// Get a paginated list of antivirus servers.
-func (api *AntivirusServersApi) ListAntivirusServers(fileServerExtId *string, page_ *int, limit_ *int, filter_ *string, orderby_ *string, select_ *string, args ...map[string]interface{}) (*import3.ListAntivirusServersApiResponse, error) {
+// List virus scan policies for a file server.
+func (api *VirusScanPoliciesApi) ListVirusScanPolicies(fileServerExtId *string, page_ *int, limit_ *int, filter_ *string, orderby_ *string, select_ *string, args ...map[string]interface{}) (*import3.ListVirusScanPoliciesApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
 	}
 
-	uri := "/api/files/v4.0/config/file-servers/{fileServerExtId}/anti-virus-servers"
+	uri := "/api/files/v4.0/config/file-servers/{fileServerExtId}/virus-scan-policies"
 
 	// verify the required parameter 'fileServerExtId' is set
 	if nil == fileServerExtId {
@@ -257,74 +257,19 @@ func (api *AntivirusServersApi) ListAntivirusServers(fileServerExtId *string, pa
 		return nil, err
 	}
 
-	unmarshalledResp := new(import3.ListAntivirusServersApiResponse)
+	unmarshalledResp := new(import3.ListVirusScanPoliciesApiResponse)
 	json.Unmarshal(apiClientResponse.([]byte), &unmarshalledResp)
 	return unmarshalledResp, err
 }
 
-// Test antivirus server connection with the given external identifier.  Specify a valid identifier of the file server (`fileServerExtId`) and  of the antivirus server(`extId`) for which the connection needs to be tested.
-func (api *AntivirusServersApi) TestConnectionAntivirusServer(fileServerExtId *string, extId *string, args ...map[string]interface{}) (*import3.TestConnectionAntivirusServerApiResponse, error) {
+// Updated a virus scan policy for file server identified by the external identifier.
+func (api *VirusScanPoliciesApi) UpdateVirusScanPolicyById(fileServerExtId *string, extId *string, body *import3.VirusScanPolicy, args ...map[string]interface{}) (*import3.UpdateVirusScanPolicyApiResponse, error) {
 	argMap := make(map[string]interface{})
 	if len(args) > 0 {
 		argMap = args[0]
 	}
 
-	uri := "/api/files/v4.0/config/file-servers/{fileServerExtId}/anti-virus-servers/{extId}/$actions/test-connection"
-
-	// verify the required parameter 'fileServerExtId' is set
-	if nil == fileServerExtId {
-		return nil, client.ReportError("fileServerExtId is required and must be specified")
-	}
-	// verify the required parameter 'extId' is set
-	if nil == extId {
-		return nil, client.ReportError("extId is required and must be specified")
-	}
-
-	// Path Params
-	uri = strings.Replace(uri, "{"+"fileServerExtId"+"}", url.PathEscape(client.ParameterToString(*fileServerExtId, "")), -1)
-	uri = strings.Replace(uri, "{"+"extId"+"}", url.PathEscape(client.ParameterToString(*extId, "")), -1)
-	headerParams := make(map[string]string)
-	queryParams := url.Values{}
-	formParams := url.Values{}
-
-	// to determine the Content-Type header
-	contentTypes := []string{}
-
-	// to determine the Accept header
-	accepts := []string{"application/json"}
-
-	// Headers provided explicitly on operation takes precedence
-	for headerKey, value := range argMap {
-		// Skip platform generated headers
-		if !api.headersToSkip[strings.ToLower(headerKey)] {
-			if value != nil {
-				if headerValue, headerValueOk := value.(*string); headerValueOk {
-					headerParams[headerKey] = *headerValue
-				}
-			}
-		}
-	}
-
-	authNames := []string{"apiKeyAuthScheme", "basicAuthScheme"}
-
-	apiClientResponse, err := api.ApiClient.CallApi(&uri, http.MethodPost, nil, queryParams, headerParams, formParams, accepts, contentTypes, authNames)
-	if nil != err || nil == apiClientResponse {
-		return nil, err
-	}
-
-	unmarshalledResp := new(import3.TestConnectionAntivirusServerApiResponse)
-	json.Unmarshal(apiClientResponse.([]byte), &unmarshalledResp)
-	return unmarshalledResp, err
-}
-
-// Update antivirus server by using the provided request body.  Specify a valid identifier (`fileServerExtId`) of the file server and (`extId`) of the antivirus server to be updated.  It is always recommended to perform a GET request on a resource before requesting an UPDATE call.
-func (api *AntivirusServersApi) UpdateAntivirusServerById(fileServerExtId *string, extId *string, body *import3.AntivirusServer, args ...map[string]interface{}) (*import3.UpdateAntivirusServerApiResponse, error) {
-	argMap := make(map[string]interface{})
-	if len(args) > 0 {
-		argMap = args[0]
-	}
-
-	uri := "/api/files/v4.0/config/file-servers/{fileServerExtId}/anti-virus-servers/{extId}"
+	uri := "/api/files/v4.0/config/file-servers/{fileServerExtId}/virus-scan-policies/{extId}"
 
 	// verify the required parameter 'fileServerExtId' is set
 	if nil == fileServerExtId {
@@ -371,7 +316,7 @@ func (api *AntivirusServersApi) UpdateAntivirusServerById(fileServerExtId *strin
 		return nil, err
 	}
 
-	unmarshalledResp := new(import3.UpdateAntivirusServerApiResponse)
+	unmarshalledResp := new(import3.UpdateVirusScanPolicyApiResponse)
 	json.Unmarshal(apiClientResponse.([]byte), &unmarshalledResp)
 	return unmarshalledResp, err
 }
